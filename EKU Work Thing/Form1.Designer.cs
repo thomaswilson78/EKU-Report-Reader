@@ -46,7 +46,7 @@
             this.label48 = new System.Windows.Forms.Label();
             this.disInvTB = new System.Windows.Forms.TextBox();
             this.disTotalTB = new System.Windows.Forms.TextBox();
-            this.label47 = new System.Windows.Forms.Label();
+            this.distMaintainedLbl = new System.Windows.Forms.Label();
             this.label46 = new System.Windows.Forms.Label();
             this.label45 = new System.Windows.Forms.Label();
             this.locationsLB = new System.Windows.Forms.ListBox();
@@ -301,6 +301,7 @@
             this.testDGNotesI = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.testNotesTab = new System.Windows.Forms.TabPage();
             this.testNotesTB = new System.Windows.Forms.TextBox();
+            this.exportChangesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.mainTabControl.SuspendLayout();
             this.Overview.SuspendLayout();
@@ -361,6 +362,7 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadToolStripMenuItem,
             this.exportToolStripMenuItem,
+            this.exportChangesToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -371,7 +373,7 @@
             // 
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
             this.loadToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
             this.loadToolStripMenuItem.Text = "Load .csv";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
@@ -380,20 +382,20 @@
             this.exportToolStripMenuItem.Enabled = false;
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
-            this.exportToolStripMenuItem.Text = "Export";
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.exportToolStripMenuItem.Text = "Export Chart";
             this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(160, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(189, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -433,17 +435,20 @@
             // readMeToolStripMenuItem
             // 
             this.readMeToolStripMenuItem.Name = "readMeToolStripMenuItem";
-            this.readMeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.readMeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.readMeToolStripMenuItem.Text = "ReadMe";
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "About";
             // 
             // mainTabControl
             // 
+            this.mainTabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.mainTabControl.Controls.Add(this.Overview);
             this.mainTabControl.Controls.Add(this.Buildings);
             this.mainTabControl.Controls.Add(this.maintenanceTab);
@@ -469,12 +474,15 @@
             // 
             // panel5
             // 
+            this.panel5.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel5.BackColor = System.Drawing.Color.BlanchedAlmond;
             this.panel5.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel5.Controls.Add(this.label48);
             this.panel5.Controls.Add(this.disInvTB);
             this.panel5.Controls.Add(this.disTotalTB);
-            this.panel5.Controls.Add(this.label47);
+            this.panel5.Controls.Add(this.distMaintainedLbl);
             this.panel5.Controls.Add(this.label46);
             this.panel5.Controls.Add(this.label45);
             this.panel5.Controls.Add(this.locationsLB);
@@ -487,19 +495,22 @@
             // 
             // label48
             // 
+            this.label48.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label48.BackColor = System.Drawing.Color.Maroon;
             this.label48.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label48.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label48.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.label48.Location = new System.Drawing.Point(0, 0);
             this.label48.Name = "label48";
-            this.label48.Size = new System.Drawing.Size(515, 30);
+            this.label48.Size = new System.Drawing.Size(513, 30);
             this.label48.TabIndex = 22;
             this.label48.Text = "By District";
             this.label48.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // disInvTB
             // 
+            this.disInvTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.disInvTB.BackColor = System.Drawing.SystemColors.Window;
             this.disInvTB.ForeColor = System.Drawing.SystemColors.ControlText;
             this.disInvTB.Location = new System.Drawing.Point(451, 71);
@@ -510,6 +521,7 @@
             // 
             // disTotalTB
             // 
+            this.disTotalTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.disTotalTB.BackColor = System.Drawing.SystemColors.Window;
             this.disTotalTB.ForeColor = System.Drawing.SystemColors.ControlText;
             this.disTotalTB.Location = new System.Drawing.Point(451, 45);
@@ -518,21 +530,23 @@
             this.disTotalTB.Size = new System.Drawing.Size(54, 20);
             this.disTotalTB.TabIndex = 29;
             // 
-            // label47
+            // distMaintainedLbl
             // 
-            this.label47.AutoSize = true;
-            this.label47.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label47.Location = new System.Drawing.Point(281, 74);
-            this.label47.Name = "label47";
-            this.label47.Size = new System.Drawing.Size(164, 13);
-            this.label47.TabIndex = 28;
-            this.label47.Text = "Completed Since 03/13/16:";
+            this.distMaintainedLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.distMaintainedLbl.AutoSize = true;
+            this.distMaintainedLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.distMaintainedLbl.Location = new System.Drawing.Point(276, 74);
+            this.distMaintainedLbl.Name = "distMaintainedLbl";
+            this.distMaintainedLbl.Size = new System.Drawing.Size(102, 13);
+            this.distMaintainedLbl.TabIndex = 28;
+            this.distMaintainedLbl.Text = "Completed Since";
             // 
             // label46
             // 
+            this.label46.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label46.AutoSize = true;
             this.label46.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label46.Location = new System.Drawing.Point(363, 48);
+            this.label46.Location = new System.Drawing.Point(372, 48);
             this.label46.Name = "label46";
             this.label46.Size = new System.Drawing.Size(82, 13);
             this.label46.TabIndex = 27;
@@ -550,6 +564,8 @@
             // 
             // locationsLB
             // 
+            this.locationsLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.locationsLB.FormattingEnabled = true;
             this.locationsLB.Location = new System.Drawing.Point(141, 50);
             this.locationsLB.Name = "locationsLB";
@@ -569,6 +585,8 @@
             // 
             // districtLB
             // 
+            this.districtLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.districtLB.FormattingEnabled = true;
             this.districtLB.Items.AddRange(new object[] {
             "Library District",
@@ -588,6 +606,9 @@
             // 
             // panel4
             // 
+            this.panel4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel4.BackColor = System.Drawing.Color.NavajoWhite;
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel4.Controls.Add(this.Overall);
@@ -690,6 +711,9 @@
             // 
             // panel3
             // 
+            this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel3.Controls.Add(this.controlTB);
             this.panel3.Controls.Add(this.audioTB);
@@ -717,6 +741,7 @@
             // 
             // controlTB
             // 
+            this.controlTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.controlTB.BackColor = System.Drawing.SystemColors.Window;
             this.controlTB.Location = new System.Drawing.Point(252, 116);
             this.controlTB.Name = "controlTB";
@@ -726,6 +751,7 @@
             // 
             // audioTB
             // 
+            this.audioTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.audioTB.BackColor = System.Drawing.SystemColors.Window;
             this.audioTB.Location = new System.Drawing.Point(252, 142);
             this.audioTB.Name = "audioTB";
@@ -735,6 +761,7 @@
             // 
             // label43
             // 
+            this.label43.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label43.AutoSize = true;
             this.label43.Location = new System.Drawing.Point(192, 119);
             this.label43.Name = "label43";
@@ -744,6 +771,7 @@
             // 
             // label42
             // 
+            this.label42.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label42.AutoSize = true;
             this.label42.Location = new System.Drawing.Point(209, 145);
             this.label42.Name = "label42";
@@ -753,6 +781,7 @@
             // 
             // avcpCB
             // 
+            this.avcpCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.avcpCB.AutoCheck = false;
             this.avcpCB.AutoSize = true;
             this.avcpCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -765,6 +794,7 @@
             // 
             // micCB
             // 
+            this.micCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.micCB.AutoCheck = false;
             this.micCB.AutoSize = true;
             this.micCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -777,6 +807,7 @@
             // 
             // hdmiCB
             // 
+            this.hdmiCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.hdmiCB.AutoCheck = false;
             this.hdmiCB.AutoSize = true;
             this.hdmiCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -789,6 +820,7 @@
             // 
             // vgaCB
             // 
+            this.vgaCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.vgaCB.AutoCheck = false;
             this.vgaCB.AutoSize = true;
             this.vgaCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -801,6 +833,7 @@
             // 
             // lcCB
             // 
+            this.lcCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lcCB.AutoCheck = false;
             this.lcCB.AutoSize = true;
             this.lcCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -813,6 +846,7 @@
             // 
             // dcCB
             // 
+            this.dcCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dcCB.AutoCheck = false;
             this.dcCB.AutoSize = true;
             this.dcCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -825,6 +859,7 @@
             // 
             // brCB
             // 
+            this.brCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.brCB.AutoCheck = false;
             this.brCB.AutoSize = true;
             this.brCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -837,6 +872,7 @@
             // 
             // dvdCB
             // 
+            this.dvdCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dvdCB.AutoCheck = false;
             this.dvdCB.AutoSize = true;
             this.dvdCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -849,6 +885,7 @@
             // 
             // dsCB
             // 
+            this.dsCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dsCB.AutoCheck = false;
             this.dsCB.AutoSize = true;
             this.dsCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -869,6 +906,7 @@
             // 
             // alarmTB
             // 
+            this.alarmTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.alarmTB.BackColor = System.Drawing.SystemColors.Window;
             this.alarmTB.Location = new System.Drawing.Point(101, 142);
             this.alarmTB.Mask = "00/00/0000";
@@ -880,6 +918,7 @@
             // 
             // label4
             // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(2, 145);
             this.label4.Name = "label4";
@@ -889,6 +928,7 @@
             // 
             // filterTB
             // 
+            this.filterTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.filterTB.BackColor = System.Drawing.SystemColors.Window;
             this.filterTB.Location = new System.Drawing.Point(100, 116);
             this.filterTB.Mask = "00/00/0000";
@@ -900,6 +940,7 @@
             // 
             // label3
             // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(20, 119);
             this.label3.Name = "label3";
@@ -909,6 +950,9 @@
             // 
             // tabControl1
             // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.Display1);
             this.tabControl1.Controls.Add(this.Display2);
             this.tabControl1.Controls.Add(this.Display3);
@@ -1485,6 +1529,9 @@
             // 
             // panel2
             // 
+            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel2.BackColor = System.Drawing.Color.Maroon;
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel2.Controls.Add(this.label2);
@@ -1507,16 +1554,21 @@
             // 
             // roomsLB
             // 
+            this.roomsLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.roomsLB.BackColor = System.Drawing.Color.Wheat;
             this.roomsLB.FormattingEnabled = true;
             this.roomsLB.Location = new System.Drawing.Point(0, 20);
             this.roomsLB.Name = "roomsLB";
-            this.roomsLB.Size = new System.Drawing.Size(134, 212);
+            this.roomsLB.Size = new System.Drawing.Size(134, 199);
             this.roomsLB.TabIndex = 0;
             this.roomsLB.SelectedIndexChanged += new System.EventHandler(this.roomsLB_SelectedIndexChanged);
             // 
             // panel1
             // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BackColor = System.Drawing.Color.Maroon;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel1.Controls.Add(this.label1);
@@ -1539,6 +1591,8 @@
             // 
             // buildLB
             // 
+            this.buildLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.buildLB.BackColor = System.Drawing.Color.Wheat;
             this.buildLB.FormattingEnabled = true;
             this.buildLB.Items.AddRange(new object[] {
@@ -1574,7 +1628,7 @@
             "Whitlock Building"});
             this.buildLB.Location = new System.Drawing.Point(0, 20);
             this.buildLB.Name = "buildLB";
-            this.buildLB.Size = new System.Drawing.Size(138, 212);
+            this.buildLB.Size = new System.Drawing.Size(138, 199);
             this.buildLB.TabIndex = 0;
             this.buildLB.SelectedIndexChanged += new System.EventHandler(this.buildLB_SelectedIndexChanged);
             // 
@@ -1591,6 +1645,8 @@
             // 
             // dataGridView1
             // 
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.buildingDG,
@@ -1685,17 +1741,19 @@
             // 
             // addFilter
             // 
+            this.addFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addFilter.BackColor = System.Drawing.SystemColors.Window;
             this.addFilter.Location = new System.Drawing.Point(358, 116);
             this.addFilter.Mask = "00/00/0000";
             this.addFilter.Name = "addFilter";
             this.addFilter.PromptChar = ' ';
-            this.addFilter.Size = new System.Drawing.Size(75, 20);
-            this.addFilter.TabIndex = 78;
+            this.addFilter.Size = new System.Drawing.Size(85, 20);
+            this.addFilter.TabIndex = 22;
             this.addFilter.ValidatingType = typeof(System.DateTime);
             // 
             // label14
             // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.AutoSize = true;
             this.label14.Location = new System.Drawing.Point(278, 119);
             this.label14.Name = "label14";
@@ -1705,27 +1763,30 @@
             // 
             // addEditBtn
             // 
+            this.addEditBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addEditBtn.Location = new System.Drawing.Point(608, 203);
             this.addEditBtn.Name = "addEditBtn";
             this.addEditBtn.Size = new System.Drawing.Size(113, 23);
-            this.addEditBtn.TabIndex = 76;
+            this.addEditBtn.TabIndex = 31;
             this.addEditBtn.Text = "Edit/Delete Entries";
             this.addEditBtn.UseVisualStyleBackColor = true;
             this.addEditBtn.Click += new System.EventHandler(this.addEditBtn_Click);
             // 
             // addNetTB
             // 
-            this.addNetTB.Location = new System.Drawing.Point(618, 142);
+            this.addNetTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.addNetTB.Location = new System.Drawing.Point(623, 142);
             this.addNetTB.Mask = "0";
             this.addNetTB.Name = "addNetTB";
             this.addNetTB.PromptChar = ' ';
             this.addNetTB.Size = new System.Drawing.Size(15, 20);
-            this.addNetTB.TabIndex = 75;
+            this.addNetTB.TabIndex = 27;
             // 
             // label93
             // 
+            this.label93.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label93.AutoSize = true;
-            this.label93.Location = new System.Drawing.Point(535, 145);
+            this.label93.Location = new System.Drawing.Point(540, 145);
             this.label93.Name = "label93";
             this.label93.Size = new System.Drawing.Size(77, 13);
             this.label93.TabIndex = 74;
@@ -1733,15 +1794,17 @@
             // 
             // addCatVidTB
             // 
+            this.addCatVidTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addCatVidTB.Location = new System.Drawing.Point(517, 142);
             this.addCatVidTB.Mask = "0";
             this.addCatVidTB.Name = "addCatVidTB";
             this.addCatVidTB.PromptChar = ' ';
             this.addCatVidTB.Size = new System.Drawing.Size(15, 20);
-            this.addCatVidTB.TabIndex = 73;
+            this.addCatVidTB.TabIndex = 26;
             // 
             // label92
             // 
+            this.label92.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label92.AutoSize = true;
             this.label92.Location = new System.Drawing.Point(449, 145);
             this.label92.Name = "label92";
@@ -1751,13 +1814,15 @@
             // 
             // addSolLicTB
             // 
+            this.addSolLicTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addSolLicTB.Location = new System.Drawing.Point(581, 168);
             this.addSolLicTB.Name = "addSolLicTB";
             this.addSolLicTB.Size = new System.Drawing.Size(104, 20);
-            this.addSolLicTB.TabIndex = 71;
+            this.addSolLicTB.TabIndex = 29;
             // 
             // label91
             // 
+            this.label91.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label91.AutoSize = true;
             this.label91.Location = new System.Drawing.Point(488, 171);
             this.label91.Name = "label91";
@@ -1767,16 +1832,18 @@
             // 
             // addSolActTB
             // 
+            this.addSolActTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addSolActTB.Location = new System.Drawing.Point(407, 168);
             this.addSolActTB.Mask = "00/00/0000";
             this.addSolActTB.Name = "addSolActTB";
             this.addSolActTB.PromptChar = ' ';
             this.addSolActTB.Size = new System.Drawing.Size(75, 20);
-            this.addSolActTB.TabIndex = 69;
+            this.addSolActTB.TabIndex = 28;
             this.addSolActTB.ValidatingType = typeof(System.DateTime);
             // 
             // label90
             // 
+            this.label90.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label90.AutoSize = true;
             this.label90.Location = new System.Drawing.Point(278, 171);
             this.label90.Name = "label90";
@@ -1786,24 +1853,28 @@
             // 
             // addSolCB
             // 
+            this.addSolCB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addSolCB.AutoSize = true;
             this.addSolCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addSolCB.Location = new System.Drawing.Point(168, 203);
             this.addSolCB.Name = "addSolCB";
             this.addSolCB.Size = new System.Drawing.Size(66, 17);
-            this.addSolCB.TabIndex = 67;
+            this.addSolCB.TabIndex = 14;
             this.addSolCB.Text = "Solstice:";
             this.addSolCB.UseVisualStyleBackColor = true;
             // 
             // addNUCIPTB
             // 
+            this.addNUCIPTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addNUCIPTB.Location = new System.Drawing.Point(358, 142);
             this.addNUCIPTB.Name = "addNUCIPTB";
             this.addNUCIPTB.Size = new System.Drawing.Size(85, 20);
-            this.addNUCIPTB.TabIndex = 65;
+            this.addNUCIPTB.TabIndex = 25;
             // 
             // label88
             // 
+            this.label88.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label88.AutoSize = true;
             this.label88.Location = new System.Drawing.Point(306, 145);
             this.label88.Name = "label88";
@@ -1813,15 +1884,17 @@
             // 
             // addPCSerialTB
             // 
-            this.addPCSerialTB.Location = new System.Drawing.Point(664, 116);
+            this.addPCSerialTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.addPCSerialTB.Location = new System.Drawing.Point(680, 116);
             this.addPCSerialTB.Name = "addPCSerialTB";
             this.addPCSerialTB.Size = new System.Drawing.Size(100, 20);
-            this.addPCSerialTB.TabIndex = 63;
+            this.addPCSerialTB.TabIndex = 24;
             // 
             // label87
             // 
+            this.label87.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label87.AutoSize = true;
-            this.label87.Location = new System.Drawing.Point(607, 119);
+            this.label87.Location = new System.Drawing.Point(623, 119);
             this.label87.Name = "label87";
             this.label87.Size = new System.Drawing.Size(53, 13);
             this.label87.TabIndex = 62;
@@ -1829,15 +1902,17 @@
             // 
             // addPCModTB
             // 
-            this.addPCModTB.Location = new System.Drawing.Point(501, 116);
+            this.addPCModTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.addPCModTB.Location = new System.Drawing.Point(517, 116);
             this.addPCModTB.Name = "addPCModTB";
             this.addPCModTB.Size = new System.Drawing.Size(100, 20);
-            this.addPCModTB.TabIndex = 61;
+            this.addPCModTB.TabIndex = 23;
             // 
             // label86
             // 
+            this.label86.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label86.AutoSize = true;
-            this.label86.Location = new System.Drawing.Point(439, 119);
+            this.label86.Location = new System.Drawing.Point(455, 119);
             this.label86.Name = "label86";
             this.label86.Size = new System.Drawing.Size(56, 13);
             this.label86.TabIndex = 60;
@@ -1845,16 +1920,19 @@
             // 
             // addAddUpdateBtn
             // 
+            this.addAddUpdateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addAddUpdateBtn.Location = new System.Drawing.Point(727, 203);
             this.addAddUpdateBtn.Name = "addAddUpdateBtn";
             this.addAddUpdateBtn.Size = new System.Drawing.Size(75, 23);
-            this.addAddUpdateBtn.TabIndex = 59;
+            this.addAddUpdateBtn.TabIndex = 30;
             this.addAddUpdateBtn.Text = "Add/Update";
             this.addAddUpdateBtn.UseVisualStyleBackColor = true;
             this.addAddUpdateBtn.Click += new System.EventHandler(this.addAddUpdateBtn_Click);
             // 
             // addBuildingComBox
             // 
+            this.addBuildingComBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.addBuildingComBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.addBuildingComBox.FormattingEnabled = true;
             this.addBuildingComBox.Items.AddRange(new object[] {
@@ -1891,10 +1969,12 @@
             this.addBuildingComBox.Location = new System.Drawing.Point(77, 6);
             this.addBuildingComBox.Name = "addBuildingComBox";
             this.addBuildingComBox.Size = new System.Drawing.Size(157, 21);
-            this.addBuildingComBox.TabIndex = 58;
+            this.addBuildingComBox.TabIndex = 1;
             // 
             // addAudioComBox
             // 
+            this.addAudioComBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.addAudioComBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.addAudioComBox.FormattingEnabled = true;
             this.addAudioComBox.Items.AddRange(new object[] {
@@ -1904,10 +1984,12 @@
             this.addAudioComBox.Location = new System.Drawing.Point(77, 84);
             this.addAudioComBox.Name = "addAudioComBox";
             this.addAudioComBox.Size = new System.Drawing.Size(157, 21);
-            this.addAudioComBox.TabIndex = 57;
+            this.addAudioComBox.TabIndex = 4;
             // 
             // addContComBox
             // 
+            this.addContComBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.addContComBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.addContComBox.FormattingEnabled = true;
             this.addContComBox.Items.AddRange(new object[] {
@@ -1920,7 +2002,7 @@
             this.addContComBox.Location = new System.Drawing.Point(77, 58);
             this.addContComBox.Name = "addContComBox";
             this.addContComBox.Size = new System.Drawing.Size(157, 21);
-            this.addContComBox.TabIndex = 56;
+            this.addContComBox.TabIndex = 3;
             // 
             // label75
             // 
@@ -1942,109 +2024,129 @@
             // 
             // addAVCB
             // 
+            this.addAVCB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addAVCB.AutoSize = true;
             this.addAVCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addAVCB.Location = new System.Drawing.Point(11, 203);
             this.addAVCB.Name = "addAVCB";
             this.addAVCB.Size = new System.Drawing.Size(130, 17);
-            this.addAVCB.TabIndex = 51;
+            this.addAVCB.TabIndex = 13;
             this.addAVCB.Text = "AV Connection Panel:";
             this.addAVCB.UseVisualStyleBackColor = true;
             // 
             // addMicCB
             // 
+            this.addMicCB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addMicCB.AutoSize = true;
             this.addMicCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addMicCB.Location = new System.Drawing.Point(149, 134);
             this.addMicCB.Name = "addMicCB";
             this.addMicCB.Size = new System.Drawing.Size(85, 17);
-            this.addMicCB.TabIndex = 49;
+            this.addMicCB.TabIndex = 8;
             this.addMicCB.Text = "Microphone:";
             this.addMicCB.UseVisualStyleBackColor = true;
             // 
             // addHDMICB
             // 
+            this.addHDMICB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addHDMICB.AutoSize = true;
             this.addHDMICB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addHDMICB.Location = new System.Drawing.Point(64, 180);
             this.addHDMICB.Name = "addHDMICB";
             this.addHDMICB.Size = new System.Drawing.Size(77, 17);
-            this.addHDMICB.TabIndex = 47;
+            this.addHDMICB.TabIndex = 11;
             this.addHDMICB.Text = "HDMI Pull:";
             this.addHDMICB.UseVisualStyleBackColor = true;
             // 
             // addVGACB
             // 
+            this.addVGACB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addVGACB.AutoSize = true;
             this.addVGACB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addVGACB.Location = new System.Drawing.Point(163, 180);
             this.addVGACB.Name = "addVGACB";
             this.addVGACB.Size = new System.Drawing.Size(71, 17);
-            this.addVGACB.TabIndex = 45;
+            this.addVGACB.TabIndex = 12;
             this.addVGACB.Text = "VGA Pull:";
             this.addVGACB.UseVisualStyleBackColor = true;
             // 
             // addCamCB
             // 
+            this.addCamCB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addCamCB.AutoSize = true;
             this.addCamCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addCamCB.Location = new System.Drawing.Point(37, 134);
             this.addCamCB.Name = "addCamCB";
             this.addCamCB.Size = new System.Drawing.Size(104, 17);
-            this.addCamCB.TabIndex = 43;
+            this.addCamCB.TabIndex = 7;
             this.addCamCB.Text = "Lecture Camera:";
             this.addCamCB.UseVisualStyleBackColor = true;
             // 
             // addDCCB
             // 
+            this.addDCCB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addDCCB.AutoSize = true;
             this.addDCCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addDCCB.Location = new System.Drawing.Point(161, 111);
             this.addDCCB.Name = "addDCCB";
             this.addDCCB.Size = new System.Drawing.Size(73, 17);
-            this.addDCCB.TabIndex = 41;
+            this.addDCCB.TabIndex = 6;
             this.addDCCB.Text = "Doc Cam:";
             this.addDCCB.UseVisualStyleBackColor = true;
             // 
             // addBRCB
             // 
+            this.addBRCB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addBRCB.AutoSize = true;
             this.addBRCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addBRCB.Location = new System.Drawing.Point(83, 157);
             this.addBRCB.Name = "addBRCB";
             this.addBRCB.Size = new System.Drawing.Size(58, 17);
-            this.addBRCB.TabIndex = 39;
+            this.addBRCB.TabIndex = 9;
             this.addBRCB.Text = "Bluray:";
             this.addBRCB.UseVisualStyleBackColor = true;
             // 
             // addDVDCB
             // 
+            this.addDVDCB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addDVDCB.AutoSize = true;
             this.addDVDCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addDVDCB.Location = new System.Drawing.Point(155, 157);
             this.addDVDCB.Name = "addDVDCB";
             this.addDVDCB.Size = new System.Drawing.Size(79, 17);
-            this.addDVDCB.TabIndex = 37;
+            this.addDVDCB.TabIndex = 10;
             this.addDVDCB.Text = "DVD/VCR:";
             this.addDVDCB.UseVisualStyleBackColor = true;
             // 
             // addDockCB
             // 
+            this.addDockCB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addDockCB.AutoSize = true;
             this.addDockCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.addDockCB.Location = new System.Drawing.Point(36, 111);
             this.addDockCB.Name = "addDockCB";
             this.addDockCB.Size = new System.Drawing.Size(105, 17);
-            this.addDockCB.TabIndex = 35;
+            this.addDockCB.TabIndex = 5;
             this.addDockCB.Text = "Docking Station:";
             this.addDockCB.UseVisualStyleBackColor = true;
             // 
             // addRoomTB
             // 
+            this.addRoomTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.addRoomTB.Location = new System.Drawing.Point(77, 32);
             this.addRoomTB.Name = "addRoomTB";
             this.addRoomTB.Size = new System.Drawing.Size(157, 20);
-            this.addRoomTB.TabIndex = 5;
+            this.addRoomTB.TabIndex = 2;
             // 
             // label74
             // 
@@ -2066,6 +2168,8 @@
             // 
             // tabControl2
             // 
+            this.tabControl2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl2.Controls.Add(this.tabPage1);
             this.tabControl2.Controls.Add(this.tabPage2);
             this.tabControl2.Controls.Add(this.tabPage3);
@@ -2076,7 +2180,7 @@
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
             this.tabControl2.Size = new System.Drawing.Size(533, 110);
-            this.tabControl2.TabIndex = 1;
+            this.tabControl2.TabIndex = 15;
             // 
             // tabPage1
             // 
@@ -2115,14 +2219,14 @@
             this.addScrTB1.Location = new System.Drawing.Point(80, 57);
             this.addScrTB1.Name = "addScrTB1";
             this.addScrTB1.Size = new System.Drawing.Size(200, 21);
-            this.addScrTB1.TabIndex = 14;
+            this.addScrTB1.TabIndex = 18;
             // 
             // addIPTB1
             // 
             this.addIPTB1.Location = new System.Drawing.Point(380, 6);
             this.addIPTB1.Name = "addIPTB1";
             this.addIPTB1.Size = new System.Drawing.Size(125, 20);
-            this.addIPTB1.TabIndex = 13;
+            this.addIPTB1.TabIndex = 19;
             // 
             // addMACTB1
             // 
@@ -2130,7 +2234,7 @@
             this.addMACTB1.Mask = "&&:&&:&&:&&:&&:&&";
             this.addMACTB1.Name = "addMACTB1";
             this.addMACTB1.Size = new System.Drawing.Size(125, 20);
-            this.addMACTB1.TabIndex = 12;
+            this.addMACTB1.TabIndex = 20;
             // 
             // addBulbTB1
             // 
@@ -2138,7 +2242,7 @@
             this.addBulbTB1.Location = new System.Drawing.Point(380, 58);
             this.addBulbTB1.Name = "addBulbTB1";
             this.addBulbTB1.Size = new System.Drawing.Size(125, 20);
-            this.addBulbTB1.TabIndex = 11;
+            this.addBulbTB1.TabIndex = 21;
             // 
             // label49
             // 
@@ -2191,7 +2295,7 @@
             this.addSerialTB1.Location = new System.Drawing.Point(80, 32);
             this.addSerialTB1.Name = "addSerialTB1";
             this.addSerialTB1.Size = new System.Drawing.Size(200, 20);
-            this.addSerialTB1.TabIndex = 1;
+            this.addSerialTB1.TabIndex = 17;
             // 
             // addMMTB1
             // 
@@ -2199,7 +2303,7 @@
             this.addMMTB1.Location = new System.Drawing.Point(80, 6);
             this.addMMTB1.Name = "addMMTB1";
             this.addMMTB1.Size = new System.Drawing.Size(200, 20);
-            this.addMMTB1.TabIndex = 1;
+            this.addMMTB1.TabIndex = 16;
             // 
             // label54
             // 
@@ -2247,14 +2351,14 @@
             this.addScrTB2.Location = new System.Drawing.Point(80, 57);
             this.addScrTB2.Name = "addScrTB2";
             this.addScrTB2.Size = new System.Drawing.Size(200, 21);
-            this.addScrTB2.TabIndex = 26;
+            this.addScrTB2.TabIndex = 18;
             // 
             // addIPTB2
             // 
             this.addIPTB2.Location = new System.Drawing.Point(380, 6);
             this.addIPTB2.Name = "addIPTB2";
             this.addIPTB2.Size = new System.Drawing.Size(125, 20);
-            this.addIPTB2.TabIndex = 25;
+            this.addIPTB2.TabIndex = 19;
             // 
             // addMACTB2
             // 
@@ -2262,7 +2366,7 @@
             this.addMACTB2.Mask = "&&:&&:&&:&&:&&:&&";
             this.addMACTB2.Name = "addMACTB2";
             this.addMACTB2.Size = new System.Drawing.Size(125, 20);
-            this.addMACTB2.TabIndex = 24;
+            this.addMACTB2.TabIndex = 20;
             // 
             // addBulbTB2
             // 
@@ -2270,7 +2374,7 @@
             this.addBulbTB2.Location = new System.Drawing.Point(380, 58);
             this.addBulbTB2.Name = "addBulbTB2";
             this.addBulbTB2.Size = new System.Drawing.Size(125, 20);
-            this.addBulbTB2.TabIndex = 23;
+            this.addBulbTB2.TabIndex = 21;
             // 
             // label55
             // 
@@ -2323,7 +2427,7 @@
             this.addSerialTB2.Location = new System.Drawing.Point(80, 32);
             this.addSerialTB2.Name = "addSerialTB2";
             this.addSerialTB2.Size = new System.Drawing.Size(200, 20);
-            this.addSerialTB2.TabIndex = 16;
+            this.addSerialTB2.TabIndex = 17;
             // 
             // addMMTB2
             // 
@@ -2331,7 +2435,7 @@
             this.addMMTB2.Location = new System.Drawing.Point(80, 6);
             this.addMMTB2.Name = "addMMTB2";
             this.addMMTB2.Size = new System.Drawing.Size(200, 20);
-            this.addMMTB2.TabIndex = 17;
+            this.addMMTB2.TabIndex = 16;
             // 
             // label60
             // 
@@ -2379,14 +2483,14 @@
             this.addScrTB3.Location = new System.Drawing.Point(80, 57);
             this.addScrTB3.Name = "addScrTB3";
             this.addScrTB3.Size = new System.Drawing.Size(200, 21);
-            this.addScrTB3.TabIndex = 26;
+            this.addScrTB3.TabIndex = 18;
             // 
             // addIPTB3
             // 
             this.addIPTB3.Location = new System.Drawing.Point(380, 6);
             this.addIPTB3.Name = "addIPTB3";
             this.addIPTB3.Size = new System.Drawing.Size(125, 20);
-            this.addIPTB3.TabIndex = 25;
+            this.addIPTB3.TabIndex = 19;
             // 
             // addMACTB3
             // 
@@ -2394,7 +2498,7 @@
             this.addMACTB3.Mask = "&&:&&:&&:&&:&&:&&";
             this.addMACTB3.Name = "addMACTB3";
             this.addMACTB3.Size = new System.Drawing.Size(125, 20);
-            this.addMACTB3.TabIndex = 24;
+            this.addMACTB3.TabIndex = 20;
             // 
             // addBulbTB3
             // 
@@ -2402,7 +2506,7 @@
             this.addBulbTB3.Location = new System.Drawing.Point(380, 58);
             this.addBulbTB3.Name = "addBulbTB3";
             this.addBulbTB3.Size = new System.Drawing.Size(125, 20);
-            this.addBulbTB3.TabIndex = 23;
+            this.addBulbTB3.TabIndex = 21;
             // 
             // label61
             // 
@@ -2455,7 +2559,7 @@
             this.addSerialTB3.Location = new System.Drawing.Point(80, 32);
             this.addSerialTB3.Name = "addSerialTB3";
             this.addSerialTB3.Size = new System.Drawing.Size(200, 20);
-            this.addSerialTB3.TabIndex = 16;
+            this.addSerialTB3.TabIndex = 17;
             // 
             // addMMTB3
             // 
@@ -2463,7 +2567,7 @@
             this.addMMTB3.Location = new System.Drawing.Point(80, 6);
             this.addMMTB3.Name = "addMMTB3";
             this.addMMTB3.Size = new System.Drawing.Size(200, 20);
-            this.addMMTB3.TabIndex = 17;
+            this.addMMTB3.TabIndex = 16;
             // 
             // label66
             // 
@@ -2511,14 +2615,14 @@
             this.addScrTB4.Location = new System.Drawing.Point(80, 57);
             this.addScrTB4.Name = "addScrTB4";
             this.addScrTB4.Size = new System.Drawing.Size(200, 21);
-            this.addScrTB4.TabIndex = 26;
+            this.addScrTB4.TabIndex = 18;
             // 
             // addIPTB4
             // 
             this.addIPTB4.Location = new System.Drawing.Point(380, 6);
             this.addIPTB4.Name = "addIPTB4";
             this.addIPTB4.Size = new System.Drawing.Size(125, 20);
-            this.addIPTB4.TabIndex = 25;
+            this.addIPTB4.TabIndex = 19;
             // 
             // addMACTB4
             // 
@@ -2526,7 +2630,7 @@
             this.addMACTB4.Mask = "&&:&&:&&:&&:&&:&&";
             this.addMACTB4.Name = "addMACTB4";
             this.addMACTB4.Size = new System.Drawing.Size(125, 20);
-            this.addMACTB4.TabIndex = 24;
+            this.addMACTB4.TabIndex = 20;
             // 
             // addBulbTB4
             // 
@@ -2534,7 +2638,7 @@
             this.addBulbTB4.Location = new System.Drawing.Point(380, 58);
             this.addBulbTB4.Name = "addBulbTB4";
             this.addBulbTB4.Size = new System.Drawing.Size(125, 20);
-            this.addBulbTB4.TabIndex = 23;
+            this.addBulbTB4.TabIndex = 21;
             // 
             // label67
             // 
@@ -2587,7 +2691,7 @@
             this.addSerialTB4.Location = new System.Drawing.Point(80, 32);
             this.addSerialTB4.Name = "addSerialTB4";
             this.addSerialTB4.Size = new System.Drawing.Size(200, 20);
-            this.addSerialTB4.TabIndex = 16;
+            this.addSerialTB4.TabIndex = 17;
             // 
             // addMMTB4
             // 
@@ -2595,7 +2699,7 @@
             this.addMMTB4.Location = new System.Drawing.Point(80, 6);
             this.addMMTB4.Name = "addMMTB4";
             this.addMMTB4.Size = new System.Drawing.Size(200, 20);
-            this.addMMTB4.TabIndex = 17;
+            this.addMMTB4.TabIndex = 16;
             // 
             // label72
             // 
@@ -2619,13 +2723,15 @@
             // 
             // addOtherTB
             // 
+            this.addOtherTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addOtherTB.BackColor = System.Drawing.SystemColors.Window;
             this.addOtherTB.Location = new System.Drawing.Point(3, 3);
             this.addOtherTB.Multiline = true;
             this.addOtherTB.Name = "addOtherTB";
             this.addOtherTB.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.addOtherTB.Size = new System.Drawing.Size(519, 78);
-            this.addOtherTB.TabIndex = 0;
+            this.addOtherTB.TabIndex = 16;
             // 
             // tabPage6
             // 
@@ -2640,12 +2746,14 @@
             // 
             // addDscrptTB
             // 
+            this.addDscrptTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.addDscrptTB.Location = new System.Drawing.Point(4, 3);
             this.addDscrptTB.Multiline = true;
             this.addDscrptTB.Name = "addDscrptTB";
             this.addDscrptTB.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.addDscrptTB.Size = new System.Drawing.Size(518, 78);
-            this.addDscrptTB.TabIndex = 0;
+            this.addDscrptTB.TabIndex = 16;
             // 
             // testingTab
             // 
@@ -2669,6 +2777,7 @@
             // 
             // testBuilding
             // 
+            this.testBuilding.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.testBuilding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.testBuilding.FormattingEnabled = true;
             this.testBuilding.Items.AddRange(new object[] {
@@ -2709,6 +2818,7 @@
             // 
             // dateTimePicker1
             // 
+            this.dateTimePicker1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dateTimePicker1.Location = new System.Drawing.Point(525, 207);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(200, 20);
@@ -2716,6 +2826,7 @@
             // 
             // label37
             // 
+            this.label37.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label37.AutoSize = true;
             this.label37.Location = new System.Drawing.Point(486, 210);
             this.label37.Name = "label37";
@@ -2725,6 +2836,7 @@
             // 
             // textBox3
             // 
+            this.textBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.textBox3.Location = new System.Drawing.Point(437, 207);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(43, 20);
@@ -2732,6 +2844,7 @@
             // 
             // label36
             // 
+            this.label36.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label36.AutoSize = true;
             this.label36.Location = new System.Drawing.Point(393, 210);
             this.label36.Name = "label36";
@@ -2741,6 +2854,7 @@
             // 
             // label35
             // 
+            this.label35.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label35.AutoSize = true;
             this.label35.Location = new System.Drawing.Point(209, 210);
             this.label35.Name = "label35";
@@ -2750,6 +2864,7 @@
             // 
             // textBox1
             // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.textBox1.Location = new System.Drawing.Point(78, 207);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(125, 20);
@@ -2757,6 +2872,7 @@
             // 
             // label15
             // 
+            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label15.AutoSize = true;
             this.label15.Location = new System.Drawing.Point(3, 210);
             this.label15.Name = "label15";
@@ -2766,6 +2882,7 @@
             // 
             // testSave
             // 
+            this.testSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.testSave.Location = new System.Drawing.Point(732, 204);
             this.testSave.Name = "testSave";
             this.testSave.Size = new System.Drawing.Size(75, 23);
@@ -2775,6 +2892,9 @@
             // 
             // testTabController
             // 
+            this.testTabController.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.testTabController.Controls.Add(this.testGeneralTab);
             this.testTabController.Controls.Add(this.testVidAudTab);
             this.testTabController.Controls.Add(this.testMicTab);
@@ -2806,6 +2926,8 @@
             this.testGeneralDGV.AllowUserToDeleteRows = false;
             this.testGeneralDGV.AllowUserToResizeColumns = false;
             this.testGeneralDGV.AllowUserToResizeRows = false;
+            this.testGeneralDGV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.testGeneralDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.testGeneralDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.testDGDescription,
@@ -2876,6 +2998,8 @@
             this.testVidAudDGV.AllowUserToDeleteRows = false;
             this.testVidAudDGV.AllowUserToResizeColumns = false;
             this.testVidAudDGV.AllowUserToResizeRows = false;
+            this.testVidAudDGV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.testVidAudDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.testVidAudDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.testDGDescriptionV,
@@ -2961,6 +3085,8 @@
             this.testMicDGV.AllowUserToDeleteRows = false;
             this.testMicDGV.AllowUserToResizeColumns = false;
             this.testMicDGV.AllowUserToResizeRows = false;
+            this.testMicDGV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.testMicDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.testMicDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.testDGDescriptionM,
@@ -3031,6 +3157,8 @@
             this.testDocDGV.AllowUserToDeleteRows = false;
             this.testDocDGV.AllowUserToResizeColumns = false;
             this.testDocDGV.AllowUserToResizeRows = false;
+            this.testDocDGV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.testDocDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.testDocDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.testDGDescriptionD,
@@ -3101,6 +3229,8 @@
             this.testDVDDGV.AllowUserToDeleteRows = false;
             this.testDVDDGV.AllowUserToResizeColumns = false;
             this.testDVDDGV.AllowUserToResizeRows = false;
+            this.testDVDDGV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.testDVDDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.testDVDDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.testDGDescriptionB,
@@ -3171,6 +3301,8 @@
             this.testIPTVDGV.AllowUserToDeleteRows = false;
             this.testIPTVDGV.AllowUserToResizeColumns = false;
             this.testIPTVDGV.AllowUserToResizeRows = false;
+            this.testIPTVDGV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.testIPTVDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.testIPTVDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.testDGDescriptionI,
@@ -3236,12 +3368,23 @@
             // 
             // testNotesTB
             // 
+            this.testNotesTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.testNotesTB.Location = new System.Drawing.Point(0, 0);
             this.testNotesTB.Multiline = true;
             this.testNotesTB.Name = "testNotesTB";
             this.testNotesTB.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.testNotesTB.Size = new System.Drawing.Size(807, 176);
             this.testNotesTB.TabIndex = 0;
+            // 
+            // exportChangesToolStripMenuItem
+            // 
+            this.exportChangesToolStripMenuItem.Enabled = false;
+            this.exportChangesToolStripMenuItem.Name = "exportChangesToolStripMenuItem";
+            this.exportChangesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.E)));
+            this.exportChangesToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.exportChangesToolStripMenuItem.Text = "Export Changes";
+            this.exportChangesToolStripMenuItem.Click += new System.EventHandler(this.exportChangesToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -3252,7 +3395,6 @@
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MainMenuStrip = this.menuStrip1;
-            this.MaximumSize = new System.Drawing.Size(839, 325);
             this.MinimumSize = new System.Drawing.Size(839, 325);
             this.Name = "Form1";
             this.Text = "EKU Report Reader";
@@ -3434,102 +3576,102 @@
         private System.Windows.Forms.TabPage invTestTab;
         private System.Windows.Forms.TabControl tabControl2;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TextBox addBulbTB1;
+        public System.Windows.Forms.TextBox addBulbTB1;
         private System.Windows.Forms.Label label49;
         private System.Windows.Forms.Label label50;
         private System.Windows.Forms.Label label51;
         private System.Windows.Forms.Label label52;
         private System.Windows.Forms.Label label53;
-        private System.Windows.Forms.TextBox addSerialTB1;
-        private System.Windows.Forms.TextBox addMMTB1;
+        public System.Windows.Forms.TextBox addSerialTB1;
+        public System.Windows.Forms.TextBox addMMTB1;
         private System.Windows.Forms.Label label54;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TabPage tabPage4;
         private System.Windows.Forms.TabPage tabPage5;
-        private System.Windows.Forms.TextBox addOtherTB;
-        private System.Windows.Forms.ComboBox addAudioComBox;
-        private System.Windows.Forms.ComboBox addContComBox;
+        public System.Windows.Forms.TextBox addOtherTB;
+        public System.Windows.Forms.ComboBox addAudioComBox;
+        public System.Windows.Forms.ComboBox addContComBox;
         private System.Windows.Forms.Label label75;
         private System.Windows.Forms.Label label76;
-        private System.Windows.Forms.CheckBox addAVCB;
-        private System.Windows.Forms.CheckBox addMicCB;
-        private System.Windows.Forms.CheckBox addHDMICB;
-        private System.Windows.Forms.CheckBox addVGACB;
-        private System.Windows.Forms.CheckBox addCamCB;
-        private System.Windows.Forms.CheckBox addDCCB;
-        private System.Windows.Forms.CheckBox addBRCB;
-        private System.Windows.Forms.CheckBox addDVDCB;
-        private System.Windows.Forms.CheckBox addDockCB;
-        private System.Windows.Forms.TextBox addRoomTB;
+        public System.Windows.Forms.CheckBox addAVCB;
+        public System.Windows.Forms.CheckBox addMicCB;
+        public System.Windows.Forms.CheckBox addHDMICB;
+        public System.Windows.Forms.CheckBox addVGACB;
+        public System.Windows.Forms.CheckBox addCamCB;
+        public System.Windows.Forms.CheckBox addDCCB;
+        public System.Windows.Forms.CheckBox addBRCB;
+        public System.Windows.Forms.CheckBox addDVDCB;
+        public System.Windows.Forms.CheckBox addDockCB;
+        public System.Windows.Forms.TextBox addRoomTB;
         private System.Windows.Forms.Label label74;
         private System.Windows.Forms.Label label73;
-        private System.Windows.Forms.ComboBox addBuildingComBox;
-        private System.Windows.Forms.TextBox addIPTB1;
-        private System.Windows.Forms.MaskedTextBox addMACTB1;
+        public System.Windows.Forms.ComboBox addBuildingComBox;
+        public System.Windows.Forms.TextBox addIPTB1;
+        public System.Windows.Forms.MaskedTextBox addMACTB1;
         private System.Windows.Forms.TabPage testingTab;
-        private System.Windows.Forms.MaskedTextBox addNetTB;
+        public System.Windows.Forms.MaskedTextBox addNetTB;
         private System.Windows.Forms.Label label93;
-        private System.Windows.Forms.MaskedTextBox addCatVidTB;
+        public System.Windows.Forms.MaskedTextBox addCatVidTB;
         private System.Windows.Forms.Label label92;
-        private System.Windows.Forms.TextBox addSolLicTB;
+        public System.Windows.Forms.TextBox addSolLicTB;
         private System.Windows.Forms.Label label91;
-        private System.Windows.Forms.MaskedTextBox addSolActTB;
+        public System.Windows.Forms.MaskedTextBox addSolActTB;
         private System.Windows.Forms.Label label90;
-        private System.Windows.Forms.CheckBox addSolCB;
-        private System.Windows.Forms.TextBox addNUCIPTB;
+        public System.Windows.Forms.CheckBox addSolCB;
+        public System.Windows.Forms.TextBox addNUCIPTB;
         private System.Windows.Forms.Label label88;
-        private System.Windows.Forms.TextBox addPCSerialTB;
+        public System.Windows.Forms.TextBox addPCSerialTB;
         private System.Windows.Forms.Label label87;
-        private System.Windows.Forms.TextBox addPCModTB;
+        public System.Windows.Forms.TextBox addPCModTB;
         private System.Windows.Forms.Label label86;
         private System.Windows.Forms.Button addAddUpdateBtn;
-        private System.Windows.Forms.ComboBox addScrTB1;
-        private System.Windows.Forms.ComboBox addScrTB2;
-        private System.Windows.Forms.TextBox addIPTB2;
-        private System.Windows.Forms.MaskedTextBox addMACTB2;
-        private System.Windows.Forms.TextBox addBulbTB2;
+        public System.Windows.Forms.ComboBox addScrTB1;
+        public System.Windows.Forms.ComboBox addScrTB2;
+        public System.Windows.Forms.TextBox addIPTB2;
+        public System.Windows.Forms.MaskedTextBox addMACTB2;
+        public System.Windows.Forms.TextBox addBulbTB2;
         private System.Windows.Forms.Label label55;
         private System.Windows.Forms.Label label56;
         private System.Windows.Forms.Label label57;
         private System.Windows.Forms.Label label58;
         private System.Windows.Forms.Label label59;
-        private System.Windows.Forms.TextBox addSerialTB2;
-        private System.Windows.Forms.TextBox addMMTB2;
+        public System.Windows.Forms.TextBox addSerialTB2;
+        public System.Windows.Forms.TextBox addMMTB2;
         private System.Windows.Forms.Label label60;
-        private System.Windows.Forms.ComboBox addScrTB3;
-        private System.Windows.Forms.TextBox addIPTB3;
-        private System.Windows.Forms.MaskedTextBox addMACTB3;
-        private System.Windows.Forms.TextBox addBulbTB3;
+        public System.Windows.Forms.ComboBox addScrTB3;
+        public System.Windows.Forms.TextBox addIPTB3;
+        public System.Windows.Forms.MaskedTextBox addMACTB3;
+        public System.Windows.Forms.TextBox addBulbTB3;
         private System.Windows.Forms.Label label61;
         private System.Windows.Forms.Label label62;
         private System.Windows.Forms.Label label63;
         private System.Windows.Forms.Label label64;
         private System.Windows.Forms.Label label65;
-        private System.Windows.Forms.TextBox addSerialTB3;
-        private System.Windows.Forms.TextBox addMMTB3;
+        public System.Windows.Forms.TextBox addSerialTB3;
+        public System.Windows.Forms.TextBox addMMTB3;
         private System.Windows.Forms.Label label66;
-        private System.Windows.Forms.ComboBox addScrTB4;
-        private System.Windows.Forms.TextBox addIPTB4;
-        private System.Windows.Forms.MaskedTextBox addMACTB4;
-        private System.Windows.Forms.TextBox addBulbTB4;
+        public System.Windows.Forms.ComboBox addScrTB4;
+        public System.Windows.Forms.TextBox addIPTB4;
+        public System.Windows.Forms.MaskedTextBox addMACTB4;
+        public System.Windows.Forms.TextBox addBulbTB4;
         private System.Windows.Forms.Label label67;
         private System.Windows.Forms.Label label68;
         private System.Windows.Forms.Label label69;
         private System.Windows.Forms.Label label70;
         private System.Windows.Forms.Label label71;
-        private System.Windows.Forms.TextBox addSerialTB4;
-        private System.Windows.Forms.TextBox addMMTB4;
+        public System.Windows.Forms.TextBox addSerialTB4;
+        public System.Windows.Forms.TextBox addMMTB4;
         private System.Windows.Forms.Label label72;
-        private System.Windows.Forms.TabPage tabPage6;
+        public System.Windows.Forms.TabPage tabPage6;
         private System.Windows.Forms.TabPage Description;
         private System.Windows.Forms.TextBox descriptionTB;
-        private System.Windows.Forms.TextBox addDscrptTB;
+        public System.Windows.Forms.TextBox addDscrptTB;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewInvCollectedToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.Button addEditBtn;
-        private System.Windows.Forms.MaskedTextBox addFilter;
+        public System.Windows.Forms.MaskedTextBox addFilter;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Label label36;
@@ -3591,13 +3733,14 @@
         private System.Windows.Forms.Label label48;
         private System.Windows.Forms.TextBox disInvTB;
         private System.Windows.Forms.TextBox disTotalTB;
-        private System.Windows.Forms.Label label47;
+        private System.Windows.Forms.Label distMaintainedLbl;
         private System.Windows.Forms.Label label46;
         private System.Windows.Forms.Label label45;
         private System.Windows.Forms.ListBox locationsLB;
         private System.Windows.Forms.Label label44;
         private System.Windows.Forms.ListBox districtLB;
         private System.Windows.Forms.ToolStripMenuItem testingInfoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportChangesToolStripMenuItem;
     }
 }
 

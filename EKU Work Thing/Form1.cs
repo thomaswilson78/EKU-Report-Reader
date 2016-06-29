@@ -3,121 +3,69 @@ using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Office.Interop.Excel;
+using MySql.Data.MySqlClient;
+using System.Data.SQLite;
 
 /*To Do:
     -Need to adjust footprints data. Some rooms have projector but do not have screen data, so they'll be missed in the report. Also some
         rooms still do not have screens.
     -Need to improve way of getting district data, especially for excel data usage. Likely will store into a 2D array.
     -Need to export data into an excel document that can be used for reporting data. Data will be for districts.
+    -Students cannot access database due to permissions issue with wifi.
 */
 namespace EKU_Work_Thing
 {
     public partial class Form1 : Form
     {
+        Form2 f2;
         List<roomInfo> campusData = new List<roomInfo>();
         //used to populate the location listbox. If possible, need to find a better way without searching every object in campusData
-        
-        string[] districtArray = new string[] {
-            "Crabbe Library","University Building","Combs Classroom","Keith Building","McCreary Building","Weaver Health",//library: 6
-            "Cammack Building","Moore Building","Memorial Science","Roark Building",//oldsci: 4
-            "New Science Building","Dizney Building","Rowlett Building",//newsci: 3
-            "Wallace Building","Case Annex","Powell Building",//central: 3
-            "Stratton Building","Ashland Building","Perkins Building","Carter Building",//justice: 4
-            "Whitlock Building",//services: 1
-            "Coates Administration Building","Jones Building",//admin: 2
-            "Burrier Building","Campbell Building","Whalin Complex","Foster Music Building",//arts: 4
-            "Alumni Coliseum","Begley Building","Moberly Building","Gentry Building"//fitness: 4
-            };
+        string[] libDistrict = new string[] { "Combs Classroom", "Crabbe Library", "Keith Building", "McCreary Building", "University Building", "Weaver Health" };
+        string[] oldSciDistrict = new string[] { "Cammack Building", "Memorial Science", "Moore Building", "Roark Building" };
+        string[] newSciDistrict = new string[] { "Dizney Building", "New Science Building", "Rowlett Building" };
+        string[] centralDistrict = new string[] { "Case Annex", "Powell Building", "Wallace Building" };
+        string[] justiceDistrict = new string[] { "Ashland Building", "Carter Building", "Perkins Building", "Stratton Building" };
+        string[] serviceDistrict = new string[] { "Whitlock Building" };
+        string[] adminDistrict = new string[] { "Coates Administration Building", "Jones Building" };
+        string[] artsDistrict = new string[] { "Burrier Building","Campbell Building", "Foster Music Building", "Whalin Complex" };
+        string[] fitnessDistrict = new string[] { "Alumni Coliseum","Begley Building", "Gentry Building", "Moberly Building" };
+
         public Form1()
         {
+            f2 = new Form2(this);
             InitializeComponent();
+            //temporarily removes tabs to look nicer
             tabControl1.TabPages.Remove(Display2);
             tabControl1.TabPages.Remove(Display3);
             tabControl1.TabPages.Remove(Display4);
             tabControl1.TabPages.Remove(OtherDevices);
             tabControl1.TabPages.Remove(Description);
+            //automatically select first item to prevent errors/look nicer
             buildLB.SetSelected(0, true);
             districtLB.SetSelected(0, true);
-
-            for (int i = 0; i < 15; i++)
-                testGeneralDGV.Rows.Add();
-            testGeneralDGV.Rows[0].Cells[0].Value = "Display(s) power on";
-            testGeneralDGV.Rows[1].Cells[0].Value = "(CP) Warm up screen alots enough time for projector warm up light to stop.";
-            testGeneralDGV.Rows[2].Cells[0].Value = "No Filter or Bulb Life error message.";
-            testGeneralDGV.Rows[3].Cells[0].Value = "Image is properly centered, zoomed, \"squared\" (i.e. not jutting corners), and focused.";
-            testGeneralDGV.Rows[4].Cells[0].Value = "Equipment, cart, and cables are neat and organized.";
-            testGeneralDGV.Rows[5].Cells[0].Value = "(CP) Quick guide is displayed after powering on the system.";
-            testGeneralDGV.Rows[6].Cells[0].Value = "(CP) Time/Date are properly displayed and are correct.";
-            testGeneralDGV.Rows[7].Cells[0].Value = "(CP) \"Help\" button displays IT contact information when pressed.";
-            testGeneralDGV.Rows[8].Cells[0].Value = "(CP) Video mute button highlights when selected and mutes the display.";
-            testGeneralDGV.Rows[9].Cells[0].Value = "(CP) \"Auto Image\" button auto images and stays highlighted until complete.";
-            testGeneralDGV.Rows[10].Cells[0].Value = "Screen controls ▲, ▼, ■  work properly and screen is not marked/damaged.";
-            testGeneralDGV.Rows[11].Cells[0].Value = "Lighting system properly dims and brightens light.";
-            testGeneralDGV.Rows[12].Cells[0].Value = "(CP) Cool down screen alots enough time for projector cool down light to stop.";
-            testGeneralDGV.Rows[13].Cells[0].Value = "(CP) Powering down shuts down all other equipment (Doc Cam, etc).";
-            testGeneralDGV.Rows[14].Cells[0].Value = "Check filter for damage (yes if damaged, no if good).";
-
-            for (int i = 0; i < 6; i++)
-                testVidAudDGV.Rows.Add();
-            testVidAudDGV.Rows[0].Cells[0].Value = "(CP) Button stays highlighted with properly label when selected and held.";
-            testVidAudDGV.Rows[1].Cells[0].Value = "Output displays properly without issues (e.g. no flickering, vibrating, etc.)";
-            testVidAudDGV.Rows[2].Cells[0].Value = "Audio works properly without issues (e.g. no static, poor quality, etc.)";
-            testVidAudDGV.Rows[3].Cells[0].Value = "Volume adjusts properly on speakers.";
-            testVidAudDGV.Rows[4].Cells[0].Value = "(CP) Mute button mutes audio and highlights when selected.";
-            testVidAudDGV.Rows[5].Cells[0].Value = "(CP) \"All\", \"Left\", \"Right\", and \"Center\" display options show proper source.";
-
-            for (int i = 0; i < 2; i++)
-                testMicDGV.Rows.Add();
-            testMicDGV.Rows[0].Cells[0].Value = "Microphone output sounds clear (e.g. no popping, static, feedback, etc).";
-            testMicDGV.Rows[1].Cells[0].Value = "Microphone volume level is approriately loud enough.";
-
-            for (int i = 0; i < 4; i++)
-                testDocDGV.Rows.Add();
-            testDocDGV.Rows[0].Cells[0].Value = "Zoom + and - fuctions change image accordingly";
-            testDocDGV.Rows[1].Cells[0].Value = "Focus ▲, ▼ and \"Auto\" functions change image accordingly.";
-            testDocDGV.Rows[2].Cells[0].Value = "Iris ▲, ▼ and \"Normal\" functions change image accordingly.";
-            testDocDGV.Rows[3].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
-
-            for (int i = 0; i < 4; i++)
-                testDVDDGV.Rows.Add();
-            testDVDDGV.Rows[0].Cells[0].Value = "(CP) \"Menu\" and \"Title\" buttons bring up their respective screens.";
-            testDVDDGV.Rows[1].Cells[0].Value = "(CP) Arrow keys navigate properly through the menus.";
-            testDVDDGV.Rows[2].Cells[0].Value = "(CP) All soft key controls for play, stop, fast-forward, etc. work accordingly.";
-            testDVDDGV.Rows[3].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
-
-            for (int i = 0; i < 5; i++)
-                testIPTVDGV.Rows.Add();
-            testIPTVDGV.Rows[0].Cells[0].Value = "(CP) Arrow keys navigate properly through the menus.";
-            testIPTVDGV.Rows[1].Cells[0].Value = "(CP) Channel up and down buttons work correctly.";
-            testIPTVDGV.Rows[2].Cells[0].Value = "(CP) Channel number can be directly input to navigate to channel.";
-            testIPTVDGV.Rows[3].Cells[0].Value = "(CP) \"Last\" button goes to the IPTV main menu.";
-            testIPTVDGV.Rows[4].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
+            //builds testing tables
+            buildTestingTables();
+            DateTime temp = DateTime.Now.AddMonths(-3);
+            distMaintainedLbl.Text += " "+temp.ToString("MM/dd/yyy")+":";
         }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }//Done
 
         //loads a footprints .csv file into the program
         private void loadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            try {
+            try
+            {
                 //using is a way of assigning functionality without needing to use multiple statements such as "ofd.Filter="CSV|*.csv"" 
                 using (OpenFileDialog ofd = new OpenFileDialog() { Filter = "CSV|*.csv", ValidateNames = true, Multiselect = false })
                     if (ofd.ShowDialog() == DialogResult.OK)
                     {
                         //removes old data to prevent data overlapping
-                        if(campusData.Count>0)
+                        if (campusData.Count > 0)
                         {
-                            campusData.RemoveRange(0,campusData.Count-1);
+                            campusData.RemoveRange(0, campusData.Count - 1);
                         }
                         //TextFieldParser works like a StreamReaser, but parses .csv data properly.
                         //Requires a reference to the Microsoft.VisualBasic .dll file
@@ -127,12 +75,12 @@ namespace EKU_Work_Thing
                         parser.SetDelimiters(",");
                         while (!parser.EndOfData)
                         {
-                            roomInfo newRoom = new roomInfo();//Object collects data about room
                             //seperate the .csv data by ','
                             string[] lines = parser.ReadFields();
 
                             if (!lines[0].Equals("Building Equipment Resides In")) //store all relevant data as attributes in an object
                             {
+                                roomInfo newRoom = new roomInfo();//Object collects data about room
                                 newRoom.Building = lines[0];
                                 newRoom.Room = lines[1];
                                 newRoom.display1 = lines[2];
@@ -175,7 +123,8 @@ namespace EKU_Work_Thing
                                 DateTime.TryParse(lines[38], out newRoom.filter);
                                 DateTime.TryParse(lines[39], out newRoom.alarm);
                                 newRoom.av = lines[40].Equals("On");
-                                campusData.Add(newRoom);//Add object into collection of objects (rooms)
+                                DateTime.TryParse(lines[41], out newRoom.tested);
+                                campusData.Add(newRoom);//Add object into list of like objects (CampusData)
                             }
                         }
                         parser.Close();
@@ -187,7 +136,7 @@ namespace EKU_Work_Thing
                         {
                             //Set district for each building
                             if (room.Building.Equals("Crabbe Library") || room.Building.Equals("University Building") || room.Building.Equals("Combs Classroom")
-                                || room.Building.Equals("Keith Building") || room.Building.Equals("McCreary Building"))
+                                || room.Building.Equals("Keith Building") || room.Building.Equals("McCreary Building") || room.Building.Equals("Weaver Health"))
                                 room.District = "Library District";
                             else if (room.Building.Equals("Cammack Building") || room.Building.Equals("Moore Building") || room.Building.Equals("Memorial Science")
                                 || room.Building.Equals("Roark Building"))
@@ -208,7 +157,7 @@ namespace EKU_Work_Thing
                                 room.District = "Arts District";
                             else if (room.Building.Equals("Alumni Coliseum") || room.Building.Equals("Begley Building") || room.Building.Equals("Moberly Building"))
                                 room.District = "Fitness District";
-                            
+
                             //counts number of rooms and projectors
                             if (!room.display1.Equals(""))
                                 dispCount++;
@@ -260,10 +209,11 @@ namespace EKU_Work_Thing
                         //approximate the number of inventory information that has been collected.
                         foreach (var dist in campusData)
                         {
+                            int temp = (DateTime.Now - dist.tested).Days;
                             if (districtLB.SelectedItem.ToString().Equals(dist.District))
                             {
                                 disRooms++;
-                                if (dist.filter > DateTime.Parse("03/13/2016"))
+                                if (temp < 90)
                                 {
                                     invCollect++;
                                 }
@@ -278,6 +228,7 @@ namespace EKU_Work_Thing
                         disTotalTB.Text = disRooms.ToString();
                         disInvTB.Text = invCollect.ToString();
                         exportToolStripMenuItem.Enabled = true;
+
                     }
             }
             catch (Exception)
@@ -335,13 +286,113 @@ namespace EKU_Work_Thing
                 totalDisplaysTB.Clear();
                 mainNeededTB.Clear();
                 roomsLB.Items.Clear();
-                if (campusData.Count>0)
+                if (campusData.Count > 0)
                     campusData.RemoveRange(0, campusData.Count - 1);
                 MessageBox.Show("File could not be loaded. Make sure that the proper Footprints report is being pulled (\"#EKU REPORTING SOFTWARE REPORT\").", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 exportToolStripMenuItem.Enabled = false;
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
             }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }//Done
+
+        //Export the data into an excel spreadsheet that charts the data.
+
+        private void exportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //create an excel application object to open excel
+            Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
+            if (xlApp == null)
+            {
+                MessageBox.Show("Exporting requires Microsoft Office and Excel to be installed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                if (campusData.Count == 0)
+                {
+                    MessageBox.Show("No .csv file loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    try
+                    {
+                        //looks for template.xlsx file in the root directory of the program location, then in the Template folder
+                        string temp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Template\", "template.xlsx");
+                        Workbook wb = xlApp.Workbooks.Add(temp);
+                        Worksheet ws = (Worksheet)wb.Worksheets[1];
+                        //Extracts data from objects and loads it into the excel spreadsheet
+                        for (int i = 0; i < districtLB.Items.Count; i++)
+                        {
+                            string t = districtLB.Items[i].ToString();
+                            ws.Cells[i + 2, 1] = t;
+
+                            int disRooms = 0;
+                            int invCollect = 0;
+                            DateTime tmp;
+                            foreach (var dist in campusData)
+                            {
+                                tmp = DateTime.Now.AddMonths(-3);
+                                if (t.Equals(dist.District))
+                                {
+                                    disRooms++;
+                                    if (dist.tested <= tmp)
+                                    {
+                                        invCollect++;
+                                    }
+                                }
+                            }
+                            ws.Cells[i + 2, 2] = disRooms;
+                            ws.Cells[i + 2, 3] = invCollect;
+                        }
+                        xlApp.Visible = true;
+
+                        releaseObject(wb);
+                        releaseObject(ws);
+                        releaseObject(xlApp);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("Template file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+            }
+        }//Done
+
+        private void exportChangesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //create an excel application object to open excel
+            Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
+            if (xlApp == null)
+            {
+                MessageBox.Show("Exporting requires Microsoft Office and Excel to be installed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                if (campusData.Count == 0)
+                {
+                    MessageBox.Show("No .csv file loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    try
+                    {
+                        //looks for template.xlsx file in the root directory of the program location, then in the Template folder
+                        string temp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Template\", "template.xlsx");
+                        Workbook wb = xlApp.Workbooks.Add(temp);
+                        Worksheet ws = (Worksheet)wb.Worksheets[1];
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
+                }
+            }
+        }
+        //exit program
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }//Done
 
         //updates the rooms listbox when a building is selected.
@@ -402,6 +453,7 @@ namespace EKU_Work_Thing
                         vgaCB.Checked = rooms.vga;
                         hdmiCB.Checked = rooms.hdmi;
                         avcpCB.Checked = rooms.av;
+
                         break;
                     }
                 }
@@ -439,47 +491,48 @@ namespace EKU_Work_Thing
             {
                 case 0:
                     locationsLB.Items.Clear();
-                    for(int i=0;i<6;i++)
-                        locationsLB.Items.Add(districtArray[i]);
+                    for(int i=0;i<libDistrict.Count(); i++)
+                        locationsLB.Items.Add(libDistrict[i]);
                     break;
                 case 1:
                     locationsLB.Items.Clear();
-                    for (int i = 6; i < 10; i++)
-                        locationsLB.Items.Add(districtArray[i]);
+                    for (int i = 0; i < oldSciDistrict.Count(); i++)
+                        locationsLB.Items.Add(oldSciDistrict[i]);
                     break;
                 case 2:
                     locationsLB.Items.Clear();
-                    for (int i = 10; i < 13; i++)
-                        locationsLB.Items.Add(districtArray[i]);
+                    for (int i = 0; i < newSciDistrict.Count(); i++)
+                        locationsLB.Items.Add(newSciDistrict[i]);
                     break;
                 case 3:
                     locationsLB.Items.Clear();
-                    for (int i = 13; i < 16; i++)
-                        locationsLB.Items.Add(districtArray[i]);
+                    for (int i = 0; i < centralDistrict.Count(); i++)
+                        locationsLB.Items.Add(centralDistrict[i]);
                     break;
                 case 4:
                     locationsLB.Items.Clear();
-                    for (int i = 16; i < 20; i++)
-                        locationsLB.Items.Add(districtArray[i]);
+                    for (int i = 0; i < justiceDistrict.Count(); i++)
+                        locationsLB.Items.Add(justiceDistrict[i]);
                     break;
                 case 5:
                     locationsLB.Items.Clear();
-                    locationsLB.Items.Add(districtArray[20]);
+                    for (int i = 0; i < serviceDistrict.Count(); i++)
+                        locationsLB.Items.Add(serviceDistrict[i]);
                     break;
                 case 6:
                     locationsLB.Items.Clear();
-                    for (int i = 21; i < 23; i++)
-                        locationsLB.Items.Add(districtArray[i]);
+                    for (int i = 0; i < adminDistrict.Count(); i++)
+                        locationsLB.Items.Add(adminDistrict[i]);
                     break;
                 case 7:
                     locationsLB.Items.Clear();
-                    for (int i = 23; i < 27; i++)
-                        locationsLB.Items.Add(districtArray[i]);
+                    for (int i = 0; i < artsDistrict.Count(); i++)
+                        locationsLB.Items.Add(artsDistrict[i]);
                     break;
                 case 8:
                     locationsLB.Items.Clear();
-                    for (int i = 27; i < 31; i++)
-                        locationsLB.Items.Add(districtArray[i]);
+                    for (int i = 0; i < fitnessDistrict.Count(); i++)
+                        locationsLB.Items.Add(fitnessDistrict[i]);
                     break;
             }
             //displays information for the rooms for each district and inventory that has been collected since the new hires.
@@ -488,10 +541,11 @@ namespace EKU_Work_Thing
 
             foreach (var dist in campusData)
             {
+                int temp = (DateTime.Now - dist.tested).Days;
                 if (districtLB.SelectedItem.ToString().Equals(dist.District))
                 {
                     disRooms++;
-                    if (dist.filter>DateTime.Parse("03/13/2016"))
+                    if (temp < 90)
                     {
                         invCollect++;
                     }
@@ -501,83 +555,27 @@ namespace EKU_Work_Thing
             disInvTB.Text = invCollect.ToString();
         }//Done
 
-
-        //Export the data into an excel spreadsheet that charts the data.
-        private void exportToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //create an excel application object to open excel
-            Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
-            if(xlApp==null)
-            {
-                MessageBox.Show("Exporting requires Microsoft Office and Excel to be installed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else
-            {
-                if (campusData.Count == 0)
-                {
-                    MessageBox.Show("No .csv file loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    try {
-                        string test = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Template\", "template.xlsx");
-                        Workbook wb = xlApp.Workbooks.Add(test);
-                        Worksheet ws = (Worksheet)wb.Worksheets[1];
-                        //Extracts data from objects and loads it into the excel spreadsheet
-                        for (int i = 0; i < districtLB.Items.Count; i++)
-                        {
-                            string t = districtLB.Items[i].ToString();
-                            ws.Cells[i + 2, 1] = t;
-
-                            int disRooms = 0;
-                            int invCollect = 0;
-                            foreach (var dist in campusData)
-                            {
-                                if (t.Equals(dist.District))
-                                {
-                                    disRooms++;
-                                    if (dist.filter > DateTime.Parse("03/13/2016"))
-                                    {
-                                        invCollect++;
-                                    }
-                                }
-                            }
-                            ws.Cells[i + 2, 2] = disRooms;
-                            ws.Cells[i + 2, 3] = invCollect;
-                        }
-                        xlApp.Visible = true;
-
-                        releaseObject(wb);
-                        releaseObject(ws);
-                        releaseObject(xlApp);
-                    }
-                    catch(Exception)
-                    {
-                        MessageBox.Show("Template file not found.", "Error", MessageBoxButtons.OK,MessageBoxIcon.Error);
-                    }   
-                }
-                
-            }
-        }//Prints data to excel, need to create chart
-
+        //function to open form2
         private void showForm2()
         {
-            Form2 f2 = new Form2();
-            f2.Show();
+            f2.Show(this);
         }//Done
 
+        //opens inventory collected window (form2), same as edit/view button in inventory tab
         private void viewInvCollectedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             showForm2();
         }//Done
 
+        //opens inventory collected window (form2)
         private void addEditBtn_Click(object sender, EventArgs e)
         {
             showForm2();
         }//Done
 
+        //Adds and updates data in inventory database
         private void addAddUpdateBtn_Click(object sender, EventArgs e)
-        {
+        { 
             try
             {
                 if (!addBuildingComBox.Text.Equals(""))
@@ -586,7 +584,111 @@ namespace EKU_Work_Thing
                     {
                         if (!addMMTB1.Text.Equals(""))
                         {
-                            //Do the thing
+                            DateTime date;
+                            if (!DateTime.TryParse(addFilter.Text, out date))
+                            {
+                                MessageBox.Show("Invalid filter date entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                return;
+                            }
+                            MySqlConnection conn = new MySqlConnection("server=157.89.4.173;user=maintenanceUser;password=eku2016it;database=reporting_software;port=3306");
+                            try
+                            {
+                                conn.Open();
+                                MySqlDataReader reader;
+                                MySqlCommand cmd = new MySqlCommand("SELECT * FROM inventory_collected WHERE Building=@B AND Room=@R;", conn);
+                                cmd.Parameters.AddWithValue("@B", addBuildingComBox.Text);
+                                cmd.Parameters.AddWithValue("@R", addRoomTB.Text);
+                                reader = cmd.ExecuteReader();
+                                //data exist, just needs to be updated
+                                if (reader.Read())
+                                {
+                                    conn.Close();
+                                    reader.Close();
+                                    conn.Open();
+                                    cmd = new MySqlCommand(@"UPDATE inventory_collected SET Controller=@Ctrl,Audio=@Aud,Dock=@Dock,Doc_Cam=@DC,
+                                                Camera=@Cam,Mic=@Mic,Bluray=@Bl,DVD=@DVD,HDMI_Pull=@HDMI,VGA_Pull=@VGA,AV_Panel=@AV,Solstice=@Sol,
+                                                D1MakeModel=@D1MM,D1Serial=@D1Ser,D1Screen=@D1Scr,D1IP=@D1IP,D1MAC=@D1MAC,D1Bulb=@D1Bulb,
+                                                D2MakeModel=@D2MM,D2Serial=@D2Ser,D2Screen=@D2Scr,D2IP=@D2IP,D2MAC=@D2MAC,D2Bulb=@D2Bulb,
+                                                D3MakeModel=@D3MM,D3Serial=@D3Ser,D3Screen=@D3Scr,D3IP=@D3IP,D3MAC=@D3MAC,D3Bulb=@D3Bulb,
+                                                D4MakeModel=@D4MM,D4Serial=@D4Ser,D4Screen=@D4Scr,D4IP=@D4IP,D4MAC=@D4MAC,D4Bulb=@D4Bulb,
+                                                Filter=@Fil,PCModel=@PCM,PCSerial=@PCS,NUCIP=@NUCIP,Cat6Video=@C6,NetworkPorts=@NP,SolsticeDate=@SolD,
+                                                SolsticeLicense=@SolL,Notes=@Notes WHERE Building=@B AND Room=@R;", conn);
+                                }
+                                //data does not exist, needs to be created
+                                else
+                                {
+                                    conn.Close();
+                                    reader.Close();
+                                    conn.Open();
+                                    cmd = new MySqlCommand(@"INSERT INTO inventory_collected VALUES (@B,@R,@Ctrl,@Aud,
+                                                @Dock,@DC,@Cam,@Mic,@Bl,@DVD,@HDMI,@VGA,@AV,@Sol,
+                                                @D1MM,@D1Ser,@D1Scr,@D1IP,@D1MAC,@D1Bulb,
+                                                @D2MM,@D2Ser,@D2Scr,@D2IP,@D2MAC,@D2Bulb,
+                                                @D3MM,@D3Ser,@D3Scr,@D3IP,@D3MAC,@D3Bulb,
+                                                @D4MM,@D4Ser,@D4Scr,@D4IP,@D4MAC,@D4Bulb,
+                                                @Fil,@PCM,@PCS,@NUCIP,@C6,@NP,@SolD,@SolL,@Notes);", conn);
+                                }
+                                cmd.Parameters.AddWithValue("@B", addBuildingComBox.Text);
+                                cmd.Parameters.AddWithValue("@R", addRoomTB.Text);
+                                cmd.Parameters.AddWithValue("@Ctrl", addContComBox.Text);
+                                cmd.Parameters.AddWithValue("@Aud", addAudioComBox.Text);
+                                cmd.Parameters.AddWithValue("@Dock", addDockCB.Checked);
+                                cmd.Parameters.AddWithValue("@DC", addDCCB.Checked);
+                                cmd.Parameters.AddWithValue("@Cam", addCamCB.Checked);
+                                cmd.Parameters.AddWithValue("@Mic", addMicCB.Checked);
+                                cmd.Parameters.AddWithValue("@Bl", addBRCB.Checked);
+                                cmd.Parameters.AddWithValue("@DVD", addDVDCB.Checked);
+                                cmd.Parameters.AddWithValue("@HDMI", addHDMICB.Checked);
+                                cmd.Parameters.AddWithValue("@VGA", addVGACB.Checked);
+                                cmd.Parameters.AddWithValue("@AV", addAVCB.Checked);
+                                cmd.Parameters.AddWithValue("@Sol", addSolCB.Checked);
+                                cmd.Parameters.AddWithValue("@D1MM", addMMTB1.Text);
+                                cmd.Parameters.AddWithValue("@D1Ser", addSerialTB1.Text);
+                                cmd.Parameters.AddWithValue("@D1Scr", addScrTB1.Text);
+                                cmd.Parameters.AddWithValue("@D1IP", addIPTB1.Text);
+                                cmd.Parameters.AddWithValue("@D1MAC", addMACTB1.Text);
+                                cmd.Parameters.AddWithValue("@D1Bulb", addBulbTB1.Text);
+                                cmd.Parameters.AddWithValue("@D2MM", addMMTB2.Text);
+                                cmd.Parameters.AddWithValue("@D2Ser", addSerialTB2.Text);
+                                cmd.Parameters.AddWithValue("@D2Scr", addScrTB2.Text);
+                                cmd.Parameters.AddWithValue("@D2IP", addIPTB2.Text);
+                                cmd.Parameters.AddWithValue("@D2MAC", addMACTB2.Text);
+                                cmd.Parameters.AddWithValue("@D2Bulb", addBulbTB2.Text);
+                                cmd.Parameters.AddWithValue("@D3MM", addMMTB3.Text);
+                                cmd.Parameters.AddWithValue("@D3Ser", addSerialTB3.Text);
+                                cmd.Parameters.AddWithValue("@D3Scr", addScrTB3.Text);
+                                cmd.Parameters.AddWithValue("@D3IP", addIPTB3.Text);
+                                cmd.Parameters.AddWithValue("@D3MAC", addMACTB3.Text);
+                                cmd.Parameters.AddWithValue("@D3Bulb", addBulbTB3.Text);
+                                cmd.Parameters.AddWithValue("@D4MM", addMMTB4.Text);
+                                cmd.Parameters.AddWithValue("@D4Ser", addSerialTB4.Text);
+                                cmd.Parameters.AddWithValue("@D4Scr", addScrTB4.Text);
+                                cmd.Parameters.AddWithValue("@D4IP", addIPTB4.Text);
+                                cmd.Parameters.AddWithValue("@D4MAC", addMACTB4.Text);
+                                cmd.Parameters.AddWithValue("@D4Bulb", addBulbTB4.Text);
+                                cmd.Parameters.AddWithValue("@Fil", date.ToString("yyyy-MM-dd"));
+                                cmd.Parameters.AddWithValue("@PCM", addPCModTB.Text);
+                                cmd.Parameters.AddWithValue("@PCS", addPCSerialTB.Text);
+                                cmd.Parameters.AddWithValue("@NUCIP", addNUCIPTB.Text);
+                                cmd.Parameters.AddWithValue("@C6", addCatVidTB.Text);
+                                cmd.Parameters.AddWithValue("@NP", addNetTB.Text);
+                                DateTime.TryParse(addSolActTB.Text, out date);
+                                cmd.Parameters.AddWithValue("@SolD", date.ToString("yyyy-MM-dd"));
+                                cmd.Parameters.AddWithValue("@SolL", addSolLicTB.Text);
+                                cmd.Parameters.AddWithValue("@Notes", addDscrptTB.Text);
+                                
+                                cmd.ExecuteNonQuery();
+                                MessageBox.Show("Inventory information successfully added.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            }
+                            finally
+                            {
+                                conn.Close();
+                                f2.loadTable();
+                            }
                         }
                         else
                             MessageBox.Show("Please enter information for Display 1.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -601,10 +703,9 @@ namespace EKU_Work_Thing
             {
                 MessageBox.Show(ex.ToString());
             }
-        }//In progress, need SQL
+        }//Done. Needs further error checking
 
-
-        //custom functions
+        //custom functions (not directly related to an object on the form)
         //prevents user from clicking on multiple checkboxes in the same row. works for all datagridviews using this event
         private void testPreventMultiCB(object sender, DataGridViewCellEventArgs e)
         {
@@ -630,6 +731,7 @@ namespace EKU_Work_Thing
                 }
             }
         }//done
+
         //garbage collection
         private void releaseObject(object obj)
         {
@@ -649,9 +751,68 @@ namespace EKU_Work_Thing
             }
         }//done
 
+        //simply focuses on the testing notes when tab is clicked
         private void followUpFocus(object sender, MouseEventArgs e)
         {
             testNotesTB.Focus();
+        }
+
+        //adds rows to testing table
+        private void buildTestingTables()
+        {
+            for (int i = 0; i < 15; i++)
+                testGeneralDGV.Rows.Add();
+            testGeneralDGV.Rows[0].Cells[0].Value = "Display(s) power on";
+            testGeneralDGV.Rows[1].Cells[0].Value = "(CP) Warm up screen alots enough time for projector warm up light to stop.";
+            testGeneralDGV.Rows[2].Cells[0].Value = "No Filter or Bulb Life error message.";
+            testGeneralDGV.Rows[3].Cells[0].Value = "Image is properly centered, zoomed, \"squared\" (i.e. not jutting corners), and focused.";
+            testGeneralDGV.Rows[4].Cells[0].Value = "Equipment, cart, and cables are neat and organized.";
+            testGeneralDGV.Rows[5].Cells[0].Value = "(CP) Quick guide is displayed after powering on the system.";
+            testGeneralDGV.Rows[6].Cells[0].Value = "(CP) Time/Date are properly displayed and are correct.";
+            testGeneralDGV.Rows[7].Cells[0].Value = "(CP) \"Help\" button displays IT contact information when pressed.";
+            testGeneralDGV.Rows[8].Cells[0].Value = "(CP) Video mute button highlights when selected and mutes the display.";
+            testGeneralDGV.Rows[9].Cells[0].Value = "(CP) \"Auto Image\" button auto images and stays highlighted until complete.";
+            testGeneralDGV.Rows[10].Cells[0].Value = "Screen controls ▲, ▼, ■  work properly and screen is not marked/damaged.";
+            testGeneralDGV.Rows[11].Cells[0].Value = "Lighting system properly dims and brightens light.";
+            testGeneralDGV.Rows[12].Cells[0].Value = "(CP) Cool down screen alots enough time for projector cool down light to stop.";
+            testGeneralDGV.Rows[13].Cells[0].Value = "(CP) Powering down shuts down all other equipment (Doc Cam, etc).";
+            testGeneralDGV.Rows[14].Cells[0].Value = "Check filter for damage (yes if damaged, no if good).";
+
+            for (int i = 0; i < 6; i++)
+                testVidAudDGV.Rows.Add();
+            testVidAudDGV.Rows[0].Cells[0].Value = "(CP) Button stays highlighted with properly label when selected and held.";
+            testVidAudDGV.Rows[1].Cells[0].Value = "Output displays properly without issues (e.g. no flickering, vibrating, etc.)";
+            testVidAudDGV.Rows[2].Cells[0].Value = "Audio works properly without issues (e.g. no static, poor quality, etc.)";
+            testVidAudDGV.Rows[3].Cells[0].Value = "Volume adjusts properly on speakers.";
+            testVidAudDGV.Rows[4].Cells[0].Value = "(CP) Mute button mutes audio and highlights when selected.";
+            testVidAudDGV.Rows[5].Cells[0].Value = "(CP) \"All\", \"Left\", \"Right\", and \"Center\" display options show proper source.";
+
+            for (int i = 0; i < 2; i++)
+                testMicDGV.Rows.Add();
+            testMicDGV.Rows[0].Cells[0].Value = "Microphone output sounds clear (e.g. no popping, static, feedback, etc).";
+            testMicDGV.Rows[1].Cells[0].Value = "Microphone volume level is approriately loud enough.";
+
+            for (int i = 0; i < 4; i++)
+                testDocDGV.Rows.Add();
+            testDocDGV.Rows[0].Cells[0].Value = "Zoom + and - fuctions change image accordingly";
+            testDocDGV.Rows[1].Cells[0].Value = "Focus ▲, ▼ and \"Auto\" functions change image accordingly.";
+            testDocDGV.Rows[2].Cells[0].Value = "Iris ▲, ▼ and \"Normal\" functions change image accordingly.";
+            testDocDGV.Rows[3].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
+
+            for (int i = 0; i < 4; i++)
+                testDVDDGV.Rows.Add();
+            testDVDDGV.Rows[0].Cells[0].Value = "(CP) \"Menu\" and \"Title\" buttons bring up their respective screens.";
+            testDVDDGV.Rows[1].Cells[0].Value = "(CP) Arrow keys navigate properly through the menus.";
+            testDVDDGV.Rows[2].Cells[0].Value = "(CP) All soft key controls for play, stop, fast-forward, etc. work accordingly.";
+            testDVDDGV.Rows[3].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
+
+            for (int i = 0; i < 5; i++)
+                testIPTVDGV.Rows.Add();
+            testIPTVDGV.Rows[0].Cells[0].Value = "(CP) Arrow keys navigate properly through the menus.";
+            testIPTVDGV.Rows[1].Cells[0].Value = "(CP) Channel up and down buttons work correctly.";
+            testIPTVDGV.Rows[2].Cells[0].Value = "(CP) Channel number can be directly input to navigate to channel.";
+            testIPTVDGV.Rows[3].Cells[0].Value = "(CP) \"Last\" button goes to the IPTV main menu.";
+            testIPTVDGV.Rows[4].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
         }
     }
 
@@ -691,6 +852,7 @@ namespace EKU_Work_Thing
         public string description { get; set; }
         public DateTime filter;
         public DateTime alarm;
+        public DateTime tested;
         public bool dock = false;
         public bool docCam = false;
         public bool DVD = false;
@@ -704,7 +866,7 @@ namespace EKU_Work_Thing
 }
 
 /*
-                    //!!!Works, but does not make a good chart, nice for reference
+                    //Works, but does not make a good chart, nice for reference
                     //creates a workbook and worksheet file.
                     Workbook wb = xlApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
                     Worksheet ws = (Worksheet)wb.Worksheets[1];

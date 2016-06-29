@@ -32,9 +32,10 @@
             this.invcolBuilding = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.invcolRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.invcolView = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.invcolSelected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.invClose = new System.Windows.Forms.Button();
             this.invDelete = new System.Windows.Forms.Button();
-            this.invEdit = new System.Windows.Forms.Button();
+            this.invClear = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.invcolDGV)).BeginInit();
             this.SuspendLayout();
             // 
@@ -44,16 +45,18 @@
             this.invcolDGV.AllowUserToDeleteRows = false;
             this.invcolDGV.AllowUserToResizeColumns = false;
             this.invcolDGV.AllowUserToResizeRows = false;
+            this.invcolDGV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.invcolDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.invcolDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.invcolBuilding,
             this.invcolRoom,
-            this.invcolView});
+            this.invcolView,
+            this.invcolSelected});
             this.invcolDGV.Location = new System.Drawing.Point(12, 12);
             this.invcolDGV.Name = "invcolDGV";
-            this.invcolDGV.Size = new System.Drawing.Size(420, 309);
+            this.invcolDGV.Size = new System.Drawing.Size(393, 309);
             this.invcolDGV.TabIndex = 0;
-            this.invcolDGV.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.invcolDGV.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.invcolDGV_CellContentClick);
             // 
             // invcolBuilding
             // 
@@ -74,15 +77,26 @@
             // invcolView
             // 
             this.invcolView.HeaderText = "View";
+            this.invcolView.MinimumWidth = 35;
             this.invcolView.Name = "invcolView";
             this.invcolView.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.invcolView.Text = "View";
+            this.invcolView.Width = 35;
+            // 
+            // invcolSelected
+            // 
+            this.invcolSelected.HeaderText = "Select";
+            this.invcolSelected.MinimumWidth = 40;
+            this.invcolSelected.Name = "invcolSelected";
+            this.invcolSelected.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.invcolSelected.Width = 40;
             // 
             // invClose
             // 
-            this.invClose.Location = new System.Drawing.Point(357, 327);
+            this.invClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.invClose.Location = new System.Drawing.Point(350, 327);
             this.invClose.Name = "invClose";
-            this.invClose.Size = new System.Drawing.Size(75, 23);
+            this.invClose.Size = new System.Drawing.Size(55, 23);
             this.invClose.TabIndex = 1;
             this.invClose.Text = "Close";
             this.invClose.UseVisualStyleBackColor = true;
@@ -90,34 +104,41 @@
             // 
             // invDelete
             // 
-            this.invDelete.Location = new System.Drawing.Point(276, 327);
+            this.invDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.invDelete.Location = new System.Drawing.Point(73, 327);
             this.invDelete.Name = "invDelete";
-            this.invDelete.Size = new System.Drawing.Size(75, 23);
+            this.invDelete.Size = new System.Drawing.Size(55, 23);
             this.invDelete.TabIndex = 2;
             this.invDelete.Text = "Delete";
             this.invDelete.UseVisualStyleBackColor = true;
+            this.invDelete.Click += new System.EventHandler(this.invDelete_Click);
             // 
-            // invEdit
+            // invClear
             // 
-            this.invEdit.Location = new System.Drawing.Point(195, 327);
-            this.invEdit.Name = "invEdit";
-            this.invEdit.Size = new System.Drawing.Size(75, 23);
-            this.invEdit.TabIndex = 3;
-            this.invEdit.Text = "Edit";
-            this.invEdit.UseVisualStyleBackColor = true;
+            this.invClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.invClear.Location = new System.Drawing.Point(12, 327);
+            this.invClear.Name = "invClear";
+            this.invClear.Size = new System.Drawing.Size(55, 23);
+            this.invClear.TabIndex = 4;
+            this.invClear.Text = "Clear";
+            this.invClear.UseVisualStyleBackColor = true;
+            this.invClear.Click += new System.EventHandler(this.invClear_Click);
             // 
             // Form2
             // 
             this.AcceptButton = this.invClose;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(444, 362);
-            this.Controls.Add(this.invEdit);
+            this.ClientSize = new System.Drawing.Size(417, 362);
+            this.Controls.Add(this.invClear);
             this.Controls.Add(this.invDelete);
             this.Controls.Add(this.invClose);
             this.Controls.Add(this.invcolDGV);
+            this.MaximumSize = new System.Drawing.Size(433, 65535);
+            this.MinimumSize = new System.Drawing.Size(433, 0);
             this.Name = "Form2";
             this.Text = "Inventory Collected";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form2_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.invcolDGV)).EndInit();
             this.ResumeLayout(false);
 
@@ -128,9 +149,10 @@
         private System.Windows.Forms.DataGridView invcolDGV;
         private System.Windows.Forms.Button invClose;
         private System.Windows.Forms.Button invDelete;
-        private System.Windows.Forms.Button invEdit;
+        private System.Windows.Forms.Button invClear;
         private System.Windows.Forms.DataGridViewTextBoxColumn invcolBuilding;
         private System.Windows.Forms.DataGridViewTextBoxColumn invcolRoom;
         private System.Windows.Forms.DataGridViewButtonColumn invcolView;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn invcolSelected;
     }
 }
