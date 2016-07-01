@@ -7,22 +7,19 @@ using System.Linq;
 using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Office.Interop.Excel;
-using MySql.Data.MySqlClient;
 using System.Data.SQLite;
 
 /*To Do:
     -Need to adjust footprints data. Some rooms have projector but do not have screen data, so they'll be missed in the report. Also some
         rooms still do not have screens.
-    -Need to improve way of getting district data, especially for excel data usage. Likely will store into a 2D array.
-    -Need to export data into an excel document that can be used for reporting data. Data will be for districts.
-    -Students cannot access database due to permissions issue with wifi.
+    -Need to report changes in an excel file.
 */
 namespace EKU_Work_Thing
 {
     public partial class Form1 : Form
     {
+        public List<roomInfo> campusData = new List<roomInfo>();
         Form2 f2;
-        List<roomInfo> campusData = new List<roomInfo>();
         //used to populate the location listbox. If possible, need to find a better way without searching every object in campusData
         string[] libDistrict = new string[] { "Combs Classroom", "Crabbe Library", "Keith Building", "McCreary Building", "University Building", "Weaver Health" };
         string[] oldSciDistrict = new string[] { "Cammack Building", "Memorial Science", "Moore Building", "Roark Building" };
@@ -35,7 +32,7 @@ namespace EKU_Work_Thing
         string[] fitnessDistrict = new string[] { "Alumni Coliseum","Begley Building", "Gentry Building", "Moberly Building" };
 
         public Form1()
-        {
+        { 
             f2 = new Form2(this);
             InitializeComponent();
             //temporarily removes tabs to look nicer
@@ -124,41 +121,112 @@ namespace EKU_Work_Thing
                                 DateTime.TryParse(lines[39], out newRoom.alarm);
                                 newRoom.av = lines[40].Equals("On");
                                 DateTime.TryParse(lines[41], out newRoom.tested);
-                                campusData.Add(newRoom);//Add object into list of like objects (CampusData)
+                                campusData.Add(newRoom);//Add object into list of like objects (campusData)
                             }
                         }
                         parser.Close();
                         ofd.Dispose();
 
-                        int dispCount = 0;
-                        int filCount = 0;
+                        int dispCount = 0;//counts number of displays
+                        int filCount = 0;//counts number of filters cleaned in past 90 days
+                        //sets district for each building/room
+                        System.Data.DataTable dt = new System.Data.DataTable();
+                        dt.Columns.Add("Building", typeof(string));
+                        dt.Columns.Add("Room", typeof(string));
+                        dt.Columns.Add("Last Cleaned", typeof(string));
+                        dt.Columns.Add("Alarm Replaced", typeof(string));
                         foreach (var room in campusData)
                         {
+                            bool unset = true;
                             //Set district for each building
-                            if (room.Building.Equals("Crabbe Library") || room.Building.Equals("University Building") || room.Building.Equals("Combs Classroom")
-                                || room.Building.Equals("Keith Building") || room.Building.Equals("McCreary Building") || room.Building.Equals("Weaver Health"))
-                                room.District = "Library District";
-                            else if (room.Building.Equals("Cammack Building") || room.Building.Equals("Moore Building") || room.Building.Equals("Memorial Science")
-                                || room.Building.Equals("Roark Building"))
-                                room.District = "Old Science District";
-                            else if (room.Building.Equals("New Science Building") || room.Building.Equals("Dizney Building") || room.Building.Equals("Rowlett Building"))
-                                room.District = "New Science District";
-                            else if (room.Building.Equals("Wallace Building") || room.Building.Equals("Case Annex") || room.Building.Equals("Powell Building"))
-                                room.District = "Central Campus Area";
-                            else if (room.Building.Equals("Stratton Building") || room.Building.Equals("Ashland Building") || room.Building.Equals("Perkins Building")
-                                || room.Building.Equals("Carter Building"))
-                                room.District = "Justice District";
-                            else if (room.Building.Equals("Whitlock Building"))
-                                room.District = "Services District";
-                            else if (room.Building.Equals("Coates Administration Building") || room.Building.Equals("Jones Building"))
-                                room.District = "Administrative District";
-                            else if (room.Building.Equals("Campbell Building") || room.Building.Equals("Foster Music Building") || room.Building.Equals("Burrier Building")
-                                || room.Building.Equals("Whalin Complex"))
-                                room.District = "Arts District";
-                            else if (room.Building.Equals("Alumni Coliseum") || room.Building.Equals("Begley Building") || room.Building.Equals("Moberly Building"))
-                                room.District = "Fitness District";
-
-                            //counts number of rooms and projectors
+                            foreach (string d in libDistrict)
+                                if (room.Building.Equals(d))
+                                {
+                                    room.District = "Library District";
+                                    unset = false;
+                                    break;
+                                }
+                            if(unset)
+                            {
+                                foreach (string d in oldSciDistrict)
+                                    if (room.Building.Equals(d))
+                                    {
+                                        room.District = "Old Science District";
+                                        unset = false;
+                                        break;
+                                    }
+                            }
+                            if (unset)
+                            {
+                                foreach (string d in newSciDistrict)
+                                    if (room.Building.Equals(d))
+                                    {
+                                        room.District = "New Science District";
+                                        unset = false;
+                                        break;
+                                    }
+                            }
+                            if (unset)
+                            {
+                                foreach (string d in centralDistrict)
+                                    if (room.Building.Equals(d))
+                                    {
+                                        room.District = "Central Campus Area";
+                                        unset = false;
+                                        break;
+                                    }
+                            }
+                            if (unset)
+                            {
+                                foreach (string d in justiceDistrict)
+                                    if (room.Building.Equals(d))
+                                    {
+                                        room.District = "Justice District";
+                                        unset = false;
+                                        break;
+                                    }
+                            }
+                            if (unset)
+                            {
+                                foreach (string d in serviceDistrict)
+                                    if (room.Building.Equals(d))
+                                    {
+                                        room.District = "Services District";
+                                        unset = false;
+                                        break;
+                                    }
+                            }
+                            if (unset)
+                            {
+                                foreach (string d in adminDistrict)
+                                    if (room.Building.Equals(d))
+                                    {
+                                        room.District = "Administrative District";
+                                        unset = false;
+                                        break;
+                                    }
+                            }
+                            if (unset)
+                            {
+                                foreach (string d in artsDistrict)
+                                    if (room.Building.Equals(d))
+                                    {
+                                        room.District = "Arts District";
+                                        unset = false;
+                                        break;
+                                    }
+                            }
+                            if (unset)
+                            {
+                                foreach (string d in fitnessDistrict)
+                                    if (room.Building.Equals(d))
+                                    {
+                                        room.District = "Fitness District";
+                                        unset = false;
+                                        break;
+                                    }
+                            }
+                            //counts number of rooms and projectors/tvs
                             if (!room.display1.Equals(""))
                                 dispCount++;
                             if (!room.display2.Equals(""))
@@ -172,26 +240,27 @@ namespace EKU_Work_Thing
                             //check if filter is older than 3 months and report it if last filter clean date is older than that
                             if (temp >= 90)
                             {
-                                filCount++;
-                                int test = dataGridView1.Rows.Count;
-                                DataGridViewRow row = (DataGridViewRow)dataGridView1.Rows[0].Clone();
-                                row.Cells[0].Value = room.Building;
-                                row.Cells[1].Value = room.Room;
+                                //adds room to the maintenance needed list
+                                string f = "";
+                                string a = "";
                                 if (room.filter.ToShortDateString().Equals("1/1/0001"))
-                                    row.Cells[2].Value = "N/A";
+                                    f = "N/A";
                                 else
-                                    row.Cells[2].Value = room.filter.ToShortDateString();
+                                    f = room.filter.ToShortDateString();
                                 if (room.alarm.ToShortDateString().Equals("1/1/0001"))
-                                    row.Cells[3].Value = "N/A";
+                                    a = "N/A";
                                 else
-                                    row.Cells[3].Value = room.alarm.ToShortDateString();
-                                dataGridView1.Rows.Add(row);
+                                    a = room.alarm.ToShortDateString();
+                                dt.Rows.Add(room.Building, room.Room, f, a);
+                                filCount++;
                             }
                         }
-                        //sort filter data in table and prints out display/filter data
-                        dataGridView1.Sort(roomDG, ListSortDirection.Ascending);
-                        dataGridView1.Sort(buildingDG, ListSortDirection.Ascending);
                         //add rooms to the list based on the currently selected building
+                        DataView dv = dt.DefaultView;
+                        dv.Sort = "Building ASC, Room ASC";
+                        maintenanceDGV.DataSource = dv;
+                        dt = null;
+                        
                         roomsLB.Items.Clear();
                         if (buildLB.SelectedIndex >= 0)
                         {
@@ -228,10 +297,12 @@ namespace EKU_Work_Thing
                         disTotalTB.Text = disRooms.ToString();
                         disInvTB.Text = invCollect.ToString();
                         exportToolStripMenuItem.Enabled = true;
+                        exportChangesToolStripMenuItem.Enabled = true;
+                        pullReportBtn.Enabled = true;
 
                     }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 disInvTB.Text = "0";
                 disTotalTB.Text = "0";
@@ -281,22 +352,24 @@ namespace EKU_Work_Thing
                 tabControl1.TabPages.Remove(Display4);
                 tabControl1.TabPages.Remove(OtherDevices);
                 tabControl1.TabPages.Remove(Description);
-                dataGridView1.Rows.Clear();
-                dataGridView1.Refresh();
+                maintenanceDGV.Rows.Clear();
+                maintenanceDGV.Refresh();
                 totalDisplaysTB.Clear();
                 mainNeededTB.Clear();
                 roomsLB.Items.Clear();
                 if (campusData.Count > 0)
                     campusData.RemoveRange(0, campusData.Count - 1);
                 MessageBox.Show("File could not be loaded. Make sure that the proper Footprints report is being pulled (\"#EKU REPORTING SOFTWARE REPORT\").", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message);
                 exportToolStripMenuItem.Enabled = false;
+                exportChangesToolStripMenuItem.Enabled = false;
+                pullReportBtn.Enabled = false;
             }
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }//Done
 
         //Export the data into an excel spreadsheet that charts the data.
-
         private void exportToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //create an excel application object to open excel
@@ -358,6 +431,7 @@ namespace EKU_Work_Thing
             }
         }//Done
 
+        //Export the changes between recently maintained rooms and the report pulled from inventory
         private void exportChangesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //create an excel application object to open excel
@@ -376,11 +450,221 @@ namespace EKU_Work_Thing
                 {
                     try
                     {
-                        //looks for template.xlsx file in the root directory of the program location, then in the Template folder
-                        string temp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Template\", "template.xlsx");
-                        Workbook wb = xlApp.Workbooks.Add(temp);
+                        Workbook wb = xlApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
                         Worksheet ws = (Worksheet)wb.Worksheets[1];
+                        ws.Cells[1, 1] = "Building";
+                        ws.Cells[1, 2] = "Room";
+                        int y = 2; //for y coordinates in the worksheet
+                        SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;version=3;");
+                        conn.Open();
+                        SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM inventory_collected;", conn);
+                        SQLiteDataReader reader = cmd.ExecuteReader();
+                        while(reader.Read())
+                        {
+                            foreach (var record in campusData)
+                            {
+                                int x = 3; //for x coordinates in the worksheet
+                                if (record.Building==reader["Building"].ToString() && record.Room==reader["Room"].ToString())
+                                {
+                                    bool changes = false;
+                                    //where changes will occur, label should be above (y) and data should be below (y+1)
+                                    if(record.display1!=reader["D1MakeModel"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Display 1";
+                                        ws.Cells[y + 1, x] = reader["D1MakeModel"].ToString();
+                                        x++;
+                                    }
+                                    if (record.serial1 != reader["D1Serial"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Serial 1";
+                                        ws.Cells[y + 1, x] = reader["D1Serial"].ToString();
+                                        x++;
+                                    }
+                                    if (record.screen1 != reader["D1Screen"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Screen 1";
+                                        ws.Cells[y + 1, x] = reader["D1Screen"].ToString();
+                                        x++;
+                                    }
+                                    if (record.ip1 != reader["D1IP"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "IP Address 1";
+                                        ws.Cells[y + 1, x] = reader["D1IP"].ToString();
+                                        x++;
+                                    }
+                                    if (record.mac1 != reader["D1Mac"].ToString() && !reader["D1Mac"].ToString().Equals("  :  :  :  :  :"))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "MAC Address 1";
+                                        ws.Cells[y + 1, x] = reader["D1MAC"].ToString();
+                                        x++;
+                                    }
+                                    if (record.bulb1 != reader["D1Bulb"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Bulb 1";
+                                        ws.Cells[y + 1, x] = reader["D1Bulb"].ToString();
+                                        x++;
+                                    }
+                                    if (record.display2 != reader["D2MakeModel"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Display 2";
+                                        ws.Cells[y + 1, x] = reader["D2MakeModel"].ToString();
+                                        x++;
+                                    }
+                                    if (record.serial2 != reader["D2Serial"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Serial 2";
+                                        ws.Cells[y + 1, x] = reader["D2Serial"].ToString();
+                                        x++;
+                                    }
+                                    if (record.screen2 != reader["D2Screen"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Screen 2";
+                                        ws.Cells[y + 1, x] = reader["D2Screen"].ToString();
+                                        x++;
+                                    }
+                                    if (record.ip2 != reader["D2IP"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "IP Address 2";
+                                        ws.Cells[y + 1, x] = reader["D2IP"].ToString();
+                                        x++;
+                                    }
+                                    if (record.mac2 != reader["D2Mac"].ToString() && !reader["D2Mac"].ToString().Equals("  :  :  :  :  :"))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "MAC Address 2";
+                                        ws.Cells[y + 1, x] = reader["D2MAC"].ToString();
+                                        x++;
+                                    }
+                                    if (record.bulb2 != reader["D2Bulb"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Bulb 2";
+                                        ws.Cells[y + 1, x] = reader["D2Bulb"].ToString();
+                                        x++;
+                                    }
+                                    if (record.display3 != reader["D3MakeModel"].ToString())
+                                    {
+                                        ws.Cells[y, x] = "Display 3";
+                                        ws.Cells[y + 1, x] = reader["D3MakeModel"].ToString();
+                                        x++;
+                                    }
+                                    if (record.serial3 != reader["D3Serial"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Serial 3";
+                                        ws.Cells[y + 1, x] = reader["D3Serial"].ToString();
+                                        x++;
+                                    }
+                                    if (record.screen3 != reader["D3Screen"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Screen 3";
+                                        ws.Cells[y + 1, x] = reader["D3Screen"].ToString();
+                                        x++;
+                                    }
+                                    if (record.ip3 != reader["D3IP"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "IP Address 3";
+                                        ws.Cells[y + 1, x] = reader["D3IP"].ToString();
+                                        x++;
+                                    }
+                                    if (record.mac3 != reader["D3Mac"].ToString() && !reader["D3Mac"].ToString().Equals("  :  :  :  :  :"))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "MAC Address 3";
+                                        ws.Cells[y + 1, x] = reader["D3MAC"].ToString();
+                                        x++;
+                                    }
+                                    if (record.bulb3 != reader["D3Bulb"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Bulb 3";
+                                        ws.Cells[y + 1, x] = reader["D3Bulb"].ToString();
+                                        x++;
+                                    }
+                                    if (record.display4 != reader["D4MakeModel"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Display 4";
+                                        ws.Cells[y + 1, x] = reader["D4MakeModel"].ToString();
+                                        x++;
+                                    }
+                                    if (record.serial4 != reader["D4Serial"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Serial 4";
+                                        ws.Cells[y + 1, x] = reader["D4Serial"].ToString();
+                                        x++;
+                                    }
+                                    if (record.screen4 != reader["D4Screen"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Screen 4";
+                                        ws.Cells[y + 1, x] = reader["D4Screen"].ToString();
+                                        x++;
+                                    }
+                                    if (record.ip4 != reader["D4IP"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "IP Address 4";
+                                        ws.Cells[y + 1, x] = reader["D4IP"].ToString();
+                                        x++;
+                                    }
+                                    if (record.mac4 != reader["D4Mac"].ToString() && !reader["D4Mac"].ToString().Equals("  :  :  :  :  :"))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "MAC Address 4";
+                                        ws.Cells[y + 1, x] = reader["D4MAC"].ToString();
+                                        x++;
+                                    }
+                                    if (record.bulb4 != reader["D4Bulb"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Bulb 4";
+                                        ws.Cells[y + 1, x] = reader["D4Bulb"].ToString();
+                                        x++;
+                                    }
+                                    if(record.control != reader["Controller"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Controller";
+                                        ws.Cells[y + 1, x] = reader["Controller"].ToString();
+                                        x++;
+                                    }
+                                    if (record.audio != reader["Audio"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Audio";
+                                        ws.Cells[y + 1, x] = reader["Audio"].ToString();
+                                        x++;
+                                    }
+                                    if(changes)
+                                    {
+                                        ws.Cells[y + 1, 1] = record.Building;
+                                        ws.Cells[y + 1, 2] = record.Room;
+                                        y += 2;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        conn.Close();
+                        xlApp.Visible = true;
 
+                        releaseObject(wb);
+                        releaseObject(ws);
+                        releaseObject(xlApp);
                     }
                     catch (Exception ex)
                     {
@@ -388,7 +672,8 @@ namespace EKU_Work_Thing
                     }
                 }
             }
-        }
+        }//New Function, not even close to done
+
         //exit program
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -555,6 +840,11 @@ namespace EKU_Work_Thing
             disInvTB.Text = invCollect.ToString();
         }//Done
 
+        private void pullReportBtn_Click(object sender, EventArgs e)
+        {
+            Form3 f3 = new Form3(this);
+            f3.Show();
+        }
         //function to open form2
         private void showForm2()
         {
@@ -590,22 +880,22 @@ namespace EKU_Work_Thing
                                 MessageBox.Show("Invalid filter date entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                                 return;
                             }
-                            MySqlConnection conn = new MySqlConnection("server=157.89.4.173;user=maintenanceUser;password=eku2016it;database=reporting_software;port=3306");
+                            SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
                             try
                             {
                                 conn.Open();
-                                MySqlDataReader reader;
-                                MySqlCommand cmd = new MySqlCommand("SELECT * FROM inventory_collected WHERE Building=@B AND Room=@R;", conn);
+                                SQLiteDataReader reader;
+                                SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM inventory_collected WHERE Building=@B AND Room=@R;", conn);
                                 cmd.Parameters.AddWithValue("@B", addBuildingComBox.Text);
                                 cmd.Parameters.AddWithValue("@R", addRoomTB.Text);
                                 reader = cmd.ExecuteReader();
                                 //data exist, just needs to be updated
                                 if (reader.Read())
                                 {
-                                    conn.Close();
                                     reader.Close();
+                                    conn.Close();
                                     conn.Open();
-                                    cmd = new MySqlCommand(@"UPDATE inventory_collected SET Controller=@Ctrl,Audio=@Aud,Dock=@Dock,Doc_Cam=@DC,
+                                    cmd = new SQLiteCommand(@"UPDATE inventory_collected SET Controller=@Ctrl,Audio=@Aud,Dock=@Dock,Doc_Cam=@DC,
                                                 Camera=@Cam,Mic=@Mic,Bluray=@Bl,DVD=@DVD,HDMI_Pull=@HDMI,VGA_Pull=@VGA,AV_Panel=@AV,Solstice=@Sol,
                                                 D1MakeModel=@D1MM,D1Serial=@D1Ser,D1Screen=@D1Scr,D1IP=@D1IP,D1MAC=@D1MAC,D1Bulb=@D1Bulb,
                                                 D2MakeModel=@D2MM,D2Serial=@D2Ser,D2Screen=@D2Scr,D2IP=@D2IP,D2MAC=@D2MAC,D2Bulb=@D2Bulb,
@@ -617,10 +907,10 @@ namespace EKU_Work_Thing
                                 //data does not exist, needs to be created
                                 else
                                 {
-                                    conn.Close();
                                     reader.Close();
+                                    conn.Close();
                                     conn.Open();
-                                    cmd = new MySqlCommand(@"INSERT INTO inventory_collected VALUES (@B,@R,@Ctrl,@Aud,
+                                    cmd = new SQLiteCommand(@"INSERT INTO inventory_collected VALUES (@B,@R,@Ctrl,@Aud,
                                                 @Dock,@DC,@Cam,@Mic,@Bl,@DVD,@HDMI,@VGA,@AV,@Sol,
                                                 @D1MM,@D1Ser,@D1Scr,@D1IP,@D1MAC,@D1Bulb,
                                                 @D2MM,@D2Ser,@D2Scr,@D2IP,@D2MAC,@D2Bulb,

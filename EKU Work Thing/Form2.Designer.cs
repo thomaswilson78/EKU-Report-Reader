@@ -127,16 +127,16 @@
             // Form2
             // 
             this.AcceptButton = this.invClose;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(417, 362);
             this.Controls.Add(this.invClear);
             this.Controls.Add(this.invDelete);
             this.Controls.Add(this.invClose);
             this.Controls.Add(this.invcolDGV);
-            this.MaximumSize = new System.Drawing.Size(433, 65535);
-            this.MinimumSize = new System.Drawing.Size(433, 0);
+            this.MaximumSize = new System.Drawing.Size(433, 720);
+            this.MinimumSize = new System.Drawing.Size(433, 38);
             this.Name = "Form2";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Inventory Collected";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form2_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.invcolDGV)).EndInit();

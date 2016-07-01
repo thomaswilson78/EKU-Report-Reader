@@ -9,3 +9,4 @@ c:\users\it\documents\visual studio 2015\Projects\EKU Work Thing\EKU Work Thing\
 c:\users\it\documents\visual studio 2015\Projects\EKU Work Thing\EKU Work Thing\obj\Debug\EKU Work Thing.pdb
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Work Thing\EKU Work Thing\obj\Debug\EKU_Work_Thing.Form2.resources
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Work Thing\EKU Work Thing\obj\Debug\EKU Work Thing.csproj.ResolveComReference.cache
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Work Thing\EKU Work Thing\bin\Debug\MySql.Data.dll

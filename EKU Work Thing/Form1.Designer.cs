@@ -32,6 +32,7 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportChangesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -144,13 +145,9 @@
             this.label1 = new System.Windows.Forms.Label();
             this.buildLB = new System.Windows.Forms.ListBox();
             this.maintenanceTab = new System.Windows.Forms.TabPage();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.buildingDG = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.roomDG = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dateDG = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.alarmDG = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.doneDG = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.maintenanceDGV = new System.Windows.Forms.DataGridView();
             this.invTestTab = new System.Windows.Forms.TabPage();
+            this.pullReportBtn = new System.Windows.Forms.Button();
             this.addFilter = new System.Windows.Forms.MaskedTextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.addEditBtn = new System.Windows.Forms.Button();
@@ -301,7 +298,6 @@
             this.testDGNotesI = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.testNotesTab = new System.Windows.Forms.TabPage();
             this.testNotesTB = new System.Windows.Forms.TextBox();
-            this.exportChangesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.mainTabControl.SuspendLayout();
             this.Overview.SuspendLayout();
@@ -319,7 +315,7 @@
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.maintenanceTab.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maintenanceDGV)).BeginInit();
             this.invTestTab.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -353,7 +349,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(819, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(823, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -385,6 +381,15 @@
             this.exportToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
             this.exportToolStripMenuItem.Text = "Export Chart";
             this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
+            // 
+            // exportChangesToolStripMenuItem
+            // 
+            this.exportChangesToolStripMenuItem.Enabled = false;
+            this.exportChangesToolStripMenuItem.Name = "exportChangesToolStripMenuItem";
+            this.exportChangesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.E)));
+            this.exportChangesToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.exportChangesToolStripMenuItem.Text = "Export Changes";
+            this.exportChangesToolStripMenuItem.Click += new System.EventHandler(this.exportChangesToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -435,13 +440,13 @@
             // readMeToolStripMenuItem
             // 
             this.readMeToolStripMenuItem.Name = "readMeToolStripMenuItem";
-            this.readMeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.readMeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.readMeToolStripMenuItem.Text = "ReadMe";
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.aboutToolStripMenuItem.Text = "About";
             // 
             // mainTabControl
@@ -457,7 +462,7 @@
             this.mainTabControl.Location = new System.Drawing.Point(1, 27);
             this.mainTabControl.Name = "mainTabControl";
             this.mainTabControl.SelectedIndex = 0;
-            this.mainTabControl.Size = new System.Drawing.Size(818, 257);
+            this.mainTabControl.Size = new System.Drawing.Size(822, 261);
             this.mainTabControl.TabIndex = 1;
             // 
             // Overview
@@ -467,7 +472,7 @@
             this.Overview.Location = new System.Drawing.Point(4, 22);
             this.Overview.Name = "Overview";
             this.Overview.Padding = new System.Windows.Forms.Padding(3);
-            this.Overview.Size = new System.Drawing.Size(810, 231);
+            this.Overview.Size = new System.Drawing.Size(814, 235);
             this.Overview.TabIndex = 0;
             this.Overview.Text = "Overview";
             this.Overview.UseVisualStyleBackColor = true;
@@ -490,7 +495,7 @@
             this.panel5.Controls.Add(this.districtLB);
             this.panel5.Location = new System.Drawing.Point(295, 0);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(515, 231);
+            this.panel5.Size = new System.Drawing.Size(519, 235);
             this.panel5.TabIndex = 23;
             // 
             // label48
@@ -503,7 +508,7 @@
             this.label48.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.label48.Location = new System.Drawing.Point(0, 0);
             this.label48.Name = "label48";
-            this.label48.Size = new System.Drawing.Size(513, 30);
+            this.label48.Size = new System.Drawing.Size(517, 30);
             this.label48.TabIndex = 22;
             this.label48.Text = "By District";
             this.label48.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -513,7 +518,7 @@
             this.disInvTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.disInvTB.BackColor = System.Drawing.SystemColors.Window;
             this.disInvTB.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.disInvTB.Location = new System.Drawing.Point(451, 71);
+            this.disInvTB.Location = new System.Drawing.Point(455, 71);
             this.disInvTB.Name = "disInvTB";
             this.disInvTB.ReadOnly = true;
             this.disInvTB.Size = new System.Drawing.Size(54, 20);
@@ -524,7 +529,7 @@
             this.disTotalTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.disTotalTB.BackColor = System.Drawing.SystemColors.Window;
             this.disTotalTB.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.disTotalTB.Location = new System.Drawing.Point(451, 45);
+            this.disTotalTB.Location = new System.Drawing.Point(455, 45);
             this.disTotalTB.Name = "disTotalTB";
             this.disTotalTB.ReadOnly = true;
             this.disTotalTB.Size = new System.Drawing.Size(54, 20);
@@ -535,7 +540,7 @@
             this.distMaintainedLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.distMaintainedLbl.AutoSize = true;
             this.distMaintainedLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.distMaintainedLbl.Location = new System.Drawing.Point(276, 74);
+            this.distMaintainedLbl.Location = new System.Drawing.Point(280, 74);
             this.distMaintainedLbl.Name = "distMaintainedLbl";
             this.distMaintainedLbl.Size = new System.Drawing.Size(102, 13);
             this.distMaintainedLbl.TabIndex = 28;
@@ -546,7 +551,7 @@
             this.label46.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label46.AutoSize = true;
             this.label46.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label46.Location = new System.Drawing.Point(372, 48);
+            this.label46.Location = new System.Drawing.Point(376, 48);
             this.label46.Name = "label46";
             this.label46.Size = new System.Drawing.Size(82, 13);
             this.label46.TabIndex = 27;
@@ -620,7 +625,7 @@
             this.panel4.Controls.Add(this.mainNeededTB);
             this.panel4.Location = new System.Drawing.Point(0, 0);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(297, 231);
+            this.panel4.Size = new System.Drawing.Size(301, 235);
             this.panel4.TabIndex = 22;
             // 
             // Overall
@@ -711,8 +716,7 @@
             // 
             // panel3
             // 
-            this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel3.Controls.Add(this.controlTB);
@@ -920,7 +924,7 @@
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(2, 145);
+            this.label4.Location = new System.Drawing.Point(3, 145);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(92, 13);
             this.label4.TabIndex = 3;
@@ -942,7 +946,7 @@
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(20, 119);
+            this.label3.Location = new System.Drawing.Point(21, 119);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(74, 13);
             this.label3.TabIndex = 1;
@@ -950,8 +954,7 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.Display1);
             this.tabControl1.Controls.Add(this.Display2);
@@ -1498,13 +1501,16 @@
             // 
             // otherTB
             // 
+            this.otherTB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.otherTB.BackColor = System.Drawing.SystemColors.Window;
-            this.otherTB.Location = new System.Drawing.Point(3, 3);
+            this.otherTB.Location = new System.Drawing.Point(-6, 3);
             this.otherTB.Multiline = true;
             this.otherTB.Name = "otherTB";
             this.otherTB.ReadOnly = true;
             this.otherTB.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.otherTB.Size = new System.Drawing.Size(519, 78);
+            this.otherTB.Size = new System.Drawing.Size(528, 78);
             this.otherTB.TabIndex = 0;
             // 
             // Description
@@ -1520,18 +1526,19 @@
             // 
             // descriptionTB
             // 
-            this.descriptionTB.Location = new System.Drawing.Point(6, 3);
+            this.descriptionTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.descriptionTB.Location = new System.Drawing.Point(-1, 3);
             this.descriptionTB.Multiline = true;
             this.descriptionTB.Name = "descriptionTB";
             this.descriptionTB.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.descriptionTB.Size = new System.Drawing.Size(516, 78);
+            this.descriptionTB.Size = new System.Drawing.Size(523, 78);
             this.descriptionTB.TabIndex = 0;
             // 
             // panel2
             // 
-            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.panel2.BackColor = System.Drawing.Color.Maroon;
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel2.Controls.Add(this.label2);
@@ -1566,9 +1573,8 @@
             // 
             // panel1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.panel1.BackColor = System.Drawing.Color.Maroon;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel1.Controls.Add(this.label1);
@@ -1635,7 +1641,7 @@
             // maintenanceTab
             // 
             this.maintenanceTab.BackColor = System.Drawing.Color.Maroon;
-            this.maintenanceTab.Controls.Add(this.dataGridView1);
+            this.maintenanceTab.Controls.Add(this.maintenanceDGV);
             this.maintenanceTab.Location = new System.Drawing.Point(4, 22);
             this.maintenanceTab.Name = "maintenanceTab";
             this.maintenanceTab.Padding = new System.Windows.Forms.Padding(3);
@@ -1643,57 +1649,22 @@
             this.maintenanceTab.TabIndex = 2;
             this.maintenanceTab.Text = "Maintenance";
             // 
-            // dataGridView1
+            // maintenanceDGV
             // 
-            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.buildingDG,
-            this.roomDG,
-            this.dateDG,
-            this.alarmDG,
-            this.doneDG});
-            this.dataGridView1.Location = new System.Drawing.Point(56, 0);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(703, 231);
-            this.dataGridView1.TabIndex = 0;
-            // 
-            // buildingDG
-            // 
-            this.buildingDG.HeaderText = "Building";
-            this.buildingDG.MinimumWidth = 225;
-            this.buildingDG.Name = "buildingDG";
-            this.buildingDG.ReadOnly = true;
-            this.buildingDG.Width = 225;
-            // 
-            // roomDG
-            // 
-            this.roomDG.HeaderText = "Room";
-            this.roomDG.MinimumWidth = 100;
-            this.roomDG.Name = "roomDG";
-            this.roomDG.ReadOnly = true;
-            // 
-            // dateDG
-            // 
-            this.dateDG.HeaderText = "Last Cleaned";
-            this.dateDG.Name = "dateDG";
-            this.dateDG.ReadOnly = true;
-            // 
-            // alarmDG
-            // 
-            this.alarmDG.HeaderText = "Alarm Replaced";
-            this.alarmDG.Name = "alarmDG";
-            this.alarmDG.ReadOnly = true;
-            this.alarmDG.Width = 125;
-            // 
-            // doneDG
-            // 
-            this.doneDG.HeaderText = "Completed";
-            this.doneDG.Name = "doneDG";
+            this.maintenanceDGV.AllowUserToAddRows = false;
+            this.maintenanceDGV.AllowUserToResizeColumns = false;
+            this.maintenanceDGV.AllowUserToResizeRows = false;
+            this.maintenanceDGV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.maintenanceDGV.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.maintenanceDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.maintenanceDGV.Location = new System.Drawing.Point(56, 0);
+            this.maintenanceDGV.Name = "maintenanceDGV";
+            this.maintenanceDGV.Size = new System.Drawing.Size(703, 231);
+            this.maintenanceDGV.TabIndex = 0;
             // 
             // invTestTab
             // 
+            this.invTestTab.Controls.Add(this.pullReportBtn);
             this.invTestTab.Controls.Add(this.addFilter);
             this.invTestTab.Controls.Add(this.label14);
             this.invTestTab.Controls.Add(this.addEditBtn);
@@ -1734,16 +1705,28 @@
             this.invTestTab.Location = new System.Drawing.Point(4, 22);
             this.invTestTab.Name = "invTestTab";
             this.invTestTab.Padding = new System.Windows.Forms.Padding(3);
-            this.invTestTab.Size = new System.Drawing.Size(810, 231);
+            this.invTestTab.Size = new System.Drawing.Size(814, 235);
             this.invTestTab.TabIndex = 3;
             this.invTestTab.Text = "Inventory";
             this.invTestTab.UseVisualStyleBackColor = true;
+            // 
+            // pullReportBtn
+            // 
+            this.pullReportBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.pullReportBtn.Enabled = false;
+            this.pullReportBtn.Location = new System.Drawing.Point(506, 207);
+            this.pullReportBtn.Name = "pullReportBtn";
+            this.pullReportBtn.Size = new System.Drawing.Size(100, 23);
+            this.pullReportBtn.TabIndex = 78;
+            this.pullReportBtn.Text = "Pull From Report";
+            this.pullReportBtn.UseVisualStyleBackColor = true;
+            this.pullReportBtn.Click += new System.EventHandler(this.pullReportBtn_Click);
             // 
             // addFilter
             // 
             this.addFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addFilter.BackColor = System.Drawing.SystemColors.Window;
-            this.addFilter.Location = new System.Drawing.Point(358, 116);
+            this.addFilter.Location = new System.Drawing.Point(362, 120);
             this.addFilter.Mask = "00/00/0000";
             this.addFilter.Name = "addFilter";
             this.addFilter.PromptChar = ' ';
@@ -1755,7 +1738,7 @@
             // 
             this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(278, 119);
+            this.label14.Location = new System.Drawing.Point(282, 123);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(74, 13);
             this.label14.TabIndex = 77;
@@ -1764,7 +1747,7 @@
             // addEditBtn
             // 
             this.addEditBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addEditBtn.Location = new System.Drawing.Point(608, 203);
+            this.addEditBtn.Location = new System.Drawing.Point(612, 207);
             this.addEditBtn.Name = "addEditBtn";
             this.addEditBtn.Size = new System.Drawing.Size(113, 23);
             this.addEditBtn.TabIndex = 31;
@@ -1775,7 +1758,7 @@
             // addNetTB
             // 
             this.addNetTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addNetTB.Location = new System.Drawing.Point(623, 142);
+            this.addNetTB.Location = new System.Drawing.Point(627, 146);
             this.addNetTB.Mask = "0";
             this.addNetTB.Name = "addNetTB";
             this.addNetTB.PromptChar = ' ';
@@ -1786,7 +1769,7 @@
             // 
             this.label93.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label93.AutoSize = true;
-            this.label93.Location = new System.Drawing.Point(540, 145);
+            this.label93.Location = new System.Drawing.Point(544, 149);
             this.label93.Name = "label93";
             this.label93.Size = new System.Drawing.Size(77, 13);
             this.label93.TabIndex = 74;
@@ -1795,7 +1778,7 @@
             // addCatVidTB
             // 
             this.addCatVidTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addCatVidTB.Location = new System.Drawing.Point(517, 142);
+            this.addCatVidTB.Location = new System.Drawing.Point(521, 146);
             this.addCatVidTB.Mask = "0";
             this.addCatVidTB.Name = "addCatVidTB";
             this.addCatVidTB.PromptChar = ' ';
@@ -1806,7 +1789,7 @@
             // 
             this.label92.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label92.AutoSize = true;
-            this.label92.Location = new System.Drawing.Point(449, 145);
+            this.label92.Location = new System.Drawing.Point(453, 149);
             this.label92.Name = "label92";
             this.label92.Size = new System.Drawing.Size(62, 13);
             this.label92.TabIndex = 72;
@@ -1815,7 +1798,7 @@
             // addSolLicTB
             // 
             this.addSolLicTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addSolLicTB.Location = new System.Drawing.Point(581, 168);
+            this.addSolLicTB.Location = new System.Drawing.Point(585, 172);
             this.addSolLicTB.Name = "addSolLicTB";
             this.addSolLicTB.Size = new System.Drawing.Size(104, 20);
             this.addSolLicTB.TabIndex = 29;
@@ -1824,7 +1807,7 @@
             // 
             this.label91.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label91.AutoSize = true;
-            this.label91.Location = new System.Drawing.Point(488, 171);
+            this.label91.Location = new System.Drawing.Point(492, 175);
             this.label91.Name = "label91";
             this.label91.Size = new System.Drawing.Size(87, 13);
             this.label91.TabIndex = 70;
@@ -1833,7 +1816,7 @@
             // addSolActTB
             // 
             this.addSolActTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addSolActTB.Location = new System.Drawing.Point(407, 168);
+            this.addSolActTB.Location = new System.Drawing.Point(411, 172);
             this.addSolActTB.Mask = "00/00/0000";
             this.addSolActTB.Name = "addSolActTB";
             this.addSolActTB.PromptChar = ' ';
@@ -1845,7 +1828,7 @@
             // 
             this.label90.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label90.AutoSize = true;
-            this.label90.Location = new System.Drawing.Point(278, 171);
+            this.label90.Location = new System.Drawing.Point(282, 175);
             this.label90.Name = "label90";
             this.label90.Size = new System.Drawing.Size(123, 13);
             this.label90.TabIndex = 68;
@@ -1867,7 +1850,7 @@
             // addNUCIPTB
             // 
             this.addNUCIPTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addNUCIPTB.Location = new System.Drawing.Point(358, 142);
+            this.addNUCIPTB.Location = new System.Drawing.Point(362, 146);
             this.addNUCIPTB.Name = "addNUCIPTB";
             this.addNUCIPTB.Size = new System.Drawing.Size(85, 20);
             this.addNUCIPTB.TabIndex = 25;
@@ -1876,7 +1859,7 @@
             // 
             this.label88.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label88.AutoSize = true;
-            this.label88.Location = new System.Drawing.Point(306, 145);
+            this.label88.Location = new System.Drawing.Point(310, 149);
             this.label88.Name = "label88";
             this.label88.Size = new System.Drawing.Size(46, 13);
             this.label88.TabIndex = 64;
@@ -1885,7 +1868,7 @@
             // addPCSerialTB
             // 
             this.addPCSerialTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addPCSerialTB.Location = new System.Drawing.Point(680, 116);
+            this.addPCSerialTB.Location = new System.Drawing.Point(684, 120);
             this.addPCSerialTB.Name = "addPCSerialTB";
             this.addPCSerialTB.Size = new System.Drawing.Size(100, 20);
             this.addPCSerialTB.TabIndex = 24;
@@ -1894,7 +1877,7 @@
             // 
             this.label87.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label87.AutoSize = true;
-            this.label87.Location = new System.Drawing.Point(623, 119);
+            this.label87.Location = new System.Drawing.Point(627, 123);
             this.label87.Name = "label87";
             this.label87.Size = new System.Drawing.Size(53, 13);
             this.label87.TabIndex = 62;
@@ -1903,7 +1886,7 @@
             // addPCModTB
             // 
             this.addPCModTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addPCModTB.Location = new System.Drawing.Point(517, 116);
+            this.addPCModTB.Location = new System.Drawing.Point(521, 120);
             this.addPCModTB.Name = "addPCModTB";
             this.addPCModTB.Size = new System.Drawing.Size(100, 20);
             this.addPCModTB.TabIndex = 23;
@@ -1912,7 +1895,7 @@
             // 
             this.label86.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label86.AutoSize = true;
-            this.label86.Location = new System.Drawing.Point(455, 119);
+            this.label86.Location = new System.Drawing.Point(459, 123);
             this.label86.Name = "label86";
             this.label86.Size = new System.Drawing.Size(56, 13);
             this.label86.TabIndex = 60;
@@ -1921,7 +1904,7 @@
             // addAddUpdateBtn
             // 
             this.addAddUpdateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addAddUpdateBtn.Location = new System.Drawing.Point(727, 203);
+            this.addAddUpdateBtn.Location = new System.Drawing.Point(731, 207);
             this.addAddUpdateBtn.Name = "addAddUpdateBtn";
             this.addAddUpdateBtn.Size = new System.Drawing.Size(75, 23);
             this.addAddUpdateBtn.TabIndex = 30;
@@ -1968,7 +1951,7 @@
             "Whitlock Building"});
             this.addBuildingComBox.Location = new System.Drawing.Point(77, 6);
             this.addBuildingComBox.Name = "addBuildingComBox";
-            this.addBuildingComBox.Size = new System.Drawing.Size(157, 21);
+            this.addBuildingComBox.Size = new System.Drawing.Size(161, 21);
             this.addBuildingComBox.TabIndex = 1;
             // 
             // addAudioComBox
@@ -1983,7 +1966,7 @@
             "Ceiling/Wall Mounted Speakers"});
             this.addAudioComBox.Location = new System.Drawing.Point(77, 84);
             this.addAudioComBox.Name = "addAudioComBox";
-            this.addAudioComBox.Size = new System.Drawing.Size(157, 21);
+            this.addAudioComBox.Size = new System.Drawing.Size(161, 21);
             this.addAudioComBox.TabIndex = 4;
             // 
             // addContComBox
@@ -2001,7 +1984,7 @@
             "Extron - Volume Knob"});
             this.addContComBox.Location = new System.Drawing.Point(77, 58);
             this.addContComBox.Name = "addContComBox";
-            this.addContComBox.Size = new System.Drawing.Size(157, 21);
+            this.addContComBox.Size = new System.Drawing.Size(161, 21);
             this.addContComBox.TabIndex = 3;
             // 
             // label75
@@ -2145,7 +2128,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.addRoomTB.Location = new System.Drawing.Point(77, 32);
             this.addRoomTB.Name = "addRoomTB";
-            this.addRoomTB.Size = new System.Drawing.Size(157, 20);
+            this.addRoomTB.Size = new System.Drawing.Size(161, 20);
             this.addRoomTB.TabIndex = 2;
             // 
             // label74
@@ -2176,10 +2159,10 @@
             this.tabControl2.Controls.Add(this.tabPage4);
             this.tabControl2.Controls.Add(this.tabPage5);
             this.tabControl2.Controls.Add(this.tabPage6);
-            this.tabControl2.Location = new System.Drawing.Point(274, 0);
+            this.tabControl2.Location = new System.Drawing.Point(278, 0);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(533, 110);
+            this.tabControl2.Size = new System.Drawing.Size(533, 114);
             this.tabControl2.TabIndex = 15;
             // 
             // tabPage1
@@ -2199,7 +2182,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(525, 84);
+            this.tabPage1.Size = new System.Drawing.Size(525, 88);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Display 1";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -3377,26 +3360,17 @@
             this.testNotesTB.Size = new System.Drawing.Size(807, 176);
             this.testNotesTB.TabIndex = 0;
             // 
-            // exportChangesToolStripMenuItem
-            // 
-            this.exportChangesToolStripMenuItem.Enabled = false;
-            this.exportChangesToolStripMenuItem.Name = "exportChangesToolStripMenuItem";
-            this.exportChangesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.E)));
-            this.exportChangesToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
-            this.exportChangesToolStripMenuItem.Text = "Export Changes";
-            this.exportChangesToolStripMenuItem.Click += new System.EventHandler(this.exportChangesToolStripMenuItem_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(819, 283);
+            this.ClientSize = new System.Drawing.Size(823, 287);
             this.Controls.Add(this.mainTabControl);
             this.Controls.Add(this.menuStrip1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(839, 325);
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "EKU Report Reader";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -3427,7 +3401,7 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.maintenanceTab.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maintenanceDGV)).EndInit();
             this.invTestTab.ResumeLayout(false);
             this.invTestTab.PerformLayout();
             this.tabControl2.ResumeLayout(false);
@@ -3566,13 +3540,8 @@
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Label Overall;
         private System.Windows.Forms.TabPage maintenanceTab;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView maintenanceDGV;
         private System.Windows.Forms.ToolStripMenuItem readMeToolStripMenuItem;
-        private System.Windows.Forms.DataGridViewTextBoxColumn buildingDG;
-        private System.Windows.Forms.DataGridViewTextBoxColumn roomDG;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dateDG;
-        private System.Windows.Forms.DataGridViewTextBoxColumn alarmDG;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn doneDG;
         private System.Windows.Forms.TabPage invTestTab;
         private System.Windows.Forms.TabControl tabControl2;
         private System.Windows.Forms.TabPage tabPage1;
@@ -3741,6 +3710,7 @@
         private System.Windows.Forms.ListBox districtLB;
         private System.Windows.Forms.ToolStripMenuItem testingInfoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportChangesToolStripMenuItem;
+        private System.Windows.Forms.Button pullReportBtn;
     }
 }
 

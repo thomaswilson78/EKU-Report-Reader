@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;
+using System.Data.SQLite;
 
 namespace EKU_Work_Thing
 {
@@ -24,12 +24,12 @@ namespace EKU_Work_Thing
         {
             invcolDGV.Rows.Clear();
             //load data into table
-            MySqlConnection conn = new MySqlConnection("server=157.89.4.173;user=maintenanceUser;password=eku2016it;database=reporting_software;port=3306");
+            SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
             try
             {
                 conn.Open();
-                MySqlCommand cmd = new MySqlCommand("SELECT Building,Room FROM inventory_collected;", conn);
-                MySqlDataReader reader = cmd.ExecuteReader();
+                SQLiteCommand cmd = new SQLiteCommand("SELECT Building,Room FROM inventory_collected;", conn);
+                SQLiteDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     invcolDGV.Rows.Add(reader["Building"].ToString(), reader["Room"].ToString(), "Edit");
@@ -54,14 +54,14 @@ namespace EKU_Work_Thing
                 int i = e.RowIndex;
                 string b = getDGVInfo.Rows[i].Cells[0].Value.ToString();
                 string r = getDGVInfo.Rows[i].Cells[1].Value.ToString();
-                MySqlConnection conn = new MySqlConnection("server=157.89.4.173;user=maintenanceUser;password=eku2016it;database=reporting_software;port=3306");
+                SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
                 try
                 {
                     conn.Open();
-                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM inventory_collected WHERE Building = @b AND Room = @r;", conn);
+                    SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM inventory_collected WHERE Building = @b AND Room = @r;", conn);
                     cmd.Parameters.AddWithValue("@b", b);
                     cmd.Parameters.AddWithValue("@r", r);
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    SQLiteDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
                         f1.addBuildingComBox.SelectedItem = b;
@@ -83,7 +83,7 @@ namespace EKU_Work_Thing
                         f1.addScrTB1.Text = reader["D1Screen"].ToString();
                         f1.addIPTB1.Text = reader["D1IP"].ToString();
                         f1.addMACTB1.Text = reader["D1MAC"].ToString();
-                        f1.addBulbTB2.Text = reader["D2Bulb"].ToString();
+                        f1.addBulbTB1.Text = reader["D1Bulb"].ToString();
                         f1.addMMTB2.Text = reader["D2MakeModel"].ToString();
                         f1.addSerialTB2.Text = reader["D2Serial"].ToString();
                         f1.addScrTB2.Text = reader["D2Screen"].ToString();
@@ -135,7 +135,7 @@ namespace EKU_Work_Thing
             if (confirm.ToString().Equals("OK")) {
                 bool success = false;
                 bool error = false;
-                MySqlConnection conn = new MySqlConnection("server=157.89.4.173;user=maintenanceUser;password=eku2016it;database=reporting_software;port=3306");
+                SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
                 try
                 {
                     conn.Open();
@@ -144,7 +144,7 @@ namespace EKU_Work_Thing
                         if (invcolDGV.Rows[i].Cells[3].Value != null)
                             if (invcolDGV.Rows[i].Cells[3].Value.ToString().Equals("True"))
                             {
-                                MySqlCommand cmd = new MySqlCommand("DELETE FROM inventory_collected WHERE Building=@B AND Room=@R", conn);
+                                SQLiteCommand cmd = new SQLiteCommand("DELETE FROM inventory_collected WHERE Building=@B AND Room=@R", conn);
                                 cmd.Parameters.AddWithValue("@B", invcolDGV.Rows[i].Cells[0].Value.ToString());
                                 cmd.Parameters.AddWithValue("@R", invcolDGV.Rows[i].Cells[1].Value.ToString());
                                 cmd.ExecuteNonQuery();
