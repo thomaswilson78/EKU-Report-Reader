@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
@@ -20,6 +19,7 @@ namespace EKU_Work_Thing
     {
         public List<roomInfo> campusData = new List<roomInfo>();
         Form2 f2;
+        Form3 f3;
         //used to populate the location listbox. If possible, need to find a better way without searching every object in campusData
         string[] libDistrict = new string[] { "Combs Classroom", "Crabbe Library", "Keith Building", "McCreary Building", "University Building", "Weaver Health" };
         string[] oldSciDistrict = new string[] { "Cammack Building", "Memorial Science", "Moore Building", "Roark Building" };
@@ -33,7 +33,6 @@ namespace EKU_Work_Thing
 
         public Form1()
         { 
-            f2 = new Form2(this);
             InitializeComponent();
             //temporarily removes tabs to look nicer
             tabControl1.TabPages.Remove(Display2);
@@ -44,6 +43,8 @@ namespace EKU_Work_Thing
             //automatically select first item to prevent errors/look nicer
             buildLB.SetSelected(0, true);
             districtLB.SetSelected(0, true);
+            addContComBox.SelectedIndex = 0;
+            addAudioComBox.SelectedIndex = 0;
             //builds testing tables
             buildTestingTables();
             DateTime temp = DateTime.Now.AddMonths(-3);
@@ -112,8 +113,14 @@ namespace EKU_Work_Thing
                                 newRoom.mic = lines[31].Equals("On");
                                 newRoom.vga = lines[32].Equals("On");
                                 newRoom.hdmi = lines[33].Equals("On");
-                                newRoom.audio = lines[34];
-                                newRoom.control = lines[35];
+                                if (lines[34].Equals(""))
+                                    newRoom.audio = "No Choice";
+                                else
+                                    newRoom.audio = lines[34];
+                                if (lines[35].Equals(""))
+                                    newRoom.control = "No Choice";
+                                else
+                                    newRoom.control = lines[35];
                                 lines[36] = lines[36].Replace("\n", "; ");
                                 newRoom.other = lines[36];
                                 newRoom.description = lines[37];
@@ -121,6 +128,22 @@ namespace EKU_Work_Thing
                                 DateTime.TryParse(lines[39], out newRoom.alarm);
                                 newRoom.av = lines[40].Equals("On");
                                 DateTime.TryParse(lines[41], out newRoom.tested);
+                                newRoom.sol = lines[42].Equals("On");
+                                newRoom.solLic = lines[43];
+                                DateTime.TryParse(lines[44], out newRoom.solDate);
+                                if (!lines[45].Equals(""))
+                                    newRoom.NetPorts = int.Parse(lines[45]);
+                                else
+                                    newRoom.NetPorts = 0;
+                                if (!lines[46].Equals(""))
+                                    newRoom.Cat6 = int.Parse(lines[46]);
+                                else
+                                    newRoom.Cat6 = 0;
+                                newRoom.PCModel = lines[47];
+                                newRoom.PCSerial = lines[48];
+                                newRoom.nucip = lines[49];
+                                newRoom.nucmac = lines[50];
+
                                 campusData.Add(newRoom);//Add object into list of like objects (campusData)
                             }
                         }
@@ -296,7 +319,7 @@ namespace EKU_Work_Thing
                         totalRoomsTB.Text = campusData.Count.ToString();//Prints total number of rooms
                         disTotalTB.Text = disRooms.ToString();
                         disInvTB.Text = invCollect.ToString();
-                        exportToolStripMenuItem.Enabled = true;
+                        exportChartToolStripMenuItem.Enabled = true;
                         exportChangesToolStripMenuItem.Enabled = true;
                         pullReportBtn.Enabled = true;
 
@@ -361,7 +384,7 @@ namespace EKU_Work_Thing
                     campusData.RemoveRange(0, campusData.Count - 1);
                 MessageBox.Show("File could not be loaded. Make sure that the proper Footprints report is being pulled (\"#EKU REPORTING SOFTWARE REPORT\").", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 MessageBox.Show(ex.Message);
-                exportToolStripMenuItem.Enabled = false;
+                exportChartToolStripMenuItem.Enabled = false;
                 exportChangesToolStripMenuItem.Enabled = false;
                 pullReportBtn.Enabled = false;
             }
@@ -370,7 +393,7 @@ namespace EKU_Work_Thing
         }//Done
 
         //Export the data into an excel spreadsheet that charts the data.
-        private void exportToolStripMenuItem_Click(object sender, EventArgs e)
+        private void exportChartToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //create an excel application object to open excel
             Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
@@ -407,7 +430,7 @@ namespace EKU_Work_Thing
                                 if (t.Equals(dist.District))
                                 {
                                     disRooms++;
-                                    if (dist.tested <= tmp)
+                                    if (dist.tested >= tmp)
                                     {
                                         invCollect++;
                                     }
@@ -416,6 +439,7 @@ namespace EKU_Work_Thing
                             ws.Cells[i + 2, 2] = disRooms;
                             ws.Cells[i + 2, 3] = invCollect;
                         }
+                        xlApp.WindowState = XlWindowState.xlMaximized;
                         xlApp.Visible = true;
 
                         releaseObject(wb);
@@ -442,32 +466,46 @@ namespace EKU_Work_Thing
             }
             else
             {
+                //shouldn't ever occur, but built in just in case.
                 if (campusData.Count == 0)
                 {
                     MessageBox.Show("No .csv file loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
+                    //attempts to create a workbook and worksheet to handle data
                     try
                     {
                         Workbook wb = xlApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
                         Worksheet ws = (Worksheet)wb.Worksheets[1];
+                        //formatting for first two cells
                         ws.Cells[1, 1] = "Building";
+                        ws.Cells[1, 1].EntireColumn.Font.Bold = true;
                         ws.Cells[1, 2] = "Room";
+                        ws.Cells[1, 2].EntireColumn.Font.Bold = true;
+                        ws.Cells[1, 1].EntireRow.Font.Size = 16;
+                        ws.Cells[1, 1].EntireRow.Font.Color = XlRgbColor.rgbWhite;
+                        ws.Cells[1, 1].EntireRow.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                        ws.Range[ws.Cells[1, 1], ws.Cells[1, 2]].Interior.Color = XlRgbColor.rgbBlack;
+
                         int y = 2; //for y coordinates in the worksheet
+
+                        //connect to SQLite database
                         SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;version=3;");
                         conn.Open();
-                        SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM inventory_collected;", conn);
+                        SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM inventory_collected;", conn);//get inventory information from database
                         SQLiteDataReader reader = cmd.ExecuteReader();
+                        //compares footprints report with inventory collected from database
                         while(reader.Read())
                         {
-                            foreach (var record in campusData)
+                            foreach (var record in campusData)//looks through each record until data is found
                             {
-                                int x = 3; //for x coordinates in the worksheet
-                                if (record.Building==reader["Building"].ToString() && record.Room==reader["Room"].ToString())
+                                if (record.Building==reader["Building"].ToString() && record.Room==reader["Room"].ToString())//match found between report and database
                                 {
+                                    int x = 3; //for x coordinates in the worksheet, will always start back at 3 for each record
                                     bool changes = false;
                                     //where changes will occur, label should be above (y) and data should be below (y+1)
+                                    //note that if no changes occur, the row is skipped
                                     if(record.display1!=reader["D1MakeModel"].ToString())
                                     {
                                         changes = true;
@@ -496,7 +534,7 @@ namespace EKU_Work_Thing
                                         ws.Cells[y + 1, x] = reader["D1IP"].ToString();
                                         x++;
                                     }
-                                    if (record.mac1 != reader["D1Mac"].ToString() && !reader["D1Mac"].ToString().Equals("  :  :  :  :  :"))
+                                    if (record.mac1 != reader["D1Mac"].ToString() && (!reader["D1Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D1Mac"].ToString().Equals("N/:A :  :  :  :")))
                                     {
                                         changes = true;
                                         ws.Cells[y, x] = "MAC Address 1";
@@ -538,7 +576,7 @@ namespace EKU_Work_Thing
                                         ws.Cells[y + 1, x] = reader["D2IP"].ToString();
                                         x++;
                                     }
-                                    if (record.mac2 != reader["D2Mac"].ToString() && !reader["D2Mac"].ToString().Equals("  :  :  :  :  :"))
+                                    if (record.mac2 != reader["D2Mac"].ToString() && (!reader["D2Mac"].ToString().Equals("  :  :  :  :  :") &&  !reader["D2Mac"].ToString().Equals("N/:A :  :  :  :")))
                                     {
                                         changes = true;
                                         ws.Cells[y, x] = "MAC Address 2";
@@ -579,7 +617,7 @@ namespace EKU_Work_Thing
                                         ws.Cells[y + 1, x] = reader["D3IP"].ToString();
                                         x++;
                                     }
-                                    if (record.mac3 != reader["D3Mac"].ToString() && !reader["D3Mac"].ToString().Equals("  :  :  :  :  :"))
+                                    if (record.mac3 != reader["D3Mac"].ToString() && (!reader["D3Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D3Mac"].ToString().Equals("N/:A :  :  :  :")))
                                     {
                                         changes = true;
                                         ws.Cells[y, x] = "MAC Address 3";
@@ -621,7 +659,7 @@ namespace EKU_Work_Thing
                                         ws.Cells[y + 1, x] = reader["D4IP"].ToString();
                                         x++;
                                     }
-                                    if (record.mac4 != reader["D4Mac"].ToString() && !reader["D4Mac"].ToString().Equals("  :  :  :  :  :"))
+                                    if (record.mac4 != reader["D4Mac"].ToString() && (!reader["D4Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D4Mac"].ToString().Equals("N/:A :  :  :  :")))
                                     {
                                         changes = true;
                                         ws.Cells[y, x] = "MAC Address 4";
@@ -649,19 +687,258 @@ namespace EKU_Work_Thing
                                         ws.Cells[y + 1, x] = reader["Audio"].ToString();
                                         x++;
                                     }
-                                    if(changes)
+                                    bool boolData = reader["Dock"].ToString().Equals("1");
+                                    if (record.dock != boolData)
                                     {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Dock";
+                                        if(boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    boolData = reader["Doc_Cam"].ToString().Equals("1");
+                                    if (record.docCam != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Doc Cam";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    boolData = reader["Camera"].ToString().Equals("1");
+                                    if (record.camera != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Lecure Cam";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    boolData = reader["Mic"].ToString().Equals("1");
+                                    if (record.mic != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Mic";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    boolData = reader["Bluray"].ToString().Equals("1");
+                                    if (record.Bluray != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Bluray";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    boolData = reader["DVD"].ToString().Equals("1");
+                                    if (record.DVD != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "DVD/VCR";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    boolData = reader["VGA_Pull"].ToString().Equals("1");
+                                    if (record.vga != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "VGA Pull";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    boolData = reader["HDMI_Pull"].ToString().Equals("1");
+                                    if (record.hdmi != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "HDMI Pull";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    if(record.Cat6 != int.Parse(reader["Cat6Video"].ToString()))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Cat6 Video";
+                                        ws.Cells[y + 1, x] = reader["Cat6Video"].ToString();
+                                        x++;
+                                    }
+                                    if (record.NetPorts != int.Parse(reader["NetworkPorts"].ToString()))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Network Ports";
+                                        ws.Cells[y + 1, x] = reader["NetworkPorts"].ToString();
+                                        x++;
+                                    }
+                                    boolData = reader["AV_Panel"].ToString().Equals("1");
+                                    if (record.av != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "AV Panel";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    if (record.PCModel != reader["PCModel"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "PC Model";
+                                        ws.Cells[y + 1, x] = reader["PCModel"].ToString();
+                                        x++;
+                                    }
+                                    if (record.PCSerial != reader["PCSerial"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "PC Serial";
+                                        ws.Cells[y + 1, x] = reader["PCSerial"].ToString();
+                                        x++;
+                                    }
+                                    if (record.nucip != reader["NUCIP"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "NUC IP";
+                                        ws.Cells[y + 1, x] = reader["NUCIP"].ToString();
+                                        x++;
+                                    }
+                                    if (record.nucmac != reader["NUCMAC"].ToString() && (!reader["D4Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D4Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "NUC MAC";
+                                        ws.Cells[y + 1, x] = reader["NUCMAC"].ToString();
+                                        x++;
+                                    }
+                                    boolData = reader["Solstice"].ToString().Equals("1");
+                                    if (record.sol != boolData)
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Solstice Capable";
+                                        if (boolData)
+                                            ws.Cells[y + 1, x] = "Yes";
+                                        else
+                                            ws.Cells[y + 1, x] = "No";
+                                        x++;
+                                    }
+                                    DateTime date;
+                                    DateTime.TryParse(reader["SolsticeDate"].ToString(), out date);
+                                    if (record.solDate.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Solstice Activation Date";
+                                        ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                        x++;
+                                    }
+                                    if (record.solLic != reader["SolsticeLicense"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Solstice License";
+                                        ws.Cells[y + 1, x] = reader["SolsticeLicense"].ToString();
+                                        x++;
+                                    }
+                                    DateTime.TryParse(reader["Filter"].ToString(), out date);
+                                    if (record.filter.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Filter";
+                                        ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                        x++;
+                                    }
+                                    if(record.other != reader["Notes"].ToString())
+                                    {
+                                        changes = true;
+                                        ws.Cells[y, x] = "Other Devices";
+                                        ws.Cells[y + 1, x] = reader["Notes"].ToString();
+                                        x++;
+                                    }
+                                    //still need to add more (NUCIP,NUCMAC,Cat6Video,NetworkPorts)
+                                    if (changes)//if changes is true, creates a new row displaying data, and if not true, skips this room
+                                    {
+                                        //add in notes only if changes were noted, not needed otherwise
+                                        Range r1;
+                                        bool note = false;
+                                        if (!reader["Notes"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Notes";
+                                            ws.Cells[y + 1, x] = reader["Notes"].ToString();
+                                            note = true;
+                                        }
+                                            
+                                        if(note)
+                                            r1 = ws.Range[ws.Cells[y, 3], ws.Cells[y, x]];
+                                        else
+                                            r1 = ws.Range[ws.Cells[y, 3], ws.Cells[y, x - 1]];
+
+                                        //formatting for data
+                                        r1.Font.Bold = true;
+                                        r1.Font.Color = XlRgbColor.rgbMaroon;
+                                        r1.Interior.Color = XlRgbColor.rgbWheat;
+                                        r1.Font.Size = 14;
+                                        if (note)
+                                        {
+                                            ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                            ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x]].Borders.Color = XlRgbColor.rgbBlack;
+                                        }
+                                        else
+                                        {
+                                            ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x - 1]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                            ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x - 1]].Borders.Color = XlRgbColor.rgbBlack;
+                                        }
+                                        //formatting for building cell
                                         ws.Cells[y + 1, 1] = record.Building;
+                                        Range r2 = ws.Range[ws.Cells[y, 1], ws.Cells[y + 1, 1]];
+                                        r2.Borders.Color = XlRgbColor.rgbBlack;
+                                        r2.Merge();
+                                        r2.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                                        r2.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                        //formatting for room cell
                                         ws.Cells[y + 1, 2] = record.Room;
+                                        Range r3 = ws.Range[ws.Cells[y, 2], ws.Cells[y + 1, 2]];
+                                        r3.Borders.Color = XlRgbColor.rgbBlack;
+                                        r3.Merge();
+                                        r3.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                                        r3.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
                                         y += 2;
                                     }
-                                    break;
+                                    break;//no longer need to search for room, can freely break 2nd loop
                                 }
-                            }
+                            }//end foreach
+                        }//end while
+                        if(y==2)
+                        {
+                            MessageBox.Show("No Changes Made.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                            releaseObject(wb);
+                            releaseObject(ws);
+                            releaseObject(xlApp);
+                            return;
                         }
+                        Range rng = (Range)ws.Range[ws.Cells[2, 1], ws.Cells[y-1, 2]];
+                        rng.Interior.Color = XlRgbColor.rgbLightGray;//colors building and room columns that were used
+                        ws.Columns.AutoFit();//attempts to resize all rows to fit data properly
                         conn.Close();
+                        xlApp.WindowState = XlWindowState.xlMaximized;
                         xlApp.Visible = true;
-
+                        //release objects from memory
                         releaseObject(wb);
                         releaseObject(ws);
                         releaseObject(xlApp);
@@ -672,7 +949,7 @@ namespace EKU_Work_Thing
                     }
                 }
             }
-        }//New Function, not even close to done
+        }//Done
 
         //exit program
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -840,15 +1117,48 @@ namespace EKU_Work_Thing
             disInvTB.Text = invCollect.ToString();
         }//Done
 
+        //opens form to pull footprints data into the inventory tab (rather than manually entering in data).
         private void pullReportBtn_Click(object sender, EventArgs e)
         {
-            Form3 f3 = new Form3(this);
-            f3.Show();
+            //coded this way to allow only one window to be open, as well as open close to the main form location
+            if (f3 != null)
+            {
+                if (!f3.Visible)
+                {
+                    f3.Location = this.Location;
+                    f3.Left += 190;
+                    f3.Top += 100;
+                    f3.Show();
+                }
+            }
+            else
+            {
+                f3 = new Form3(this);
+                f3.StartPosition = this.StartPosition;
+                f3.Show();
+            }
         }
-        //function to open form2
+
+        //function to open inventory form
         private void showForm2()
         {
-            f2.Show(this);
+            //coded this way to allow only one window to be open, as well as open close to the main form location
+            if (f2 != null)
+            {
+                if (!f2.Visible)
+                {
+                    f2.Location = this.Location;
+                    f2.Left += 190;
+                    f2.Top -= 50;
+                    f2.Show();
+                }
+            }
+            else
+            {
+                f2 = new Form2(this);
+                f2.StartPosition = this.StartPosition;
+                f2.Show();
+            }
         }//Done
 
         //opens inventory collected window (form2), same as edit/view button in inventory tab
@@ -866,132 +1176,131 @@ namespace EKU_Work_Thing
         //Adds and updates data in inventory database
         private void addAddUpdateBtn_Click(object sender, EventArgs e)
         { 
+            //ensure necessary data has been entered in
+            if (addBuildingComBox.Text.Equals(""))
+            {
+                MessageBox.Show("Please enter information for Display 1.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (addRoomTB.Text.Equals(""))
+            {
+                MessageBox.Show("Please enter the room number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (addMMTB1.Text.Equals(""))
+            {
+                MessageBox.Show("Please enter at least one display.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            DateTime date;
+            if (!DateTime.TryParse(addFilter.Text, out date))
+            {
+                MessageBox.Show("Invalid filter date entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            //access database to insert/update data
+            SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
             try
             {
-                if (!addBuildingComBox.Text.Equals(""))
+                conn.Open();
+                SQLiteDataReader reader;
+                SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM inventory_collected WHERE Building=@B AND Room=@R;", conn);
+                cmd.Parameters.AddWithValue("@B", addBuildingComBox.Text);
+                cmd.Parameters.AddWithValue("@R", addRoomTB.Text);
+                reader = cmd.ExecuteReader();
+                //data exist, just needs to be updated
+                if (reader.Read())
                 {
-                    if (!addRoomTB.Text.Equals(""))
-                    {
-                        if (!addMMTB1.Text.Equals(""))
-                        {
-                            DateTime date;
-                            if (!DateTime.TryParse(addFilter.Text, out date))
-                            {
-                                MessageBox.Show("Invalid filter date entered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                                return;
-                            }
-                            SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
-                            try
-                            {
-                                conn.Open();
-                                SQLiteDataReader reader;
-                                SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM inventory_collected WHERE Building=@B AND Room=@R;", conn);
-                                cmd.Parameters.AddWithValue("@B", addBuildingComBox.Text);
-                                cmd.Parameters.AddWithValue("@R", addRoomTB.Text);
-                                reader = cmd.ExecuteReader();
-                                //data exist, just needs to be updated
-                                if (reader.Read())
-                                {
-                                    reader.Close();
-                                    conn.Close();
-                                    conn.Open();
-                                    cmd = new SQLiteCommand(@"UPDATE inventory_collected SET Controller=@Ctrl,Audio=@Aud,Dock=@Dock,Doc_Cam=@DC,
-                                                Camera=@Cam,Mic=@Mic,Bluray=@Bl,DVD=@DVD,HDMI_Pull=@HDMI,VGA_Pull=@VGA,AV_Panel=@AV,Solstice=@Sol,
-                                                D1MakeModel=@D1MM,D1Serial=@D1Ser,D1Screen=@D1Scr,D1IP=@D1IP,D1MAC=@D1MAC,D1Bulb=@D1Bulb,
-                                                D2MakeModel=@D2MM,D2Serial=@D2Ser,D2Screen=@D2Scr,D2IP=@D2IP,D2MAC=@D2MAC,D2Bulb=@D2Bulb,
-                                                D3MakeModel=@D3MM,D3Serial=@D3Ser,D3Screen=@D3Scr,D3IP=@D3IP,D3MAC=@D3MAC,D3Bulb=@D3Bulb,
-                                                D4MakeModel=@D4MM,D4Serial=@D4Ser,D4Screen=@D4Scr,D4IP=@D4IP,D4MAC=@D4MAC,D4Bulb=@D4Bulb,
-                                                Filter=@Fil,PCModel=@PCM,PCSerial=@PCS,NUCIP=@NUCIP,Cat6Video=@C6,NetworkPorts=@NP,SolsticeDate=@SolD,
-                                                SolsticeLicense=@SolL,Notes=@Notes WHERE Building=@B AND Room=@R;", conn);
-                                }
-                                //data does not exist, needs to be created
-                                else
-                                {
-                                    reader.Close();
-                                    conn.Close();
-                                    conn.Open();
-                                    cmd = new SQLiteCommand(@"INSERT INTO inventory_collected VALUES (@B,@R,@Ctrl,@Aud,
-                                                @Dock,@DC,@Cam,@Mic,@Bl,@DVD,@HDMI,@VGA,@AV,@Sol,
-                                                @D1MM,@D1Ser,@D1Scr,@D1IP,@D1MAC,@D1Bulb,
-                                                @D2MM,@D2Ser,@D2Scr,@D2IP,@D2MAC,@D2Bulb,
-                                                @D3MM,@D3Ser,@D3Scr,@D3IP,@D3MAC,@D3Bulb,
-                                                @D4MM,@D4Ser,@D4Scr,@D4IP,@D4MAC,@D4Bulb,
-                                                @Fil,@PCM,@PCS,@NUCIP,@C6,@NP,@SolD,@SolL,@Notes);", conn);
-                                }
-                                cmd.Parameters.AddWithValue("@B", addBuildingComBox.Text);
-                                cmd.Parameters.AddWithValue("@R", addRoomTB.Text);
-                                cmd.Parameters.AddWithValue("@Ctrl", addContComBox.Text);
-                                cmd.Parameters.AddWithValue("@Aud", addAudioComBox.Text);
-                                cmd.Parameters.AddWithValue("@Dock", addDockCB.Checked);
-                                cmd.Parameters.AddWithValue("@DC", addDCCB.Checked);
-                                cmd.Parameters.AddWithValue("@Cam", addCamCB.Checked);
-                                cmd.Parameters.AddWithValue("@Mic", addMicCB.Checked);
-                                cmd.Parameters.AddWithValue("@Bl", addBRCB.Checked);
-                                cmd.Parameters.AddWithValue("@DVD", addDVDCB.Checked);
-                                cmd.Parameters.AddWithValue("@HDMI", addHDMICB.Checked);
-                                cmd.Parameters.AddWithValue("@VGA", addVGACB.Checked);
-                                cmd.Parameters.AddWithValue("@AV", addAVCB.Checked);
-                                cmd.Parameters.AddWithValue("@Sol", addSolCB.Checked);
-                                cmd.Parameters.AddWithValue("@D1MM", addMMTB1.Text);
-                                cmd.Parameters.AddWithValue("@D1Ser", addSerialTB1.Text);
-                                cmd.Parameters.AddWithValue("@D1Scr", addScrTB1.Text);
-                                cmd.Parameters.AddWithValue("@D1IP", addIPTB1.Text);
-                                cmd.Parameters.AddWithValue("@D1MAC", addMACTB1.Text);
-                                cmd.Parameters.AddWithValue("@D1Bulb", addBulbTB1.Text);
-                                cmd.Parameters.AddWithValue("@D2MM", addMMTB2.Text);
-                                cmd.Parameters.AddWithValue("@D2Ser", addSerialTB2.Text);
-                                cmd.Parameters.AddWithValue("@D2Scr", addScrTB2.Text);
-                                cmd.Parameters.AddWithValue("@D2IP", addIPTB2.Text);
-                                cmd.Parameters.AddWithValue("@D2MAC", addMACTB2.Text);
-                                cmd.Parameters.AddWithValue("@D2Bulb", addBulbTB2.Text);
-                                cmd.Parameters.AddWithValue("@D3MM", addMMTB3.Text);
-                                cmd.Parameters.AddWithValue("@D3Ser", addSerialTB3.Text);
-                                cmd.Parameters.AddWithValue("@D3Scr", addScrTB3.Text);
-                                cmd.Parameters.AddWithValue("@D3IP", addIPTB3.Text);
-                                cmd.Parameters.AddWithValue("@D3MAC", addMACTB3.Text);
-                                cmd.Parameters.AddWithValue("@D3Bulb", addBulbTB3.Text);
-                                cmd.Parameters.AddWithValue("@D4MM", addMMTB4.Text);
-                                cmd.Parameters.AddWithValue("@D4Ser", addSerialTB4.Text);
-                                cmd.Parameters.AddWithValue("@D4Scr", addScrTB4.Text);
-                                cmd.Parameters.AddWithValue("@D4IP", addIPTB4.Text);
-                                cmd.Parameters.AddWithValue("@D4MAC", addMACTB4.Text);
-                                cmd.Parameters.AddWithValue("@D4Bulb", addBulbTB4.Text);
-                                cmd.Parameters.AddWithValue("@Fil", date.ToString("yyyy-MM-dd"));
-                                cmd.Parameters.AddWithValue("@PCM", addPCModTB.Text);
-                                cmd.Parameters.AddWithValue("@PCS", addPCSerialTB.Text);
-                                cmd.Parameters.AddWithValue("@NUCIP", addNUCIPTB.Text);
-                                cmd.Parameters.AddWithValue("@C6", addCatVidTB.Text);
-                                cmd.Parameters.AddWithValue("@NP", addNetTB.Text);
-                                DateTime.TryParse(addSolActTB.Text, out date);
-                                cmd.Parameters.AddWithValue("@SolD", date.ToString("yyyy-MM-dd"));
-                                cmd.Parameters.AddWithValue("@SolL", addSolLicTB.Text);
-                                cmd.Parameters.AddWithValue("@Notes", addDscrptTB.Text);
-                                
-                                cmd.ExecuteNonQuery();
-                                MessageBox.Show("Inventory information successfully added.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            }
-                            finally
-                            {
-                                conn.Close();
-                                f2.loadTable();
-                            }
-                        }
-                        else
-                            MessageBox.Show("Please enter information for Display 1.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    }
-                    else
-                        MessageBox.Show("Please enter the room number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    reader.Close();
+                    conn.Close();
+                    conn.Open();
+                    cmd = new SQLiteCommand(@"UPDATE inventory_collected SET Controller=@Ctrl,Audio=@Aud,Dock=@Dock,Doc_Cam=@DC,
+                                Camera=@Cam,Mic=@Mic,Bluray=@Bl,DVD=@DVD,HDMI_Pull=@HDMI,VGA_Pull=@VGA,AV_Panel=@AV,Solstice=@Sol,
+                                D1MakeModel=@D1MM,D1Serial=@D1Ser,D1Screen=@D1Scr,D1IP=@D1IP,D1MAC=@D1MAC,D1Bulb=@D1Bulb,
+                                D2MakeModel=@D2MM,D2Serial=@D2Ser,D2Screen=@D2Scr,D2IP=@D2IP,D2MAC=@D2MAC,D2Bulb=@D2Bulb,
+                                D3MakeModel=@D3MM,D3Serial=@D3Ser,D3Screen=@D3Scr,D3IP=@D3IP,D3MAC=@D3MAC,D3Bulb=@D3Bulb,
+                                D4MakeModel=@D4MM,D4Serial=@D4Ser,D4Screen=@D4Scr,D4IP=@D4IP,D4MAC=@D4MAC,D4Bulb=@D4Bulb,
+                                Filter=@Fil,PCModel=@PCM,PCSerial=@PCS,NUCIP=@NUCIP,NUCMAC=@NUCMAC,Cat6Video=@C6,NetworkPorts=@NP,SolsticeDate=@SolD,
+                                SolsticeLicense=@SolL,Notes=@Notes WHERE Building=@B AND Room=@R;", conn);
                 }
+                //data does not exist, needs to be created
                 else
-                    MessageBox.Show("Please Select a building.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                {
+                    reader.Close();
+                    conn.Close();
+                    conn.Open();
+                    cmd = new SQLiteCommand(@"INSERT INTO inventory_collected VALUES (@B,@R,@Ctrl,@Aud,
+                                @Dock,@DC,@Cam,@Mic,@Bl,@DVD,@HDMI,@VGA,@AV,@Sol,
+                                @D1MM,@D1Ser,@D1Scr,@D1IP,@D1MAC,@D1Bulb,
+                                @D2MM,@D2Ser,@D2Scr,@D2IP,@D2MAC,@D2Bulb,
+                                @D3MM,@D3Ser,@D3Scr,@D3IP,@D3MAC,@D3Bulb,
+                                @D4MM,@D4Ser,@D4Scr,@D4IP,@D4MAC,@D4Bulb,
+                                @Fil,@PCM,@PCS,@NUCIP,@NUCMAC,@C6,@NP,@SolD,@SolL,@Notes);", conn);
+                }
+                cmd.Parameters.AddWithValue("@B", addBuildingComBox.Text);
+                cmd.Parameters.AddWithValue("@R", addRoomTB.Text);
+                cmd.Parameters.AddWithValue("@Ctrl", addContComBox.Text);
+                cmd.Parameters.AddWithValue("@Aud", addAudioComBox.Text);
+                cmd.Parameters.AddWithValue("@Dock", addDockCB.Checked);
+                cmd.Parameters.AddWithValue("@DC", addDCCB.Checked);
+                cmd.Parameters.AddWithValue("@Cam", addCamCB.Checked);
+                cmd.Parameters.AddWithValue("@Mic", addMicCB.Checked);
+                cmd.Parameters.AddWithValue("@Bl", addBRCB.Checked);
+                cmd.Parameters.AddWithValue("@DVD", addDVDCB.Checked);
+                cmd.Parameters.AddWithValue("@HDMI", addHDMICB.Checked);
+                cmd.Parameters.AddWithValue("@VGA", addVGACB.Checked);
+                cmd.Parameters.AddWithValue("@AV", addAVCB.Checked);
+                cmd.Parameters.AddWithValue("@Sol", addSolCB.Checked);
+                cmd.Parameters.AddWithValue("@D1MM", addMMTB1.Text);
+                cmd.Parameters.AddWithValue("@D1Ser", addSerialTB1.Text);
+                cmd.Parameters.AddWithValue("@D1Scr", addScrTB1.Text);
+                cmd.Parameters.AddWithValue("@D1IP", addIPTB1.Text);
+                cmd.Parameters.AddWithValue("@D1MAC", addMACTB1.Text);
+                cmd.Parameters.AddWithValue("@D1Bulb", addBulbTB1.Text);
+                cmd.Parameters.AddWithValue("@D2MM", addMMTB2.Text);
+                cmd.Parameters.AddWithValue("@D2Ser", addSerialTB2.Text);
+                cmd.Parameters.AddWithValue("@D2Scr", addScrTB2.Text);
+                cmd.Parameters.AddWithValue("@D2IP", addIPTB2.Text);
+                cmd.Parameters.AddWithValue("@D2MAC", addMACTB2.Text);
+                cmd.Parameters.AddWithValue("@D2Bulb", addBulbTB2.Text);
+                cmd.Parameters.AddWithValue("@D3MM", addMMTB3.Text);
+                cmd.Parameters.AddWithValue("@D3Ser", addSerialTB3.Text);
+                cmd.Parameters.AddWithValue("@D3Scr", addScrTB3.Text);
+                cmd.Parameters.AddWithValue("@D3IP", addIPTB3.Text);
+                cmd.Parameters.AddWithValue("@D3MAC", addMACTB3.Text);
+                cmd.Parameters.AddWithValue("@D3Bulb", addBulbTB3.Text);
+                cmd.Parameters.AddWithValue("@D4MM", addMMTB4.Text);
+                cmd.Parameters.AddWithValue("@D4Ser", addSerialTB4.Text);
+                cmd.Parameters.AddWithValue("@D4Scr", addScrTB4.Text);
+                cmd.Parameters.AddWithValue("@D4IP", addIPTB4.Text);
+                cmd.Parameters.AddWithValue("@D4MAC", addMACTB4.Text);
+                cmd.Parameters.AddWithValue("@D4Bulb", addBulbTB4.Text);
+                cmd.Parameters.AddWithValue("@Fil", date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@PCM", addPCModTB.Text);
+                cmd.Parameters.AddWithValue("@PCS", addPCSerialTB.Text);
+                cmd.Parameters.AddWithValue("@NUCIP", addNUCIPTB.Text);
+                cmd.Parameters.AddWithValue("@NUCMAC", addNUCMACTB.Text);
+                cmd.Parameters.AddWithValue("@C6", addCatVidTB.Text);
+                cmd.Parameters.AddWithValue("@NP", addNetTB.Text);
+                DateTime.TryParse(addSolActTB.Text, out date);
+                cmd.Parameters.AddWithValue("@SolD", date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@SolL", addSolLicTB.Text);
+                cmd.Parameters.AddWithValue("@Notes", addDscrptTB.Text);
+                                
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Inventory information successfully added.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            finally
+            {
+                if(f2!=null)
+                    if (f2.Visible)
+                        f2.loadTable();
+                conn.Close();
+                                
             }
         }//Done. Needs further error checking
 
@@ -1030,10 +1339,9 @@ namespace EKU_Work_Thing
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
                 obj = null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 obj = null;
-                MessageBox.Show("Exception Occured while releasing object " + ex.ToString());
             }
             finally
             {
@@ -1104,6 +1412,12 @@ namespace EKU_Work_Thing
             testIPTVDGV.Rows[3].Cells[0].Value = "(CP) \"Last\" button goes to the IPTV main menu.";
             testIPTVDGV.Rows[4].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
         }
+
+        private void maskedTextBox1_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
+        {
+
+        }
+
     }
 
     //save information about a room into an object
@@ -1138,11 +1452,19 @@ namespace EKU_Work_Thing
         public string bulb4 { get; set; }
         public string audio { get; set; }
         public string control { get; set; }
+        public string solLic { get; set; }
+        public string PCModel { get; set; }
+        public string PCSerial { get; set; }
+        public string nucip;
+        public string nucmac;
         public string other { get; set; }
         public string description { get; set; }
+        public int Cat6 { get; set; }
+        public int NetPorts { get; set; }
         public DateTime filter;
         public DateTime alarm;
         public DateTime tested;
+        public DateTime solDate;
         public bool dock = false;
         public bool docCam = false;
         public bool DVD = false;
@@ -1152,71 +1474,72 @@ namespace EKU_Work_Thing
         public bool vga = false;
         public bool hdmi = false;
         public bool av = false;
+        public bool sol = false;
     }//Done
 }
 
 /*
-                    //Works, but does not make a good chart, nice for reference
-                    //creates a workbook and worksheet file.
-                    Workbook wb = xlApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
-                    Worksheet ws = (Worksheet)wb.Worksheets[1];
-                    //Headers
-                    ws.Cells[1, 1] = "District";
-                    ws.Cells[1, 2] = "Total Rooms";
-                    ws.Cells[1, 3] = "Completed";
-                    ws.Cells[1, 4] = "Percent Finished";
-                    //Extracts data from objects and loads it into the excel spreadsheet
-                    for (int i = 0; i < districtLB.Items.Count; i++)
+        //Works, but does not make a good chart. Nice for reference
+        //creates a workbook and worksheet file.
+        Workbook wb = xlApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
+        Worksheet ws = (Worksheet)wb.Worksheets[1];
+        //Headers
+        ws.Cells[1, 1] = "District";
+        ws.Cells[1, 2] = "Total Rooms";
+        ws.Cells[1, 3] = "Completed";
+        ws.Cells[1, 4] = "Percent Finished";
+        //Extracts data from objects and loads it into the excel spreadsheet
+        for (int i = 0; i < districtLB.Items.Count; i++)
+        {
+            string t = districtLB.Items[i].ToString();
+            ws.Cells[i + 2, 1] = t;
+
+            int disRooms = 0;
+            int invCollect = 0;
+            foreach (var dist in campusData)
+            {
+                if (t.Equals(dist.District))
+                {
+                    disRooms++;
+                    if (dist.filter > DateTime.Parse("03/13/2016"))
                     {
-                        string t = districtLB.Items[i].ToString();
-                        ws.Cells[i + 2, 1] = t;
-
-                        int disRooms = 0;
-                        int invCollect = 0;
-                        foreach (var dist in campusData)
-                        {
-                            if (t.Equals(dist.District))
-                            {
-                                disRooms++;
-                                if (dist.filter > DateTime.Parse("03/13/2016"))
-                                {
-                                    invCollect++;
-                                }
-                            }
-                        }
-                        ws.Cells[i + 2, 2] = disRooms;
-                        ws.Cells[i + 2, 3] = invCollect;
-                        ws.Cells[i + 2, 4] = ((double)invCollect / (double)disRooms);
-                        ws.Cells[i + 2, 4].NumberFormat = "0.00%";
+                        invCollect++;
                     }
-                    //Creates a chart in the worksheet
-                    ChartObjects cObjs = (ChartObjects)ws.ChartObjects();
-                    ChartObject cObj = cObjs.Add(5, 200, 600, 300);
-                    Chart c = cObj.Chart;
-                    c.HasTitle = true;
-                    c.ChartTitle.Text = "Maintenance Completed";
-                    //Extracts information from cells to add into the chart
-                    SeriesCollection seriesCollection = c.SeriesCollection();
+                }
+            }
+            ws.Cells[i + 2, 2] = disRooms;
+            ws.Cells[i + 2, 3] = invCollect;
+            ws.Cells[i + 2, 4] = ((double)invCollect / (double)disRooms);
+            ws.Cells[i + 2, 4].NumberFormat = "0.00%";
+        }
+        //Creates a chart in the worksheet
+        ChartObjects cObjs = (ChartObjects)ws.ChartObjects();
+        ChartObject cObj = cObjs.Add(5, 200, 600, 300);
+        Chart c = cObj.Chart;
+        c.HasTitle = true;
+        c.ChartTitle.Text = "Maintenance Completed";
+        //Extracts information from cells to add into the chart
+        SeriesCollection seriesCollection = c.SeriesCollection();
 
-                    Series series1 = seriesCollection.NewSeries();
-                    Range xValues = ws.Range["A2", "A10"];
-                    Range values = ws.Range["B2", "B10"];
-                    series1.XValues = xValues;
-                    series1.Values = values;
+        Series series1 = seriesCollection.NewSeries();
+        Range xValues = ws.Range["A2", "A10"];
+        Range values = ws.Range["B2", "B10"];
+        series1.XValues = xValues;
+        series1.Values = values;
 
-                    Series series2 = seriesCollection.NewSeries();
-                    values = ws.Range["C2", "C10"];
-                    series2.Values = values;
+        Series series2 = seriesCollection.NewSeries();
+        values = ws.Range["C2", "C10"];
+        series2.Values = values;
 
-                    series1.Name = "Total Rooms";
-                    series2.Name = "Completed";
+        series1.Name = "Total Rooms";
+        series2.Name = "Completed";
 
 
-                    series1.ApplyDataLabels(XlDataLabelsType.xlDataLabelsShowLabel,false,true,false,false,false,true,false,true,true);
+        series1.ApplyDataLabels(XlDataLabelsType.xlDataLabelsShowLabel,false,true,false,false,false,true,false,true,true);
 
-                    xlApp.Visible = true;
+        xlApp.Visible = true;
 
-                    releaseObject(wb);
-                    releaseObject(ws);
-                    releaseObject(xlApp);
-                    */
+        releaseObject(wb);
+        releaseObject(ws);
+        releaseObject(xlApp);
+*/

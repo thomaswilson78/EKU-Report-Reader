@@ -6,7 +6,7 @@ namespace EKU_Work_Thing
 {
     public partial class Form2 : Form
     {
-        Form1 f1;
+        Form1 f1 = new Form1();
         //initialization
         public Form2(Form1 parent)
         {
@@ -34,6 +34,7 @@ namespace EKU_Work_Thing
                 {
                     invcolDGV.Rows.Add(reader["Building"].ToString(), reader["Room"].ToString(), "Edit");
                 }
+                cmd.Dispose();
                 reader.Close();
             }
             catch (Exception ex)
@@ -43,6 +44,9 @@ namespace EKU_Work_Thing
             finally
             {
                 conn.Close();
+                conn.Dispose();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
             }
         }
         //load information into inventory tab
@@ -104,16 +108,24 @@ namespace EKU_Work_Thing
                         f1.addBulbTB4.Text = reader["D4Bulb"].ToString();
                         DateTime t;
                         DateTime.TryParse(reader["Filter"].ToString(), out t);
-                        f1.addFilter.Text = t.ToString("MM/dd/yyyy");
+                        if (!t.ToString("MM/dd/yyyy").Equals("01/01/0001"))
+                            f1.addFilter.Text = t.ToString("MM/dd/yyyy");
+                        else
+                            f1.addFilter.Text = "";
                         f1.addPCModTB.Text = reader["PCModel"].ToString();
                         f1.addPCSerialTB.Text = reader["PCSerial"].ToString();
                         f1.addNUCIPTB.Text = reader["NUCIP"].ToString();
+                        f1.addNUCMACTB.Text = reader["NUCMAC"].ToString();
                         f1.addCatVidTB.Text = reader["Cat6Video"].ToString();
                         f1.addNetTB.Text = reader["NetworkPorts"].ToString();
                         DateTime.TryParse(reader["SolsticeDate"].ToString(), out t);
-                        f1.addSolActTB.Text = t.ToString("MM/dd/yyyy");
+                        if (!t.ToString("MM/dd/yyyy").Equals("01/01/0001"))
+                            f1.addSolActTB.Text = t.ToString("MM/dd/yyyy");
+                        else
+                            f1.addSolActTB.Text = "";
                         f1.addSolLicTB.Text = reader["SolsticeLicense"].ToString();
                         f1.addDscrptTB.Text = reader["Notes"].ToString();
+                        
                         f1.Refresh();
                     }
                     reader.Close();
@@ -169,16 +181,7 @@ namespace EKU_Work_Thing
                 invcolDGV.CommitEdit(DataGridViewDataErrorContexts.Commit);
                 conn.Close();
             }
-        }//Done 
-
-        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (e.CloseReason == CloseReason.UserClosing)
-            {
-                e.Cancel = true;
-                Hide();
-            }
-        }
+        }//Done
 
         private void invClear_Click(object sender, EventArgs e)
         {
@@ -187,6 +190,15 @@ namespace EKU_Work_Thing
                 if (invcolDGV.Rows[i].Cells[3].Value != null)
                     if ((bool)invcolDGV.Rows[i].Cells[3].Value == true)
                         invcolDGV.Rows[i].Cells[3].Value = false;
+            }
+        }
+
+        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
             }
         }
     }

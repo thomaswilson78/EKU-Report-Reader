@@ -12,17 +12,18 @@ namespace EKU_Work_Thing
 {
     public partial class Form3 : Form
     {
-        BuildingData bd = new BuildingData();
+        //inherit data (campusData and textbox information) from form 1
         Form1 f1 = new Form1();
-        public Form3(Form1 f)
+        public Form3(Form1 parent)
         {
-            f1 = f;
+            f1 = parent;
+            
             InitializeComponent();
-            BuildingCB.SelectedIndex = 0;
+            BuildingCB.SelectedIndex = 0;//defaults to first item in list
             addRooms();
             RoomCB.SelectedIndex = 0;
-
         }
+        //add rooms to the listboxs
         private void addRooms()
         {
             RoomCB.Items.Clear();
@@ -34,6 +35,7 @@ namespace EKU_Work_Thing
             }
             RoomCB.SelectedIndex = 0;
         }
+        //takes building and room information from selected values and fills the values from the .csv report into the inventory tab of the main form
         private void pullDataBtn_Click(object sender, EventArgs e)
         {
             f1.addBuildingComBox.SelectedItem = BuildingCB.Text;
@@ -58,7 +60,7 @@ namespace EKU_Work_Thing
             f1.addHDMICB.Checked = exactRoom.hdmi;
             f1.addVGACB.Checked = exactRoom.vga;
             f1.addAVCB.Checked = exactRoom.av;
-            //f1.addSolCB.Checked = exactRoom.sol; need to add solstice to roomInfo, footprints report, and to load
+            f1.addSolCB.Checked = exactRoom.sol;
             f1.addMMTB1.Text = exactRoom.display1;
             f1.addSerialTB1.Text = exactRoom.serial1;
             f1.addScrTB1.Text = exactRoom.screen1;
@@ -70,7 +72,7 @@ namespace EKU_Work_Thing
             f1.addScrTB2.Text = exactRoom.screen2;
             f1.addIPTB2.Text = exactRoom.ip2;
             f1.addMACTB2.Text = exactRoom.mac2;
-            f1.addBulbTB3.Text = exactRoom.bulb3;
+            f1.addBulbTB2.Text = exactRoom.bulb3;
             f1.addMMTB3.Text = exactRoom.display3;
             f1.addSerialTB3.Text = exactRoom.serial3;
             f1.addScrTB3.Text = exactRoom.screen3;
@@ -83,22 +85,36 @@ namespace EKU_Work_Thing
             f1.addIPTB4.Text = exactRoom.ip4;
             f1.addMACTB4.Text = exactRoom.mac4;
             f1.addBulbTB4.Text = exactRoom.bulb4;
-            f1.addFilter.Text = exactRoom.filter.ToString("MM/dd/yyyy");
-            //f1.addPCModTB.Text = exactRoom; need to add PC to roomInfo, footprints report, and to load
-            //f1.addPCSerialTB.Text = exactRoom; need to add PC serial to roomInfo, footprints report, and to load
-            //f1.addNUCIPTB.Text = reader["NUCIP"].ToString();
-            //f1.addCatVidTB.Text = reader["Cat6Video"].ToString();
-            //f1.addNetTB.Text = reader["NetworkPorts"].ToString();
-            f1.addSolActTB.Text = exactRoom.alarm.ToString("MM/dd/yyyy");
-            //f1.addSolLicTB.Text = reader["SolsticeLicense"].ToString();
-            //f1.addDscrptTB.Text = reader["Notes"].ToString();
+            if (exactRoom.filter.ToString("MM/dd/yyyy") != "01/01/0001")
+                f1.addFilter.Text = exactRoom.filter.ToString("MM/dd/yyyy");
+            else
+                f1.addFilter.Text = "";
+            f1.addPCModTB.Text = exactRoom.PCModel;
+            f1.addPCSerialTB.Text = exactRoom.PCSerial;
+            f1.addNUCIPTB.Text = exactRoom.nucip;
+            f1.addNUCMACTB.Text = exactRoom.nucmac;
+            f1.addCatVidTB.Text = exactRoom.Cat6.ToString();
+            f1.addNetTB.Text = exactRoom.NetPorts.ToString();
+            if (exactRoom.solDate.ToString("MM/dd/yyyy") != "01/01/0001")
+                f1.addSolActTB.Text = exactRoom.solDate.ToString("MM/dd/yyyy");
+            else
+                f1.addSolActTB.Text = "";
             f1.Refresh();
             this.Close();
         }
-
+        //changes rooms based on building selected
         private void BuildingCB_SelectedIndexChanged(object sender, EventArgs e)
         {
             addRooms();
+        }
+        //hide form instead of closing, help perserve last entered data
+        private void Form3_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
+            }
         }
     }
 }

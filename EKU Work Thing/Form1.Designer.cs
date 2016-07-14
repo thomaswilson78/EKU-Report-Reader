@@ -31,7 +31,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportChartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportChangesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -147,6 +147,8 @@
             this.maintenanceTab = new System.Windows.Forms.TabPage();
             this.maintenanceDGV = new System.Windows.Forms.DataGridView();
             this.invTestTab = new System.Windows.Forms.TabPage();
+            this.addNUCMACTB = new System.Windows.Forms.MaskedTextBox();
+            this.label38 = new System.Windows.Forms.Label();
             this.pullReportBtn = new System.Windows.Forms.Button();
             this.addFilter = new System.Windows.Forms.MaskedTextBox();
             this.label14 = new System.Windows.Forms.Label();
@@ -357,7 +359,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadToolStripMenuItem,
-            this.exportToolStripMenuItem,
+            this.exportChartToolStripMenuItem,
             this.exportChangesToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
@@ -373,14 +375,14 @@
             this.loadToolStripMenuItem.Text = "Load .csv";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
-            // exportToolStripMenuItem
+            // exportChartToolStripMenuItem
             // 
-            this.exportToolStripMenuItem.Enabled = false;
-            this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
-            this.exportToolStripMenuItem.Text = "Export Chart";
-            this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
+            this.exportChartToolStripMenuItem.Enabled = false;
+            this.exportChartToolStripMenuItem.Name = "exportChartToolStripMenuItem";
+            this.exportChartToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+            this.exportChartToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.exportChartToolStripMenuItem.Text = "Export Chart";
+            this.exportChartToolStripMenuItem.Click += new System.EventHandler(this.exportChartToolStripMenuItem_Click);
             // 
             // exportChangesToolStripMenuItem
             // 
@@ -709,7 +711,7 @@
             this.Buildings.Location = new System.Drawing.Point(4, 22);
             this.Buildings.Name = "Buildings";
             this.Buildings.Padding = new System.Windows.Forms.Padding(3);
-            this.Buildings.Size = new System.Drawing.Size(810, 231);
+            this.Buildings.Size = new System.Drawing.Size(814, 235);
             this.Buildings.TabIndex = 1;
             this.Buildings.Text = "Buildings";
             this.Buildings.UseVisualStyleBackColor = true;
@@ -1645,7 +1647,7 @@
             this.maintenanceTab.Location = new System.Drawing.Point(4, 22);
             this.maintenanceTab.Name = "maintenanceTab";
             this.maintenanceTab.Padding = new System.Windows.Forms.Padding(3);
-            this.maintenanceTab.Size = new System.Drawing.Size(810, 231);
+            this.maintenanceTab.Size = new System.Drawing.Size(814, 235);
             this.maintenanceTab.TabIndex = 2;
             this.maintenanceTab.Text = "Maintenance";
             // 
@@ -1664,6 +1666,8 @@
             // 
             // invTestTab
             // 
+            this.invTestTab.Controls.Add(this.addNUCMACTB);
+            this.invTestTab.Controls.Add(this.label38);
             this.invTestTab.Controls.Add(this.pullReportBtn);
             this.invTestTab.Controls.Add(this.addFilter);
             this.invTestTab.Controls.Add(this.label14);
@@ -1709,6 +1713,25 @@
             this.invTestTab.TabIndex = 3;
             this.invTestTab.Text = "Inventory";
             this.invTestTab.UseVisualStyleBackColor = true;
+            // 
+            // addNUCMACTB
+            // 
+            this.addNUCMACTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.addNUCMACTB.Location = new System.Drawing.Point(490, 146);
+            this.addNUCMACTB.Mask = "&&:&&:&&:&&:&&:&&";
+            this.addNUCMACTB.Name = "addNUCMACTB";
+            this.addNUCMACTB.Size = new System.Drawing.Size(99, 20);
+            this.addNUCMACTB.TabIndex = 23;
+            // 
+            // label38
+            // 
+            this.label38.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label38.AutoSize = true;
+            this.label38.Location = new System.Drawing.Point(425, 149);
+            this.label38.Name = "label38";
+            this.label38.Size = new System.Drawing.Size(59, 13);
+            this.label38.TabIndex = 22;
+            this.label38.Text = "NUC MAC:";
             // 
             // pullReportBtn
             // 
@@ -1758,7 +1781,7 @@
             // addNetTB
             // 
             this.addNetTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addNetTB.Location = new System.Drawing.Point(627, 146);
+            this.addNetTB.Location = new System.Drawing.Point(769, 146);
             this.addNetTB.Mask = "0";
             this.addNetTB.Name = "addNetTB";
             this.addNetTB.PromptChar = ' ';
@@ -1769,7 +1792,7 @@
             // 
             this.label93.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label93.AutoSize = true;
-            this.label93.Location = new System.Drawing.Point(544, 149);
+            this.label93.Location = new System.Drawing.Point(686, 149);
             this.label93.Name = "label93";
             this.label93.Size = new System.Drawing.Size(77, 13);
             this.label93.TabIndex = 74;
@@ -1778,7 +1801,7 @@
             // addCatVidTB
             // 
             this.addCatVidTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addCatVidTB.Location = new System.Drawing.Point(521, 146);
+            this.addCatVidTB.Location = new System.Drawing.Point(663, 146);
             this.addCatVidTB.Mask = "0";
             this.addCatVidTB.Name = "addCatVidTB";
             this.addCatVidTB.PromptChar = ' ';
@@ -1789,7 +1812,7 @@
             // 
             this.label92.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label92.AutoSize = true;
-            this.label92.Location = new System.Drawing.Point(453, 149);
+            this.label92.Location = new System.Drawing.Point(595, 149);
             this.label92.Name = "label92";
             this.label92.Size = new System.Drawing.Size(62, 13);
             this.label92.TabIndex = 72;
@@ -1850,7 +1873,7 @@
             // addNUCIPTB
             // 
             this.addNUCIPTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addNUCIPTB.Location = new System.Drawing.Point(362, 146);
+            this.addNUCIPTB.Location = new System.Drawing.Point(334, 146);
             this.addNUCIPTB.Name = "addNUCIPTB";
             this.addNUCIPTB.Size = new System.Drawing.Size(85, 20);
             this.addNUCIPTB.TabIndex = 25;
@@ -1859,7 +1882,7 @@
             // 
             this.label88.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label88.AutoSize = true;
-            this.label88.Location = new System.Drawing.Point(310, 149);
+            this.label88.Location = new System.Drawing.Point(282, 149);
             this.label88.Name = "label88";
             this.label88.Size = new System.Drawing.Size(46, 13);
             this.label88.TabIndex = 64;
@@ -1963,7 +1986,7 @@
             this.addAudioComBox.Items.AddRange(new object[] {
             "No Choice",
             "Desktop Speakers",
-            "Ceiling/Wall Mounted Speakers"});
+            "Ceiling / Wall Mounted Speakers"});
             this.addAudioComBox.Location = new System.Drawing.Point(77, 84);
             this.addAudioComBox.Name = "addAudioComBox";
             this.addAudioComBox.Size = new System.Drawing.Size(161, 21);
@@ -2192,7 +2215,7 @@
             this.addScrTB1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.addScrTB1.FormattingEnabled = true;
             this.addScrTB1.Items.AddRange(new object[] {
-            "No Choice",
+            "",
             "Manual",
             "Electric",
             "Fixed Frame",
@@ -2314,7 +2337,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(525, 84);
+            this.tabPage2.Size = new System.Drawing.Size(525, 88);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Display 2";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -2324,7 +2347,7 @@
             this.addScrTB2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.addScrTB2.FormattingEnabled = true;
             this.addScrTB2.Items.AddRange(new object[] {
-            "No Choice",
+            "",
             "Manual",
             "Electric",
             "Fixed Frame",
@@ -2446,7 +2469,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(525, 84);
+            this.tabPage3.Size = new System.Drawing.Size(525, 88);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Display 3";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -2456,7 +2479,7 @@
             this.addScrTB3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.addScrTB3.FormattingEnabled = true;
             this.addScrTB3.Items.AddRange(new object[] {
-            "No Choice",
+            "",
             "Manual",
             "Electric",
             "Fixed Frame",
@@ -2578,7 +2601,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(525, 84);
+            this.tabPage4.Size = new System.Drawing.Size(525, 88);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Display 4";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -2588,7 +2611,7 @@
             this.addScrTB4.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.addScrTB4.FormattingEnabled = true;
             this.addScrTB4.Items.AddRange(new object[] {
-            "No Choice",
+            "",
             "Manual",
             "Electric",
             "Fixed Frame",
@@ -2699,7 +2722,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(525, 84);
+            this.tabPage5.Size = new System.Drawing.Size(525, 88);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Other Devices";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -2713,7 +2736,7 @@
             this.addOtherTB.Multiline = true;
             this.addOtherTB.Name = "addOtherTB";
             this.addOtherTB.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.addOtherTB.Size = new System.Drawing.Size(519, 78);
+            this.addOtherTB.Size = new System.Drawing.Size(519, 82);
             this.addOtherTB.TabIndex = 16;
             // 
             // tabPage6
@@ -2722,7 +2745,7 @@
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage6.Size = new System.Drawing.Size(525, 84);
+            this.tabPage6.Size = new System.Drawing.Size(525, 88);
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "Description";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -2735,7 +2758,7 @@
             this.addDscrptTB.Multiline = true;
             this.addDscrptTB.Name = "addDscrptTB";
             this.addDscrptTB.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.addDscrptTB.Size = new System.Drawing.Size(518, 78);
+            this.addDscrptTB.Size = new System.Drawing.Size(518, 82);
             this.addDscrptTB.TabIndex = 16;
             // 
             // testingTab
@@ -2753,7 +2776,7 @@
             this.testingTab.Location = new System.Drawing.Point(4, 22);
             this.testingTab.Name = "testingTab";
             this.testingTab.Padding = new System.Windows.Forms.Padding(3);
-            this.testingTab.Size = new System.Drawing.Size(810, 231);
+            this.testingTab.Size = new System.Drawing.Size(814, 235);
             this.testingTab.TabIndex = 4;
             this.testingTab.Text = "Testing";
             this.testingTab.UseVisualStyleBackColor = true;
@@ -2803,6 +2826,7 @@
             // 
             this.dateTimePicker1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dateTimePicker1.Location = new System.Drawing.Point(525, 207);
+            this.dateTimePicker1.MinDate = new System.DateTime(2016, 1, 1, 0, 0, 0, 0);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(200, 20);
             this.dateTimePicker1.TabIndex = 0;
@@ -3444,7 +3468,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportChartToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.TabControl mainTabControl;
@@ -3711,6 +3735,8 @@
         private System.Windows.Forms.ToolStripMenuItem testingInfoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportChangesToolStripMenuItem;
         private System.Windows.Forms.Button pullReportBtn;
+        public System.Windows.Forms.MaskedTextBox addNUCMACTB;
+        private System.Windows.Forms.Label label38;
     }
 }
 
