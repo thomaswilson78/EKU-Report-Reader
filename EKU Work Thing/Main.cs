@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Office.Interop.Excel;
 using System.Data.SQLite;
+using EKU_Report_Reader;
 
 /*To Do:
     -Need to adjust footprints data. Some rooms have projector but do not have screen data, so they'll be missed in the report. Also some
@@ -20,6 +21,7 @@ namespace EKU_Work_Thing
         public List<roomInfo> campusData = new List<roomInfo>();//stores a list of all room objects
         private Form2 f2;
         private Form3 f3;
+        private Testing f4;
         //used to populate the location listbox. If possible, need to find a better way without searching every object in campusData
         private string[] libDistrict = new string[] { "Combs Classroom", "Crabbe Library", "Keith Building", "McCreary Building", "University Building", "Weaver Health" };
         private string[] oldSciDistrict = new string[] { "Cammack Building", "Memorial Science", "Moore Building", "Roark Building" };
@@ -56,7 +58,7 @@ namespace EKU_Work_Thing
         {
             try
             {
-                //using is a way of assigning functionality without needing to use multiple statements such as "ofd.Filter="CSV|*.csv"" 
+                //using is a way of assigning functionality without needing to use multiple statements such as "ofd.Filter="CSV|*.csv"
                 using (OpenFileDialog ofd = new OpenFileDialog() { Filter = "CSV|*.csv", ValidateNames = true, Multiselect = false })
                     if (ofd.ShowDialog() == DialogResult.OK)
                     {
@@ -143,8 +145,12 @@ namespace EKU_Work_Thing
                                 newRoom.PCSerial = lines[48];
                                 newRoom.nucip = lines[49];
                                 newRoom.nucmac = lines[50];
+                                newRoom.Cycle = lines[51];
 
                                 campusData.Add(newRoom);//Add object into list of like objects (campusData)
+                                newRoom = null;
+                                GC.WaitForPendingFinalizers();
+                                GC.Collect();
                             }
                         }
                         parser.Close();
@@ -152,7 +158,7 @@ namespace EKU_Work_Thing
 
                         ushort dispCount = 0;//counts number of displays
                         ushort filCount = 0;//counts number of filters cleaned in past 90 days
-                        
+
                         //data will be use to create a custom sorted table that can sort by building, then by room
                         System.Data.DataTable dt = new System.Data.DataTable();
                         dt.Columns.Add("Building", typeof(string));
@@ -171,7 +177,7 @@ namespace EKU_Work_Thing
                                     unset = false;
                                     break;
                                 }
-                            if(unset)
+                            if (unset)
                             {
                                 foreach (string d in oldSciDistrict)
                                     if (room.Building.Equals(d))
@@ -261,12 +267,33 @@ namespace EKU_Work_Thing
                             if (!room.display4.Equals(""))
                                 dispCount++;
 
-                            //check if filter is older than 3 months and report it if last filter clean date is older than that
-                            if (room.filter <= DateTime.Now.AddMonths(-3))
+                            //check filter based on timeframe and report if last filter clean date is older than that
+                            int timeFrame=0;
+                            switch (room.Cycle)
+                            {
+                                case "Expedited":
+                                    break;
+                                case "Monthly":
+                                    timeFrame = -1;
+                                    break;
+                                case "Quarterly":
+                                    timeFrame = -3;
+                                    break;
+                                case "Semi-Annually":
+                                    timeFrame = -6;
+                                    break;
+                                case "Annually":
+                                    timeFrame = -12;
+                                    break;
+                                default:
+                                    timeFrame = -3;
+                                    break;
+                            }
+                            if (room.filter <= DateTime.Now.AddMonths(timeFrame))
                             {
                                 //adds room to the maintenance needed list
-                                string f = "";
-                                string a = "";
+                                string f;
+                                string a;
                                 if (room.filter.ToShortDateString().Equals("1/1/0001"))
                                     f = "N/A";
                                 else
@@ -284,7 +311,7 @@ namespace EKU_Work_Thing
                         dv.Sort = "Building ASC, Room ASC";
                         maintenanceDGV.DataSource = dv;
                         dt = null;
-                        
+
                         roomsLB.Items.Clear();
                         if (buildLB.SelectedIndex >= 0)
                         {
@@ -308,12 +335,32 @@ namespace EKU_Work_Thing
                                 disRooms++;
                                 if (dist.tested >= DateTime.Now.AddMonths(-3))
                                     invCollect++;
-
-                                if (dist.filter <= DateTime.Now.AddMonths(-3))
+                                int timeFrame = 0;
+                                switch (dist.Cycle)
+                                {
+                                    case "Expedited":
+                                        break;
+                                    case "Monthly":
+                                        timeFrame = -1;
+                                        break;
+                                    case "Quarterly":
+                                        timeFrame = -3;
+                                        break;
+                                    case "Semi-Annually":
+                                        timeFrame = -6;
+                                        break;
+                                    case "Annually":
+                                        timeFrame = -12;
+                                        break;
+                                    default:
+                                        timeFrame = -3;
+                                        break;
+                                }
+                                if (dist.filter <= DateTime.Now.AddMonths(timeFrame))
                                     fil++;
                             }
                         }
-                        
+
                         //prints all data last in case of errors
                         totalDisplaysTB.Text = dispCount.ToString();
                         mainNeededTB.Text = filCount.ToString();
@@ -324,10 +371,8 @@ namespace EKU_Work_Thing
                         disInvTB.Text = invCollect.ToString();
                         disPrctFilter.Text = fil.ToString();
                         float k = (((float)(invCollect) / (float)(disRooms)) * 100);
-                        k = (int)k;
-                        k = k / 10;
                         if (disRooms > 0)
-                            disCompPrctTB.Text = k + "%";
+                            disCompPrctTB.Text = String.Format("{0}%", k);
                         else
                             disCompPrctTB.Text = "0.0%";
                         exportChartToolStripMenuItem.Enabled = true;
@@ -379,6 +424,7 @@ namespace EKU_Work_Thing
                 dcCB.Checked = false;
                 micCB.Checked = false;
                 vgaCB.Checked = false;
+                solsticeCB.Checked = false;
                 hdmiCB.Checked = false;
                 avcpCB.Checked = false;
                 tabControl1.TabPages.Remove(Display2);
@@ -416,15 +462,15 @@ namespace EKU_Work_Thing
             {
                 if (campusData.Count == 0)
                 {
-                    MessageBox.Show("No .csv file loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);//Error theoretically should never show up, but leaving it in as a precaution.
+                    MessageBox.Show("No data loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);//Error theoretically should never show up, but leaving it in as a precaution.
                 }
                 else
                 {
+                    //looks for template.xlsx file in the root directory of the program location, then in the Templates folder
+                    string temp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Templates\", @"chart.xlsx");
+                    Workbook wb = xlApp.Workbooks.Add(temp);
                     try
                     {
-                        //looks for template.xlsx file in the root directory of the program location, then in the Template folder
-                        string temp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Template\", "template.xlsx");
-                        Workbook wb = xlApp.Workbooks.Add(temp);
                         Worksheet ws = (Worksheet)wb.Worksheets[1];
                         //Extracts data from objects and loads it into the excel spreadsheet
                         for (int i = 0; i < districtLB.Items.Count; i++)
@@ -457,6 +503,9 @@ namespace EKU_Work_Thing
                     }
                     catch (Exception)
                     {
+                        wb.Close(0);
+                        xlApp.Quit();
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
                         MessageBox.Show("Template file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -966,13 +1015,14 @@ namespace EKU_Work_Thing
                     }
                     catch (Exception ex)
                     {
+                        xlApp.Quit();
                         MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     }
                 }
             }
         }//Done
 
-        //exports maintenace list into excel spreadsheet (discontinued unless completely desired as this would be redundant with pulling a maintenance report from footprints).
+        //exports maintenace list into excel spreadsheet (discontinued unless completely desired as this would be redundant with pulling a maintenance report from footprints and with the maintenance tab).
         /*private void exportMaintenanceListToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //create an excel application object to open excel
@@ -1025,6 +1075,30 @@ namespace EKU_Work_Thing
         {
             this.Close();
         }//Done
+
+        //load testing data collected form
+        private void testingInfoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (f4 != null)
+            {
+                if (!f4.Visible)
+                {
+                    f4.loadTable();
+                    f4.Location = this.Location;
+                    f4.Left += 190;
+                    f4.Top -= 50;
+                    f4.Show();
+                }
+                else
+                    f4.Focus();
+            }
+            else
+            {
+                f4 = new Testing(this);
+                f4.StartPosition = this.StartPosition;
+                f4.Show();
+            }
+        }
 
         //updates the rooms listbox when a building is selected.
         private void buildLB_SelectedIndexChanged(object sender, EventArgs e)
@@ -1082,6 +1156,7 @@ namespace EKU_Work_Thing
                         dcCB.Checked = rooms.docCam;
                         micCB.Checked = rooms.mic;
                         vgaCB.Checked = rooms.vga;
+                        solsticeCB.Checked = rooms.sol;
                         hdmiCB.Checked = rooms.hdmi;
                         avcpCB.Checked = rooms.av;
 
@@ -1178,8 +1253,28 @@ namespace EKU_Work_Thing
                     disRooms++;
                     if (dist.tested >= DateTime.Now.AddMonths(-3))
                         invCollect++;
-
-                    if (dist.filter <= DateTime.Now.AddMonths(-3))
+                    int timeFrame = 0;
+                    switch (dist.Cycle)
+                    {
+                        case "Expedited":
+                            break;
+                        case "Monthly":
+                            timeFrame = -1;
+                            break;
+                        case "Quarterly":
+                            timeFrame = -3;
+                            break;
+                        case "Semi-Annually":
+                            timeFrame = -6;
+                            break;
+                        case "Annually":
+                            timeFrame = -12;
+                            break;
+                        default:
+                            timeFrame = -3;
+                            break;
+                    }
+                    if (dist.filter <= DateTime.Now.AddMonths(timeFrame))
                         fil++;
                 }
             }
@@ -1187,10 +1282,8 @@ namespace EKU_Work_Thing
             disInvTB.Text = invCollect.ToString();
             disPrctFilter.Text = fil.ToString();
             float k = (((float)(invCollect) / (float)(disRooms)) * 100);
-            k = (int)k;
-            k = k / 10;
             if (disRooms > 0)
-                disCompPrctTB.Text = k + "%";
+                disCompPrctTB.Text = String.Format("{0:0.0}%", k);
             else
                 disCompPrctTB.Text = "0.0%";
 
@@ -1226,6 +1319,7 @@ namespace EKU_Work_Thing
             {
                 if (!f2.Visible)
                 {
+                    f2.loadTable();
                     f2.Location = this.Location;
                     f2.Left += 190;
                     f2.Top -= 50;
@@ -1417,7 +1511,7 @@ namespace EKU_Work_Thing
             {
                 conn.Open();
                 //check to see if record exist, if so, set update to true and change from inserting to updating
-                SQLiteCommand check = new SQLiteCommand("SELECT * FROM testingfollowup WHERE Building=@b AND Room=@r;", conn);
+                SQLiteCommand check = new SQLiteCommand("SELECT * FROM testingmain WHERE Building=@b AND Room=@r;", conn);
                 check.Parameters.AddWithValue("@b", testBuilding.Text);
                 check.Parameters.AddWithValue("@r", testRoom.Text);
                 SQLiteDataReader read = check.ExecuteReader();
@@ -1450,90 +1544,80 @@ namespace EKU_Work_Thing
                 //worst written code ever... but making it better would take even longer because of a huge array
                 SQLiteCommand cmd;
                 if (update)
-                    cmd = new SQLiteCommand(@"UPDATE testinggeneral SET PwrOn=@pwron, WarmUp=@warmup, FilterBulbMsg=@filbulb, ImageGood=@image, EquipGood=@equip, QuickGuide=@guide, 
+                    cmd = new SQLiteCommand(@"UPDATE testinggeneral SET PwrOn=@pwron, WarmUp=@warmup, FilterBulbMsg=@filbulb, Bright=@bright, ImageGood=@image, EquipGood=@equip, QuickGuide=@guide, 
                                                       TimeDateGood=@dtgood, Help=@help, VideoMute=@vidmute, AutoImage=@autoimg, ScreenCtrl=@scr, LightSystem=@light, CoolDown=@cooldown, 
                                                       PowerOff=@pwroff, FilterDamage=@fildamg, notes1=@notes1, notes2=@notes2, notes3=@notes3, notes4=@notes4, notes5=@notes5, 
                                                       notes6=@notes6, notes7=@notes7, notes8=@notes8, notes9=@notes9, notes10=@notes10, notes11=@notes11, notes12=@notes12, 
-                                                      notes13=@notes13, notes14=@notes14, notes15=@notes15 WHERE Building=@build AND Room=@room;", conn);
+                                                      notes13=@notes13, notes14=@notes14, notes15=@notes15, notes16=@notes16 WHERE Building=@build AND Room=@room;", conn);
                 else
-                    cmd = new SQLiteCommand(@"INSERT INTO testinggeneral VALUES (@build, @room, @pwron, @warmup, @filbulb, @image, @equip, @guide, 
+                    cmd = new SQLiteCommand(@"INSERT INTO testinggeneral VALUES (@build, @room, @pwron, @warmup, @filbulb, @bright, @image, @equip, @guide, 
                                                       @dtgood, @help, @vidmute, @autoimg, @scr, @light, @cooldown, @pwroff, @fildamg, @notes1, @notes2, @notes3,
-                                                      @notes4, @notes5, @notes6, @notes7, @notes8, @notes9, @notes10, @notes11, @notes12, @notes13, @notes14, @notes15);", conn);
+                                                      @notes4, @notes5, @notes6, @notes7, @notes8, @notes9, @notes10, @notes11, @notes12, @notes13, @notes14, @notes15, @notes16);", conn);
                 for (int y = 0; y < testGeneralDGV.RowCount; y++)
                 {
                     for (int x = 1; x < testGeneralDGV.ColumnCount - 1; x++)
                     {
                         var test = testGeneralDGV.Rows[y].Cells[x].Value;
-                        if (!testGeneralDGV.Rows[y].Cells[x].Value.Equals(false) || x == 3)
+                        if (testGeneralDGV.Rows[y].Cells[x].Value.Equals(true) || x == 3)
                         {
                             switch (y)
                             {
                                 case 0:
                                     cmd.Parameters.AddWithValue("@pwron", x);
-                                    cmd.Parameters.AddWithValue("@notes1", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
                                     break;
                                 case 1:
                                     cmd.Parameters.AddWithValue("@warmup", x);
-                                    cmd.Parameters.AddWithValue("@notes2", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
                                     break;
                                 case 2:
                                     cmd.Parameters.AddWithValue("@filbulb", x);
-                                    cmd.Parameters.AddWithValue("@notes3", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
                                     break;
                                 case 3:
-                                    cmd.Parameters.AddWithValue("@image", x);
-                                    cmd.Parameters.AddWithValue("@notes4", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@bright", x);
                                     break;
                                 case 4:
-                                    cmd.Parameters.AddWithValue("@equip", x);
-                                    cmd.Parameters.AddWithValue("@notes5", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@image", x);
                                     break;
                                 case 5:
-                                    cmd.Parameters.AddWithValue("@guide", x);
-                                    cmd.Parameters.AddWithValue("@notes6", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@equip", x);
                                     break;
                                 case 6:
-                                    cmd.Parameters.AddWithValue("@dtgood", x);
-                                    cmd.Parameters.AddWithValue("@notes7", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@guide", x);
                                     break;
                                 case 7:
-                                    cmd.Parameters.AddWithValue("@help", x);
-                                    cmd.Parameters.AddWithValue("@notes8", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@dtgood", x);
                                     break;
                                 case 8:
-                                    cmd.Parameters.AddWithValue("@vidmute", x);
-                                    cmd.Parameters.AddWithValue("@notes9", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@help", x);
                                     break;
                                 case 9:
-                                    cmd.Parameters.AddWithValue("@autoimg", x);
-                                    if (testGeneralDGV.Rows[y].Cells[4].Value != null)
-                                        cmd.Parameters.AddWithValue("@notes10", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@vidmute", x);
                                     break;
                                 case 10:
-                                    cmd.Parameters.AddWithValue("@scr", x);
-                                    if (testGeneralDGV.Rows[y].Cells[4].Value != null)
-                                        cmd.Parameters.AddWithValue("@notes11", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@autoimg", x);
                                     break;
                                 case 11:
-                                    cmd.Parameters.AddWithValue("@light", x);
-                                    cmd.Parameters.AddWithValue("@notes12", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@scr", x);
                                     break;
                                 case 12:
-                                    cmd.Parameters.AddWithValue("@cooldown", x);
-                                    cmd.Parameters.AddWithValue("@notes13", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@light", x);
                                     break;
                                 case 13:
-                                    cmd.Parameters.AddWithValue("@pwroff", x);
-                                    cmd.Parameters.AddWithValue("@notes14", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                                    cmd.Parameters.AddWithValue("@cooldown", x);
                                     break;
                                 case 14:
+                                    cmd.Parameters.AddWithValue("@pwroff", x);
+                                    break;
+                                case 15:
                                     cmd.Parameters.AddWithValue("@fildamg", x);
-                                    cmd.Parameters.AddWithValue("@notes15", testGeneralDGV.Rows[y].Cells[4].Value.ToString());
                                     break;
                             }
                             break;
                         }
                     }
+                    if(testGeneralDGV.Rows[y].Cells[4].Value!=null)
+                        cmd.Parameters.AddWithValue("@notes"+(y+1).ToString(), testGeneralDGV.Rows[y].Cells[4].Value.ToString());
+                    else
+                        cmd.Parameters.AddWithValue("@notes" + (y + 1).ToString(), "");
                 }
                 cmd.Parameters.AddWithValue("@build", testBuilding.Text);
                 cmd.Parameters.AddWithValue("@room", testRoom.Text);
@@ -1578,7 +1662,15 @@ namespace EKU_Work_Thing
                 {
                     for (int x = 1; x < testVidAudDGV.ColumnCount; x++)
                     {
-                        cmd.Parameters.AddWithValue("@" + (y + 1) + data[x - 1], testVidAudDGV.Rows[y].Cells[x].Value.ToString());
+                        if(x==6)
+                        {
+                            if (testVidAudDGV.Rows[y].Cells[x].Value != null)
+                                cmd.Parameters.AddWithValue("@" + (y + 1) + data[x - 1], testVidAudDGV.Rows[y].Cells[x].Value.ToString());
+                            else
+                                cmd.Parameters.AddWithValue("@" + (y + 1) + data[x - 1], "");
+                        }
+                        else
+                            cmd.Parameters.AddWithValue("@" + (y + 1) + data[x - 1], testVidAudDGV.Rows[y].Cells[x].Value.ToString());
                     }
                 }
                 cmd.Parameters.AddWithValue("@b", testBuilding.Text);
@@ -1636,7 +1728,10 @@ namespace EKU_Work_Thing
                 //add notes
                 for (int y = 0; y < testMicDGV.RowCount; y++)
                 {
-                    cmd.Parameters.AddWithValue("@" + data[pos], testMicDGV.Rows[y].Cells[4].Value.ToString());
+                    if (testMicDGV.Rows[y].Cells[4].Value != null)
+                        cmd.Parameters.AddWithValue("@" + data[pos], testMicDGV.Rows[y].Cells[4].Value.ToString());
+                    else
+                        cmd.Parameters.AddWithValue("@notes" + (y + 1).ToString(), "");
                     pos++;
                 }
 
@@ -1694,7 +1789,10 @@ namespace EKU_Work_Thing
                 //add notes
                 for (int y = 0; y < testDocDGV.RowCount; y++)
                 {
-                    cmd.Parameters.AddWithValue("@" + data[pos], testDocDGV.Rows[y].Cells[4].Value.ToString());
+                    if (testDocDGV.Rows[y].Cells[4].Value != null)
+                        cmd.Parameters.AddWithValue("@" + data[pos], testDocDGV.Rows[y].Cells[4].Value.ToString());
+                    else
+                        cmd.Parameters.AddWithValue("@notes" + (y + 1).ToString(), "");
                     pos++;
                 }
 
@@ -1752,7 +1850,10 @@ namespace EKU_Work_Thing
                 //add notes
                 for (int y = 0; y < testDVDDGV.RowCount; y++)
                 {
-                    cmd.Parameters.AddWithValue("@" + data[pos], testDVDDGV.Rows[y].Cells[4].Value.ToString());
+                    if (testDVDDGV.Rows[y].Cells[4].Value != null)
+                        cmd.Parameters.AddWithValue("@" + data[pos], testDVDDGV.Rows[y].Cells[4].Value.ToString());
+                    else
+                        cmd.Parameters.AddWithValue("@notes" + (y + 1).ToString(), "");
                     pos++;
                 }
 
@@ -1812,7 +1913,10 @@ namespace EKU_Work_Thing
                 //add notes
                 for (int y = 0; y < testIPTVDGV.RowCount; y++)
                 {
-                    cmd.Parameters.AddWithValue("@" + data[pos], testIPTVDGV.Rows[y].Cells[4].Value.ToString());
+                    if (testIPTVDGV.Rows[y].Cells[4].Value != null)
+                        cmd.Parameters.AddWithValue("@" + data[pos], testIPTVDGV.Rows[y].Cells[4].Value.ToString());
+                    else
+                        cmd.Parameters.AddWithValue("@notes" + (y + 1).ToString(), "");
                     pos++;
                 }
 
@@ -1823,14 +1927,51 @@ namespace EKU_Work_Thing
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                conn.Close();
+                //attempt to delete corrupted record
+                SQLiteCommand cmd = new SQLiteCommand("DELETE FROM testingmain WHERE Building=@b AND Room=@r;",conn);
+                cmd.Parameters.AddWithValue("@b", testBuilding.Text);
+                cmd.Parameters.AddWithValue("@r", testRoom.Text);
+                cmd.ExecuteNonQuery();
                 return;
             }
             //finish
-            conn.Close();
+            finally
+            {
+                conn.Close();
+            }
+            if(f4!=null)
+                if(f4.Visible)
+                    f4.loadTable();
             MessageBox.Show("Testing information added successfully.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }//done
 
+        private void testClear_Click(object sender, EventArgs e)
+        {
+            var confirm = MessageBox.Show("Are you sure you want to clear?", "Notice", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm.ToString().Equals("Yes"))
+            {
+                clearTestTable(testGeneralDGV);
+                clearTestTable(testMicDGV);
+                clearTestTable(testDocDGV);
+                clearTestTable(testDVDDGV);
+                clearTestTable(testIPTVDGV);
+                //clear vid/aud table
+                for (int y = 0; y < testVidAudDGV.Rows.Count; y++)
+                {
+                    for (int x = 1; x < testVidAudDGV.Columns.Count; x++)
+                    {
+                        if (x == testVidAudDGV.Columns.Count - 1)
+                            testVidAudDGV.Rows[y].Cells[x].Value = "";
+                        else
+                            testVidAudDGV.Rows[y].Cells[x].Value = "N/A";
+                    }
+                }
+                testBuilding.Text = "";
+                testRoom.Text = "";
+                testName.Text = "";
+                testNotesTB.Text = "";
+            }
+        }
 
         /*custom functions (not directly related to an object on the form)*/
 
@@ -1887,25 +2028,26 @@ namespace EKU_Work_Thing
         //adds rows to testing tables
         private void buildTestingTables()
         {
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 16; i++)
                 testGeneralDGV.Rows.Add();
             testGeneralDGV.Rows[0].Cells[0].Value = "Display(s) power on";
             testGeneralDGV.Rows[1].Cells[0].Value = "(CP) Warm up screen alots enough time for projector warm up light to stop.";
             testGeneralDGV.Rows[2].Cells[0].Value = "No Filter or Bulb Life error message.";
-            testGeneralDGV.Rows[3].Cells[0].Value = "Image is properly centered, zoomed, \"squared\" (i.e. not jutting corners), and focused.";
-            testGeneralDGV.Rows[4].Cells[0].Value = "Equipment, cart, and cables are neat and organized.";
-            testGeneralDGV.Rows[5].Cells[0].Value = "(CP) Quick guide is displayed after powering on the system.";
-            testGeneralDGV.Rows[6].Cells[0].Value = "(CP) Time/Date are properly displayed and are correct.";
-            testGeneralDGV.Rows[7].Cells[0].Value = "(CP) \"Help\" button displays IT contact information when pressed.";
-            testGeneralDGV.Rows[8].Cells[0].Value = "(CP) Video mute button highlights when selected and mutes the display.";
-            testGeneralDGV.Rows[9].Cells[0].Value = "(CP) \"Auto Image\" button auto images and stays highlighted until complete.";
-            testGeneralDGV.Rows[10].Cells[0].Value = "Screen controls ▲, ▼, ■  work properly and screen is not marked/damaged.";
-            testGeneralDGV.Rows[11].Cells[0].Value = "Lighting system properly dims and brightens light.";
-            testGeneralDGV.Rows[12].Cells[0].Value = "(CP) Cool down screen alots enough time for projector cool down light to stop.";
-            testGeneralDGV.Rows[13].Cells[0].Value = "(CP) Powering down shuts down all other equipment (Doc Cam, etc).";
-            testGeneralDGV.Rows[14].Cells[0].Value = "Check filter for damage (yes if damaged, no if good).";
+            testGeneralDGV.Rows[3].Cells[0].Value = "Projector image is acceptable bright (legiable from the back of the classroom).";
+            testGeneralDGV.Rows[4].Cells[0].Value = "Image is properly centered, zoomed, \"squared\" (i.e. not jutting corners), and focused.";
+            testGeneralDGV.Rows[5].Cells[0].Value = "Equipment, cart, and cables are neat and organized.";
+            testGeneralDGV.Rows[6].Cells[0].Value = "(CP) Quick guide is displayed after powering on the system.";
+            testGeneralDGV.Rows[7].Cells[0].Value = "(CP) Time/Date are properly displayed and are correct.";
+            testGeneralDGV.Rows[8].Cells[0].Value = "(CP) \"Help\" button displays IT contact information when pressed.";
+            testGeneralDGV.Rows[9].Cells[0].Value = "(CP) Video mute button highlights when selected and mutes the display.";
+            testGeneralDGV.Rows[10].Cells[0].Value = "(CP) \"Auto Image\" button auto images and stays highlighted until complete.";
+            testGeneralDGV.Rows[11].Cells[0].Value = "Screen controls ▲, ▼, ■  work properly and screen is not marked/damaged.";
+            testGeneralDGV.Rows[12].Cells[0].Value = "Lighting system properly dims and brightens light.";
+            testGeneralDGV.Rows[13].Cells[0].Value = "(CP) Cool down screen alots enough time for projector cool down light to stop.";
+            testGeneralDGV.Rows[14].Cells[0].Value = "(CP) Powering down shuts down all other equipment (Doc Cam, etc).";
+            testGeneralDGV.Rows[15].Cells[0].Value = "Check filter for damage (yes if damaged, no if good).";
             //initialize row values
-            for (int y = 0; y < 15; y++)
+            for (int y = 0; y < 16; y++)
             {
                 for (int x = 1; x < 4; x++)
                     testGeneralDGV.Rows[y].Cells[x].Value = false;
@@ -1981,10 +2123,80 @@ namespace EKU_Work_Thing
             }
         }//done
 
-        private void testingInfoToolStripMenuItem_Click(object sender, EventArgs e)
+        //focus on inv. tab
+        public void invFocus()
         {
+            this.Focus();
+            mainTabControl.SelectedIndex = 3;
+            addTabController.SelectedIndex = 0;
+        }//done
 
+        public void testFocus()
+        {
+            this.Focus();
+            mainTabControl.SelectedIndex = 4;
+            testTabController.SelectedIndex = 0;
+        }//done
+
+        public void resetTestingTables()
+        {
+            testNotesTB.Text = "";
+            for (int i = 0; i < testGeneralDGV.Rows.Count; i++)
+            {
+                for (int k = 1; k < 4; k++)
+                    testGeneralDGV.Rows[i].Cells[k].Value = false;
+                testGeneralDGV.Rows[i].Cells[4].Value = "";
+            }
+            for (int i = 0; i < testMicDGV.Rows.Count; i++)
+            {
+                for (int k = 1; k < 4; k++)
+                    testMicDGV.Rows[i].Cells[k].Value = false;
+                testMicDGV.Rows[i].Cells[4].Value = "";
+            }
+            for (int i = 0; i < testVidAudDGV.Rows.Count; i++)
+            {
+                for (int k = 1; k < 6; k++)
+                    testVidAudDGV.Rows[i].Cells[k].Value = "N/A";
+                testVidAudDGV.Rows[i].Cells[6].Value = "";
+            }
+            for (int i = 0; i < testDocDGV.Rows.Count; i++)
+            {
+                for (int k = 1; k < 4; k++)
+                    testDocDGV.Rows[i].Cells[k].Value = false;
+                testDocDGV.Rows[i].Cells[4].Value = "";
+            }
+            for (int i = 0; i < testDVDDGV.Rows.Count; i++)
+            {
+                for (int k = 1; k < 4; k++)
+                    testDVDDGV.Rows[i].Cells[k].Value = false;
+                testDVDDGV.Rows[i].Cells[4].Value = "";
+            }
+            for (int i = 0; i < testIPTVDGV.Rows.Count; i++)
+            {
+                for (int k = 1; k < 4; k++)
+                    testIPTVDGV.Rows[i].Cells[k].Value = false;
+                testIPTVDGV.Rows[i].Cells[4].Value = "";
+            }
         }
+
+        private void clearTestTable(DataGridView t)
+        {
+            for (int y = 0; y < t.Rows.Count; y++)
+            {
+                for (int x = 1; x < t.Columns.Count; x++)
+                {
+                    if (x == t.Columns.Count - 1)
+                    {
+                        t.Rows[y].Cells[x].Value = "";
+                    }
+                    else
+                    {
+                        t.Rows[y].Cells[x].Value = false;
+                    }
+                }
+            }
+        }
+        
     }//end Form1
 
     //save information about a room into an object
@@ -1992,6 +2204,7 @@ namespace EKU_Work_Thing
     {
         public string Building { get; set; }
         public string Room { get; set; }
+        public string Cycle { get; set; }
         public string District { get; set; }
         public string display1 { get; set; }
         public string display2 { get; set; }

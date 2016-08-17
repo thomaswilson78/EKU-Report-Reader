@@ -19,6 +19,7 @@ namespace EKU_Work_Thing
         {
             Hide();
         }//done
+
         //load data into table
         public void loadTable()
         {
@@ -31,9 +32,7 @@ namespace EKU_Work_Thing
                 SQLiteCommand cmd = new SQLiteCommand("SELECT Building,Room FROM inventory_collected;", conn);
                 SQLiteDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
-                {
-                    invcolDGV.Rows.Add(reader["Building"].ToString(), reader["Room"].ToString(), "Edit");
-                }
+                    invcolDGV.Rows.Add(reader["Building"].ToString(), reader["Room"].ToString(), "Edit", false);
                 cmd.Dispose();
                 reader.Close();
             }
@@ -43,7 +42,6 @@ namespace EKU_Work_Thing
             }
             finally
             {
-                conn.Close();
                 conn.Dispose();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
@@ -137,7 +135,8 @@ namespace EKU_Work_Thing
                 }
                 finally
                 {
-                    conn.Close();
+                    conn.Dispose();
+                    f1.invFocus();
                 }
             }
         }//unfinished
@@ -154,17 +153,16 @@ namespace EKU_Work_Thing
                     conn.Open();
                     for (int i = 0; i < invcolDGV.Rows.Count; i++)
                     {
-                        if (invcolDGV.Rows[i].Cells[3].Value != null)
-                            if (invcolDGV.Rows[i].Cells[3].Value.ToString().Equals("True"))
-                            {
-                                SQLiteCommand cmd = new SQLiteCommand("DELETE FROM inventory_collected WHERE Building=@B AND Room=@R", conn);
-                                cmd.Parameters.AddWithValue("@B", invcolDGV.Rows[i].Cells[0].Value.ToString());
-                                cmd.Parameters.AddWithValue("@R", invcolDGV.Rows[i].Cells[1].Value.ToString());
-                                cmd.ExecuteNonQuery();
-                                invcolDGV.Rows.RemoveAt(i);
-                                success = true;
-                                i--;
-                            }
+                        if (invcolDGV.Rows[i].Cells[3].Value.Equals(true))
+                        {
+                            SQLiteCommand cmd = new SQLiteCommand("DELETE FROM inventory_collected WHERE Building=@B AND Room=@R", conn);
+                            cmd.Parameters.AddWithValue("@B", invcolDGV.Rows[i].Cells[0].Value.ToString());
+                            cmd.Parameters.AddWithValue("@R", invcolDGV.Rows[i].Cells[1].Value.ToString());
+                            cmd.ExecuteNonQuery();
+                            invcolDGV.Rows.RemoveAt(i);
+                            success = true;
+                            i--;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -180,18 +178,14 @@ namespace EKU_Work_Thing
                 else
                     MessageBox.Show("No items selected for deletion.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 invcolDGV.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                conn.Close();
+                conn.Dispose();
             }
         }//Done
 
         private void invClear_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < invcolDGV.Rows.Count; i++)
-            {
-                if (invcolDGV.Rows[i].Cells[3].Value != null)
-                    if ((bool)invcolDGV.Rows[i].Cells[3].Value == true)
-                        invcolDGV.Rows[i].Cells[3].Value = false;
-            }
+                invcolDGV.Rows[i].Cells[3].Value = false;
         }
 
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
@@ -200,6 +194,40 @@ namespace EKU_Work_Thing
             {
                 e.Cancel = true;
                 Hide();
+            }
+        }
+
+        private void invDeleteAll_Click(object sender, EventArgs e)
+        {
+            var confirm = MessageBox.Show("Are you sure you want to delete all items?", "Notice", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+            if (confirm.ToString().Equals("OK"))
+            {
+                confirm = MessageBox.Show("Are you certain? This action cannot be undone.", "Notice", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+                if (confirm.ToString().Equals("OK"))
+                {
+                    bool success = false;
+                    SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
+                    try
+                    {
+                        invcolDGV.Rows.Clear();
+                        conn.Open();
+                        SQLiteCommand cmd = new SQLiteCommand("DELETE FROM inventory_collected", conn);
+                        cmd.ExecuteNonQuery();
+                        success = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        success = false;
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
+                    if (success)
+                        MessageBox.Show("All items successfully removed.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    else
+                        MessageBox.Show("Error occured when removing items.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    invcolDGV.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                    conn.Dispose();
+                }
+
             }
         }
     }

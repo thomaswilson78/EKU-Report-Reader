@@ -36,6 +36,7 @@
             this.invClose = new System.Windows.Forms.Button();
             this.invDelete = new System.Windows.Forms.Button();
             this.invClear = new System.Windows.Forms.Button();
+            this.invDeleteAll = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.invcolDGV)).BeginInit();
             this.SuspendLayout();
             // 
@@ -124,11 +125,23 @@
             this.invClear.UseVisualStyleBackColor = true;
             this.invClear.Click += new System.EventHandler(this.invClear_Click);
             // 
+            // invDeleteAll
+            // 
+            this.invDeleteAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.invDeleteAll.Location = new System.Drawing.Point(134, 327);
+            this.invDeleteAll.Name = "invDeleteAll";
+            this.invDeleteAll.Size = new System.Drawing.Size(69, 23);
+            this.invDeleteAll.TabIndex = 5;
+            this.invDeleteAll.Text = "Delete All";
+            this.invDeleteAll.UseVisualStyleBackColor = true;
+            this.invDeleteAll.Click += new System.EventHandler(this.invDeleteAll_Click);
+            // 
             // Form2
             // 
             this.AcceptButton = this.invClose;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(417, 362);
+            this.Controls.Add(this.invDeleteAll);
             this.Controls.Add(this.invClear);
             this.Controls.Add(this.invDelete);
             this.Controls.Add(this.invClose);
@@ -154,5 +167,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn invcolRoom;
         private System.Windows.Forms.DataGridViewButtonColumn invcolView;
         private System.Windows.Forms.DataGridViewCheckBoxColumn invcolSelected;
+        private System.Windows.Forms.Button invDeleteAll;
     }
 }

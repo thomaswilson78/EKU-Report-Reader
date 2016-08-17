@@ -33,7 +33,8 @@ namespace EKU_Work_Thing
                     if (room.Building.Equals(BuildingCB.Text))
                     RoomCB.Items.Add(room.Room);
             }
-            RoomCB.SelectedIndex = 0;
+            if(RoomCB.Items.Count>0)
+                RoomCB.SelectedIndex = 0;
         }
         //takes building and room information from selected values and fills the values from the .csv report into the inventory tab of the main form
         private void pullDataBtn_Click(object sender, EventArgs e)

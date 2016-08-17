@@ -190,7 +190,7 @@
             this.addRoomTB = new System.Windows.Forms.TextBox();
             this.label74 = new System.Windows.Forms.Label();
             this.label73 = new System.Windows.Forms.Label();
-            this.tabControl2 = new System.Windows.Forms.TabControl();
+            this.addTabController = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.addScrTB1 = new System.Windows.Forms.ComboBox();
             this.addIPTB1 = new System.Windows.Forms.TextBox();
@@ -248,6 +248,7 @@
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.addDscrptTB = new System.Windows.Forms.TextBox();
             this.testingTab = new System.Windows.Forms.TabPage();
+            this.testClear = new System.Windows.Forms.Button();
             this.testBuilding = new System.Windows.Forms.ComboBox();
             this.testDate = new System.Windows.Forms.DateTimePicker();
             this.label37 = new System.Windows.Forms.Label();
@@ -304,6 +305,7 @@
             this.testDGNotesI = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.testNotesTab = new System.Windows.Forms.TabPage();
             this.testNotesTB = new System.Windows.Forms.TextBox();
+            this.solsticeCB = new System.Windows.Forms.CheckBox();
             this.menuStrip1.SuspendLayout();
             this.mainTabControl.SuspendLayout();
             this.Overview.SuspendLayout();
@@ -323,7 +325,7 @@
             this.maintenanceTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.maintenanceDGV)).BeginInit();
             this.invTestTab.SuspendLayout();
-            this.tabControl2.SuspendLayout();
+            this.addTabController.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
@@ -775,6 +777,7 @@
             this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel3.Controls.Add(this.solsticeCB);
             this.panel3.Controls.Add(this.controlTB);
             this.panel3.Controls.Add(this.audioTB);
             this.panel3.Controls.Add(this.label43);
@@ -845,7 +848,7 @@
             this.avcpCB.AutoCheck = false;
             this.avcpCB.AutoSize = true;
             this.avcpCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.avcpCB.Location = new System.Drawing.Point(236, 166);
+            this.avcpCB.Location = new System.Drawing.Point(231, 166);
             this.avcpCB.Name = "avcpCB";
             this.avcpCB.Size = new System.Drawing.Size(130, 17);
             this.avcpCB.TabIndex = 25;
@@ -858,7 +861,7 @@
             this.micCB.AutoCheck = false;
             this.micCB.AutoSize = true;
             this.micCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.micCB.Location = new System.Drawing.Point(142, 187);
+            this.micCB.Location = new System.Drawing.Point(140, 187);
             this.micCB.Name = "micCB";
             this.micCB.Size = new System.Drawing.Size(85, 17);
             this.micCB.TabIndex = 23;
@@ -871,7 +874,7 @@
             this.hdmiCB.AutoCheck = false;
             this.hdmiCB.AutoSize = true;
             this.hdmiCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.hdmiCB.Location = new System.Drawing.Point(382, 187);
+            this.hdmiCB.Location = new System.Drawing.Point(284, 187);
             this.hdmiCB.Name = "hdmiCB";
             this.hdmiCB.Size = new System.Drawing.Size(77, 17);
             this.hdmiCB.TabIndex = 21;
@@ -884,7 +887,7 @@
             this.vgaCB.AutoCheck = false;
             this.vgaCB.AutoSize = true;
             this.vgaCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.vgaCB.Location = new System.Drawing.Point(295, 187);
+            this.vgaCB.Location = new System.Drawing.Point(375, 187);
             this.vgaCB.Name = "vgaCB";
             this.vgaCB.Size = new System.Drawing.Size(71, 17);
             this.vgaCB.TabIndex = 19;
@@ -897,7 +900,7 @@
             this.lcCB.AutoCheck = false;
             this.lcCB.AutoSize = true;
             this.lcCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lcCB.Location = new System.Drawing.Point(123, 166);
+            this.lcCB.Location = new System.Drawing.Point(121, 166);
             this.lcCB.Name = "lcCB";
             this.lcCB.Size = new System.Drawing.Size(104, 17);
             this.lcCB.TabIndex = 17;
@@ -936,7 +939,7 @@
             this.dvdCB.AutoCheck = false;
             this.dvdCB.AutoSize = true;
             this.dvdCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.dvdCB.Location = new System.Drawing.Point(380, 166);
+            this.dvdCB.Location = new System.Drawing.Point(367, 166);
             this.dvdCB.Name = "dvdCB";
             this.dvdCB.Size = new System.Drawing.Size(79, 17);
             this.dvdCB.TabIndex = 11;
@@ -1759,7 +1762,7 @@
             this.invTestTab.Controls.Add(this.addRoomTB);
             this.invTestTab.Controls.Add(this.label74);
             this.invTestTab.Controls.Add(this.label73);
-            this.invTestTab.Controls.Add(this.tabControl2);
+            this.invTestTab.Controls.Add(this.addTabController);
             this.invTestTab.Location = new System.Drawing.Point(4, 22);
             this.invTestTab.Name = "invTestTab";
             this.invTestTab.Padding = new System.Windows.Forms.Padding(3);
@@ -2226,21 +2229,21 @@
             this.label73.TabIndex = 2;
             this.label73.Text = "Building:";
             // 
-            // tabControl2
+            // addTabController
             // 
-            this.tabControl2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.addTabController.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl2.Controls.Add(this.tabPage1);
-            this.tabControl2.Controls.Add(this.tabPage2);
-            this.tabControl2.Controls.Add(this.tabPage3);
-            this.tabControl2.Controls.Add(this.tabPage4);
-            this.tabControl2.Controls.Add(this.tabPage5);
-            this.tabControl2.Controls.Add(this.tabPage6);
-            this.tabControl2.Location = new System.Drawing.Point(278, 0);
-            this.tabControl2.Name = "tabControl2";
-            this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(533, 114);
-            this.tabControl2.TabIndex = 15;
+            this.addTabController.Controls.Add(this.tabPage1);
+            this.addTabController.Controls.Add(this.tabPage2);
+            this.addTabController.Controls.Add(this.tabPage3);
+            this.addTabController.Controls.Add(this.tabPage4);
+            this.addTabController.Controls.Add(this.tabPage5);
+            this.addTabController.Controls.Add(this.tabPage6);
+            this.addTabController.Location = new System.Drawing.Point(278, 0);
+            this.addTabController.Name = "addTabController";
+            this.addTabController.SelectedIndex = 0;
+            this.addTabController.Size = new System.Drawing.Size(533, 114);
+            this.addTabController.TabIndex = 15;
             // 
             // tabPage1
             // 
@@ -2817,6 +2820,7 @@
             // 
             // testingTab
             // 
+            this.testingTab.Controls.Add(this.testClear);
             this.testingTab.Controls.Add(this.testBuilding);
             this.testingTab.Controls.Add(this.testDate);
             this.testingTab.Controls.Add(this.label37);
@@ -2834,6 +2838,17 @@
             this.testingTab.TabIndex = 4;
             this.testingTab.Text = "Testing";
             this.testingTab.UseVisualStyleBackColor = true;
+            // 
+            // testClear
+            // 
+            this.testClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.testClear.Location = new System.Drawing.Point(710, 204);
+            this.testClear.Name = "testClear";
+            this.testClear.Size = new System.Drawing.Size(45, 23);
+            this.testClear.TabIndex = 11;
+            this.testClear.Text = "Clear";
+            this.testClear.UseVisualStyleBackColor = true;
+            this.testClear.Click += new System.EventHandler(this.testClear_Click);
             // 
             // testBuilding
             // 
@@ -2871,7 +2886,7 @@
             "Weaver Health",
             "Whalin Complex",
             "Whitlock Building"});
-            this.testBuilding.Location = new System.Drawing.Point(262, 206);
+            this.testBuilding.Location = new System.Drawing.Point(241, 206);
             this.testBuilding.Name = "testBuilding";
             this.testBuilding.Size = new System.Drawing.Size(125, 21);
             this.testBuilding.TabIndex = 10;
@@ -2879,7 +2894,7 @@
             // testDate
             // 
             this.testDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.testDate.Location = new System.Drawing.Point(525, 207);
+            this.testDate.Location = new System.Drawing.Point(504, 207);
             this.testDate.MinDate = new System.DateTime(2016, 1, 1, 0, 0, 0, 0);
             this.testDate.Name = "testDate";
             this.testDate.Size = new System.Drawing.Size(200, 20);
@@ -2889,7 +2904,7 @@
             // 
             this.label37.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label37.AutoSize = true;
-            this.label37.Location = new System.Drawing.Point(486, 210);
+            this.label37.Location = new System.Drawing.Point(465, 210);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(33, 13);
             this.label37.TabIndex = 9;
@@ -2898,7 +2913,7 @@
             // testRoom
             // 
             this.testRoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.testRoom.Location = new System.Drawing.Point(437, 207);
+            this.testRoom.Location = new System.Drawing.Point(416, 207);
             this.testRoom.Name = "testRoom";
             this.testRoom.Size = new System.Drawing.Size(43, 20);
             this.testRoom.TabIndex = 7;
@@ -2907,7 +2922,7 @@
             // 
             this.label36.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label36.AutoSize = true;
-            this.label36.Location = new System.Drawing.Point(393, 210);
+            this.label36.Location = new System.Drawing.Point(372, 210);
             this.label36.Name = "label36";
             this.label36.Size = new System.Drawing.Size(38, 13);
             this.label36.TabIndex = 6;
@@ -2917,7 +2932,7 @@
             // 
             this.label35.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label35.AutoSize = true;
-            this.label35.Location = new System.Drawing.Point(209, 210);
+            this.label35.Location = new System.Drawing.Point(188, 210);
             this.label35.Name = "label35";
             this.label35.Size = new System.Drawing.Size(47, 13);
             this.label35.TabIndex = 4;
@@ -2928,7 +2943,7 @@
             this.testName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.testName.Location = new System.Drawing.Point(78, 207);
             this.testName.Name = "testName";
-            this.testName.Size = new System.Drawing.Size(125, 20);
+            this.testName.Size = new System.Drawing.Size(104, 20);
             this.testName.TabIndex = 3;
             // 
             // label15
@@ -2944,9 +2959,9 @@
             // testSave
             // 
             this.testSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.testSave.Location = new System.Drawing.Point(732, 204);
+            this.testSave.Location = new System.Drawing.Point(762, 204);
             this.testSave.Name = "testSave";
-            this.testSave.Size = new System.Drawing.Size(75, 23);
+            this.testSave.Size = new System.Drawing.Size(45, 23);
             this.testSave.TabIndex = 1;
             this.testSave.Text = "Save";
             this.testSave.UseVisualStyleBackColor = true;
@@ -3075,6 +3090,7 @@
             this.testDGBRDVDV,
             this.testDGOtherV,
             this.testDGNotesV});
+            this.testVidAudDGV.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.testVidAudDGV.Location = new System.Drawing.Point(0, 0);
             this.testVidAudDGV.Name = "testVidAudDGV";
             this.testVidAudDGV.Size = new System.Drawing.Size(806, 173);
@@ -3253,8 +3269,9 @@
             this.testDocDGV.AllowUserToDeleteRows = false;
             this.testDocDGV.AllowUserToResizeColumns = false;
             this.testDocDGV.AllowUserToResizeRows = false;
-            this.testDocDGV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.testDocDGV.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.testDocDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.testDocDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.testDGDescriptionD,
@@ -3482,6 +3499,19 @@
             this.testNotesTB.Size = new System.Drawing.Size(807, 176);
             this.testNotesTB.TabIndex = 0;
             // 
+            // solsticeCB
+            // 
+            this.solsticeCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.solsticeCB.AutoCheck = false;
+            this.solsticeCB.AutoSize = true;
+            this.solsticeCB.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.solsticeCB.Location = new System.Drawing.Point(457, 187);
+            this.solsticeCB.Name = "solsticeCB";
+            this.solsticeCB.Size = new System.Drawing.Size(66, 17);
+            this.solsticeCB.TabIndex = 30;
+            this.solsticeCB.Text = "Solstice:";
+            this.solsticeCB.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3526,7 +3556,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.maintenanceDGV)).EndInit();
             this.invTestTab.ResumeLayout(false);
             this.invTestTab.PerformLayout();
-            this.tabControl2.ResumeLayout(false);
+            this.addTabController.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
@@ -3665,7 +3695,7 @@
         private System.Windows.Forms.DataGridView maintenanceDGV;
         private System.Windows.Forms.ToolStripMenuItem readMeToolStripMenuItem;
         private System.Windows.Forms.TabPage invTestTab;
-        private System.Windows.Forms.TabControl tabControl2;
+        private System.Windows.Forms.TabControl addTabController;
         private System.Windows.Forms.TabPage tabPage1;
         public System.Windows.Forms.TextBox addBulbTB1;
         private System.Windows.Forms.Label label49;
@@ -3764,10 +3794,10 @@
         private System.Windows.Forms.Button addEditBtn;
         public System.Windows.Forms.MaskedTextBox addFilter;
         private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.TextBox testRoom;
+        public System.Windows.Forms.TextBox testRoom;
         private System.Windows.Forms.Label label36;
         private System.Windows.Forms.Label label35;
-        private System.Windows.Forms.TextBox testName;
+        public System.Windows.Forms.TextBox testName;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Button testSave;
         private System.Windows.Forms.TabControl testTabController;
@@ -3775,19 +3805,19 @@
         private System.Windows.Forms.TabPage testVidAudTab;
         private System.Windows.Forms.TabPage testMicTab;
         private System.Windows.Forms.Label label37;
-        private System.Windows.Forms.DateTimePicker testDate;
+        public System.Windows.Forms.DateTimePicker testDate;
         private System.Windows.Forms.TabPage testDocTab;
-        private System.Windows.Forms.DataGridView testGeneralDGV;
-        private System.Windows.Forms.DataGridView testVidAudDGV;
-        private System.Windows.Forms.DataGridView testMicDGV;
-        private System.Windows.Forms.DataGridView testDocDGV;
+        public System.Windows.Forms.DataGridView testGeneralDGV;
+        public System.Windows.Forms.DataGridView testVidAudDGV;
+        public System.Windows.Forms.DataGridView testMicDGV;
+        public System.Windows.Forms.DataGridView testDocDGV;
         private System.Windows.Forms.TabPage testBluDVDTab;
-        private System.Windows.Forms.DataGridView testDVDDGV;
+        public System.Windows.Forms.DataGridView testDVDDGV;
         private System.Windows.Forms.TabPage testIPTVTab;
-        private System.Windows.Forms.DataGridView testIPTVDGV;
+        public System.Windows.Forms.DataGridView testIPTVDGV;
         private System.Windows.Forms.TabPage testNotesTab;
-        private System.Windows.Forms.TextBox testNotesTB;
-        private System.Windows.Forms.ComboBox testBuilding;
+        public System.Windows.Forms.TextBox testNotesTB;
+        public System.Windows.Forms.ComboBox testBuilding;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.Label label48;
         private System.Windows.Forms.TextBox disInvTB;
@@ -3839,6 +3869,8 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn testDGNoI;
         private System.Windows.Forms.DataGridViewCheckBoxColumn testDGNAI;
         private System.Windows.Forms.DataGridViewTextBoxColumn testDGNotesI;
+        private System.Windows.Forms.Button testClear;
+        private System.Windows.Forms.CheckBox solsticeCB;
     }
 }
 

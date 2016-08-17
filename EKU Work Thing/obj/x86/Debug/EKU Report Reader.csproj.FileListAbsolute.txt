@@ -25,3 +25,4 @@ C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thi
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU Report Reader.pdb
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\bin\x86\Debug\System.Data.SQLite.Linq.dll
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU Report Reader.csproj.EKU Report Reader.exe.config
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Testing.resources

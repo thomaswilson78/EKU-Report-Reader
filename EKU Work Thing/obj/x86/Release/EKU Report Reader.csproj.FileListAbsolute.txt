@@ -26,3 +26,4 @@ C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thi
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Release\EKU_Work_Thing.Form3.resources
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Release\EKU_Report_Reader.Properties.Resources.resources
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Release\EKU Report Reader.csproj.GenerateResource.Cache
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Release\EKU_Work_Thing.Testing.resources
