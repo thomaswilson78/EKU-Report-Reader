@@ -72,6 +72,7 @@
             this.tClose.TabIndex = 6;
             this.tClose.Text = "Close";
             this.tClose.UseVisualStyleBackColor = true;
+            this.tClose.Click += new System.EventHandler(this.tClose_Click);
             // 
             // tDeleteAll
             // 

@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data.SQLite;
 using System.Windows.Forms;
 using System.IO;
@@ -160,195 +153,303 @@ namespace EKU_Work_Thing
             //for exporting
             if(e.ColumnIndex == 2)
             {
-                Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
-                if (xlApp == null)
-                    MessageBox.Show("Microsoft Office and Excel needs to be installed to export reports.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                else
+                try
                 {
-                    string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Templates\", "testing sheet.xlsx");
-                    Workbook wb = xlApp.Workbooks.Add(path);
-                    Worksheet ws = (Worksheet)wb.Worksheets[1];
-                    SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3");
-                    try
+                    Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
+                    if (xlApp == null)
+                        MessageBox.Show("Microsoft Office and Excel needs to be installed to export reports.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    else
                     {
-                        conn.Open();
-                        string b = tDGV.Rows[e.RowIndex].Cells[0].Value.ToString();
-                        string r = tDGV.Rows[e.RowIndex].Cells[1].Value.ToString();
-
-                        //main
-                        SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM testingmain WHERE Building=@b AND Room=@r", conn);
-                        cmd.Parameters.AddWithValue("@b", b);
-                        cmd.Parameters.AddWithValue("@r", r);
-                        SQLiteDataReader reader = cmd.ExecuteReader();
-                        reader.Read();
-                        ws.Cells[36, 1] = "Building: " + b;
-                        ws.Cells[36, 6] = r;
-                        ws.Cells[38, 1] = "Agent Name: " + reader["Agent"].ToString();
-                        ws.Cells[38, 6] = reader["DateCol"].ToString();
-                        ws.Cells[67, 1] = reader["Notes"].ToString();
-                        
-                        //general
-                        cmd = new SQLiteCommand("SELECT * FROM testinggeneral WHERE Building=@b AND Room=@r", conn);
-                        cmd.Parameters.AddWithValue("@b", b);
-                        cmd.Parameters.AddWithValue("@r", r);
-                        reader = cmd.ExecuteReader();
-                        reader.Read();
-
-                        string[] data = new string[reader.FieldCount];
-                        for (int i = 0; i < reader.FieldCount; i++)
-                            data[i] = reader.GetName(i);
-
-                        int pos = 2;
-                        for (int y=5; y<21; y++)
+                        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Templates\", "testing sheet.xlsx");
+                        Workbooks wbs = xlApp.Workbooks; //this is BEYOND the stupidest fucking thing ever. You have to make a Workbooks object, otherwise when you close everything else out, this will still remain and excel will still be open.
+                        Workbook wb = wbs.Add(path);
+                        Worksheet ws = (Worksheet)wb.Worksheets[1];
+                        using (SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3"))
                         {
-                            ws.Cells[y, 1 + int.Parse(reader[data[pos]].ToString())] = "X";
-                            pos++;
-                        }
-                        for(int y=5;y<21;y++)
-                        {
-                            ws.Cells[y, 5] = reader[data[pos]].ToString();
-                            pos++;
-                        }
-                        ws.Range[ws.Cells[5, 2], ws.Cells[20, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                        ws.Range[ws.Cells[5 ,5], ws.Cells[20, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
-
-                        //vidaud
-                        cmd = new SQLiteCommand("SELECT * FROM testingvideoaudio WHERE Building=@b AND Room=@r", conn);
-                        cmd.Parameters.AddWithValue("@b", b);
-                        cmd.Parameters.AddWithValue("@r", r);
-                        reader = cmd.ExecuteReader();
-                        reader.Read();
-
-                        data = new string[reader.FieldCount];
-                        for (int i = 0; i < reader.FieldCount; i++)
-                            data[i] = reader.GetName(i);
-
-                        pos = 2;
-                        for (int y = 24; y < 30; y++)
-                        {
-                            for (int x = 2; x < 8; x++)
+                            try
                             {
-                                ws.Cells[y,x] = reader[data[pos]].ToString();
-                                pos++;
+                                conn.Open();
+                                //gets the building and room number for later
+                                string b = tDGV.Rows[e.RowIndex].Cells[0].Value.ToString();
+                                string r = tDGV.Rows[e.RowIndex].Cells[1].Value.ToString();
+                                ws.Name = b + " " + r;
+
+                                //main, fills in basic information (building, room, name, date)
+                                SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM testingmain WHERE Building=@b AND Room=@r", conn);
+                                cmd.Parameters.AddWithValue("@b", b);
+                                cmd.Parameters.AddWithValue("@r", r);
+                                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                                {
+                                    reader.Read();
+                                    ws.Cells[36, 1] = "Building: " + b;
+                                    ws.Cells[36, 6] = r;
+                                    ws.Cells[38, 1] = "Agent Name: " + reader["Agent"].ToString();
+                                    string dt = reader["DateCol"].ToString();
+                                    dt = dt.Substring(0, dt.Length - 5);//removes time from date
+                                    ws.Cells[38, 6] = dt;
+                                    ws.Cells[67, 1] = reader["Notes"].ToString();
+                                }
+                                string[] data;
+                                string[,] mark;
+                                string[,] notes;
+                                int pos;
+                                //general
+                                cmd = new SQLiteCommand("SELECT * FROM testinggeneral WHERE Building=@b AND Room=@r", conn);
+                                cmd.Parameters.AddWithValue("@b", b);
+                                cmd.Parameters.AddWithValue("@r", r);
+
+                                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                                {
+                                    reader.Read();
+                                    data = new string[reader.FieldCount];
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                        data[i] = reader.GetName(i);
+                                    //faster to set a range from an array than enter in one cell at at time
+                                    mark = new string[16, 3];
+                                    for (int i = 0; i < 16; i++)
+                                        for (int k = 0; k < 3; k++)
+                                            mark[i, k] = "";
+                                    notes = new string[16, 1];
+                                    for (int i = 0; i < 16; i++)
+                                        notes[i, 0] = "";
+                                    //set position to record position for sql data
+                                    pos = 2;
+                                    for (int y = 0; y < 16; y++)
+                                    {
+                                        mark[y, int.Parse(reader[data[pos]].ToString()) - 1] = "X";
+                                        pos++;
+                                    }
+                                    for (int y = 0; y < 16; y++)
+                                    {
+                                        notes[y, 0] = reader[data[pos]].ToString();
+                                        pos++;
+                                    }
+                                    ws.Range[ws.Cells[5, 2], ws.Cells[20, 4]].Value = mark;
+                                    ws.Range[ws.Cells[5, 5], ws.Cells[20, 5]].Value = notes;
+                                    ws.Range[ws.Cells[5, 2], ws.Cells[20, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                    ws.Range[ws.Cells[5, 5], ws.Cells[20, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                                }
+
+                                //vidaud
+                                cmd = new SQLiteCommand("SELECT * FROM testingvideoaudio WHERE Building=@b AND Room=@r", conn);
+                                cmd.Parameters.AddWithValue("@b", b);
+                                cmd.Parameters.AddWithValue("@r", r);
+                                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                                {
+                                    reader.Read();
+
+                                    data = new string[reader.FieldCount];
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                        data[i] = reader.GetName(i);
+
+                                    mark = new string[6, 6];
+                                    for (int i = 0; i < 6; i++)
+                                        for (int k = 0; k < 6; k++)
+                                            mark[i, k] = "";
+                                    //no need for notes, everything is linear
+                                    pos = 2;
+                                    for (int y = 0; y < 6; y++)
+                                        for (int x = 0; x < 6; x++)
+                                        {
+                                            mark[y, x] = reader[data[pos]].ToString();
+                                            pos++;
+                                        }
+
+                                    ws.Range[ws.Cells[24, 2], ws.Cells[29, 7]].Value = mark;
+                                    ws.Range[ws.Cells[24, 2], ws.Cells[29, 6]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                    ws.Range[ws.Cells[24, 7], ws.Cells[29, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                                }
+
+                                //mic
+                                cmd = new SQLiteCommand("SELECT * FROM testingmic WHERE Building=@b AND Room=@r", conn);
+                                cmd.Parameters.AddWithValue("@b", b);
+                                cmd.Parameters.AddWithValue("@r", r);
+                                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                                {
+                                    reader.Read();
+                                    data = new string[reader.FieldCount];
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                        data[i] = reader.GetName(i);
+                                    mark = new string[2, 3];
+                                    for (int i = 0; i < 2; i++)
+                                        for (int k = 0; k < 3; k++)
+                                            mark[i, k] = "";
+                                    notes = new string[2, 1];
+                                    for (int i = 0; i < 2; i++)
+                                        notes[i, 0] = "";
+
+                                    pos = 2;
+                                    for (int y = 0; y < 2; y++)
+                                    {
+                                        mark[y, int.Parse(reader[data[pos]].ToString()) - 1] = "X";
+                                        pos++;
+                                    }
+                                    for (int y = 0; y < 2; y++)
+                                    {
+                                        notes[y, 0] = reader[data[pos]].ToString();
+                                        pos++;
+                                    }
+                                    ws.Range[ws.Cells[33, 2], ws.Cells[34, 4]].Value = mark;
+                                    ws.Range[ws.Cells[33, 5], ws.Cells[34, 5]].Value = notes;
+                                    ws.Range[ws.Cells[33, 2], ws.Cells[34, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                    ws.Range[ws.Cells[33, 5], ws.Cells[34, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                                }
+
+                                //doc cam
+                                cmd = new SQLiteCommand("SELECT * FROM testingdoccam WHERE Building=@b AND Room=@r", conn);
+                                cmd.Parameters.AddWithValue("@b", b);
+                                cmd.Parameters.AddWithValue("@r", r);
+                                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                                {
+                                    reader.Read();
+                                    data = new string[reader.FieldCount];
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                        data[i] = reader.GetName(i);
+                                    mark = new string[4, 3];
+                                    for (int i = 0; i < 4; i++)
+                                        for (int k = 0; k < 3; k++)
+                                            mark[i, k] = "";
+                                    notes = new string[4, 1];
+                                    for (int i = 0; i < 4; i++)
+                                        notes[i, 0] = "";
+
+                                    pos = 2;
+                                    for (int y = 0; y < 4; y++)
+                                    {
+                                        mark[y, int.Parse(reader[data[pos]].ToString()) - 1] = "X";
+                                        pos++;
+                                    }
+                                    for (int y = 0; y < 4; y++)
+                                    {
+                                        notes[y, 0] = reader[data[pos]].ToString();
+                                        pos++;
+                                    }
+                                    ws.Range[ws.Cells[45, 2], ws.Cells[48, 4]].Value = mark;
+                                    ws.Range[ws.Cells[45, 5], ws.Cells[48, 5]].Value = notes;
+                                    ws.Range[ws.Cells[45, 2], ws.Cells[48, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                    ws.Range[ws.Cells[45, 5], ws.Cells[48, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                                }
+
+                                //dvd/blu
+                                cmd = new SQLiteCommand("SELECT * FROM testingdvdblu WHERE Building=@b AND Room=@r", conn);
+                                cmd.Parameters.AddWithValue("@b", b);
+                                cmd.Parameters.AddWithValue("@r", r);
+                                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                                {
+                                    reader.Read();
+                                    data = new string[reader.FieldCount];
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                        data[i] = reader.GetName(i);
+                                    mark = new string[4, 3];
+                                    for (int i = 0; i < 4; i++)
+                                        for (int k = 0; k < 3; k++)
+                                            mark[i, k] = "";
+                                    notes = new string[4, 1];
+                                    for (int i = 0; i < 4; i++)
+                                        notes[i, 0] = "";
+
+                                    pos = 2;
+                                    for (int y = 0; y < 4; y++)
+                                    {
+                                        mark[y, int.Parse(reader[data[pos]].ToString()) - 1] = "X";
+                                        pos++;
+                                    }
+                                    for (int y = 0; y < 4; y++)
+                                    {
+                                        notes[y, 0] = reader[data[pos]].ToString();
+                                        pos++;
+                                    }
+                                    ws.Range[ws.Cells[52, 2], ws.Cells[55, 4]].Value = mark;
+                                    ws.Range[ws.Cells[52, 5], ws.Cells[55, 5]].Value = notes;
+                                    ws.Range[ws.Cells[52, 2], ws.Cells[55, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                    ws.Range[ws.Cells[52, 5], ws.Cells[55, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                                }
+
+                                //iptv
+                                cmd = new SQLiteCommand("SELECT * FROM testingiptv WHERE Building=@b AND Room=@r", conn);
+                                cmd.Parameters.AddWithValue("@b", b);
+                                cmd.Parameters.AddWithValue("@r", r);
+                                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                                {
+                                    reader.Read();
+                                    data = new string[reader.FieldCount];
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                        data[i] = reader.GetName(i);
+                                    mark = new string[5, 3];
+                                    for (int i = 0; i < 5; i++)
+                                        for (int k = 0; k < 3; k++)
+                                            mark[i, k] = "";
+                                    notes = new string[5, 1];
+                                    for (int i = 0; i < 5; i++)
+                                        notes[i, 0] = "";
+
+                                    pos = 2;
+                                    for (int y = 0; y < 5; y++)
+                                    {
+                                        mark[y, int.Parse(reader[data[pos]].ToString()) - 1] = "X";
+                                        pos++;
+                                    }
+                                    for (int y = 0; y < 5; y++)
+                                    {
+                                        notes[y, 0] = reader[data[pos]].ToString();
+                                        pos++;
+                                    }
+                                    ws.Range[ws.Cells[59, 2], ws.Cells[63, 4]].Value = mark;
+                                    ws.Range[ws.Cells[59, 5], ws.Cells[63, 5]].Value = notes;
+                                    ws.Range[ws.Cells[59, 2], ws.Cells[63, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                    ws.Range[ws.Cells[59, 5], ws.Cells[63, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                                    reader.Close();
+                                }
+
+                                //main part done, attempts to save completed file
+                                xlApp.DisplayAlerts = false; //used because excel is stupid an will prompt again if you want to replace the file (even though s.f.d will already ask you that).
+
+                                SaveFileDialog sfd = new SaveFileDialog();
+                                sfd.FileName = tDGV.Rows[e.RowIndex].Cells[0].Value.ToString() + " " + tDGV.Rows[e.RowIndex].Cells[1].Value.ToString(); //set default filename which will consist of building and room #
+                                sfd.Filter = "Excel Spreadsheet (*.xlsx)|*.xlsx"; //so it saves as an excel file only
+                                sfd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments); //defaults the directory to documents
+                                if (sfd.ShowDialog() == DialogResult.OK) //even occurs if the ok button is pressed
+                                {
+                                    try
+                                    {
+                                        wb.Close(SaveChanges: true, Filename: sfd.FileName.ToString()); //Filename will included specified path
+                                    }
+                                    catch (Exception)
+                                    {
+                                        wb.Close(0);
+                                    }
+                                }
+                                //release all excel related objects to close excel, otherwise process will remain in memory.
+                                while (System.Runtime.InteropServices.Marshal.ReleaseComObject(ws) > 0) ;
+                                while (System.Runtime.InteropServices.Marshal.ReleaseComObject(wb) > 0) ;
+                                while (System.Runtime.InteropServices.Marshal.ReleaseComObject(wbs) > 0) ;
+                                xlApp.Quit();
+                                while (System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp) > 0) ;
+                                ws = null;
+                                wb = null;
+                                wbs = null;
+                                xlApp = null;
+                                GC.WaitForPendingFinalizers();
+                                GC.Collect();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                while (System.Runtime.InteropServices.Marshal.ReleaseComObject(ws) > 0) ;
+                                while (System.Runtime.InteropServices.Marshal.ReleaseComObject(wb) > 0) ;
+                                while (System.Runtime.InteropServices.Marshal.ReleaseComObject(wbs) > 0) ;
+                                ws = null;
+                                wb = null;
+                                wbs = null;
+                                while (System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp) > 0) ;
+                                xlApp = null;
                             }
                         }
-                        ws.Range[ws.Cells[24, 2], ws.Cells[29, 6]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                        ws.Range[ws.Cells[24, 7], ws.Cells[29, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
-
-                        //mic
-                        cmd = new SQLiteCommand("SELECT * FROM testingmic WHERE Building=@b AND Room=@r", conn);
-                        cmd.Parameters.AddWithValue("@b", b);
-                        cmd.Parameters.AddWithValue("@r", r);
-                        reader = cmd.ExecuteReader();
-                        reader.Read();
-
-                        data = new string[reader.FieldCount];
-                        for (int i = 0; i < reader.FieldCount; i++)
-                            data[i] = reader.GetName(i);
-
-                        pos = 2;
-                        for (int y = 33; y < 35; y++)
-                        {
-                            ws.Cells[y, 1 + int.Parse(reader[data[pos]].ToString())] = "X";
-                            pos++;
-                        }
-                        for (int y = 33; y < 35; y++)
-                        {
-                            ws.Cells[y, 5] = reader[data[pos]].ToString();
-                            pos++;
-                        }
-                        ws.Range[ws.Cells[33, 2], ws.Cells[34, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                        ws.Range[ws.Cells[33, 5], ws.Cells[34, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
-
-                        //doc cam
-                        cmd = new SQLiteCommand("SELECT * FROM testingdoccam WHERE Building=@b AND Room=@r", conn);
-                        cmd.Parameters.AddWithValue("@b", b);
-                        cmd.Parameters.AddWithValue("@r", r);
-                        reader = cmd.ExecuteReader();
-                        reader.Read();
-
-                        data = new string[reader.FieldCount];
-                        for (int i = 0; i < reader.FieldCount; i++)
-                            data[i] = reader.GetName(i);
-
-                        pos = 2;
-                        for (int y = 45; y < 49; y++)
-                        {
-                            ws.Cells[y, 1 + int.Parse(reader[data[pos]].ToString())] = "X";
-                            pos++;
-                        }
-                        for (int y = 45; y < 49; y++)
-                        {
-                            ws.Cells[y, 5] = reader[data[pos]].ToString();
-                            pos++;
-                        }
-                        ws.Range[ws.Cells[45, 2], ws.Cells[48, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                        ws.Range[ws.Cells[45, 5], ws.Cells[48, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
-
-                        //dvd/blu
-                        cmd = new SQLiteCommand("SELECT * FROM testingdvdblu WHERE Building=@b AND Room=@r", conn);
-                        cmd.Parameters.AddWithValue("@b", b);
-                        cmd.Parameters.AddWithValue("@r", r);
-                        reader = cmd.ExecuteReader();
-                        reader.Read();
-
-                        data = new string[reader.FieldCount];
-                        for (int i = 0; i < reader.FieldCount; i++)
-                            data[i] = reader.GetName(i);
-
-                        pos = 2;
-                        for (int y = 52; y < 56; y++)
-                        {
-                            ws.Cells[y, 1 + int.Parse(reader[data[pos]].ToString())] = "X";
-                            pos++;
-                        }
-                        for (int y = 52; y < 56; y++)
-                        {
-                            ws.Cells[y, 5] = reader[data[pos]].ToString();
-                            pos++;
-                        }
-                        ws.Range[ws.Cells[52, 2], ws.Cells[55, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                        ws.Range[ws.Cells[52, 5], ws.Cells[55, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
-
-                        //iptv
-                        cmd = new SQLiteCommand("SELECT * FROM testingiptv WHERE Building=@b AND Room=@r", conn);
-                        cmd.Parameters.AddWithValue("@b", b);
-                        cmd.Parameters.AddWithValue("@r", r);
-                        reader = cmd.ExecuteReader();
-                        reader.Read();
-
-                        data = new string[reader.FieldCount];
-                        for (int i = 0; i < reader.FieldCount; i++)
-                            data[i] = reader.GetName(i);
-
-                        pos = 2;
-                        for (int y = 59; y < 64; y++)
-                        {
-                            ws.Cells[y, 1 + int.Parse(reader[data[pos]].ToString())] = "X";
-                            pos++;
-                        }
-                        for (int y = 59; y < 64; y++)
-                        {
-                            ws.Cells[y, 5] = reader[data[pos]].ToString();
-                            pos++;
-                        }
-                        ws.Range[ws.Cells[59, 2], ws.Cells[63, 4]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                        ws.Range[ws.Cells[59, 5], ws.Cells[63, 10]].HorizontalAlignment = XlHAlign.xlHAlignLeft;
                     }
-                    catch (Exception ex)
-                    {
-                        wb.Close(0);
-                        xlApp.Quit();
-                        System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
-                        xlApp = null;
-                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    }
-                    conn.Close();
-                    if(xlApp!=null)
-                    {
-                        xlApp.WindowState = XlWindowState.xlMaximized;
-                        xlApp.Visible = true;
-                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Need to have Microsoft Excel installed in order to export file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             //for editing
@@ -359,128 +460,141 @@ namespace EKU_Work_Thing
                 int i = e.RowIndex;
                 string b = getDGVInfo.Rows[i].Cells[0].Value.ToString();
                 string r = getDGVInfo.Rows[i].Cells[1].Value.ToString();
-                SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
-                try
+                using (SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;"))
                 {
-                    //main info
-                    conn.Open();
-                    SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM testingmain WHERE Building = @b AND Room = @r;", conn);
-                    cmd.Parameters.AddWithValue("@b", b);
-                    cmd.Parameters.AddWithValue("@r", r);
-                    SQLiteDataReader reader = cmd.ExecuteReader();
-                    reader.Read();
-                    f1.testBuilding.Text = reader["Building"].ToString();
-                    f1.testRoom.Text = reader["Room"].ToString();
-                    f1.testName.Text = reader["Agent"].ToString();
-                    f1.testBuilding.Text = reader["Building"].ToString();
-                    f1.testNotesTB.Text = reader["Notes"].ToString();
-                    reader.Close();
+                    try
+                    {
+                        //main info
+                        conn.Open();
+                        SQLiteCommand cmd = new SQLiteCommand("SELECT * FROM testingmain WHERE Building = @b AND Room = @r;", conn);
+                        cmd.Parameters.AddWithValue("@b", b);
+                        cmd.Parameters.AddWithValue("@r", r);
 
-                    //general info
-                    //only commenting the first one since every one (except vid/aud) works the same.
-                    cmd = new SQLiteCommand("SELECT * FROM testinggeneral WHERE Building=@b AND Room=@r;", conn);
-                    cmd.Parameters.AddWithValue("@b", b);
-                    cmd.Parameters.AddWithValue("@r", r);
-                    reader = cmd.ExecuteReader();
-                    string[] data = new string[reader.FieldCount];//column names extracted to string array (way easier than writing them out manually)
-                    for (int t = 0; t < reader.FieldCount; t++)//fills in string with column names
-                        data[t] = reader.GetName(t).ToString();
-                    reader.Read();//reads the data (important, otherwise no data will be collected. also no need for a while or if since there's only one instance of data).
-                    for(int x = 0;x<f1.testGeneralDGV.Rows.Count;x++)
-                        f1.testGeneralDGV.Rows[x].Cells[int.Parse(reader[data[x+2].ToString()].ToString())].Value = true;//sets value based on number recorded
-                    for (int x = 0; x < f1.testGeneralDGV.Rows.Count; x++)//gets notes
-                        f1.testGeneralDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
-                    reader.Close();//closed so reader can be used again
-
-                    //vid/aud info
-                    cmd = new SQLiteCommand("SELECT * FROM testingvideoaudio WHERE Building=@b AND Room=@r;", conn);
-                    cmd.Parameters.AddWithValue("@b", b);
-                    cmd.Parameters.AddWithValue("@r", r);
-                    reader = cmd.ExecuteReader();
-                    data = new string[reader.FieldCount];
-                    for (int t = 0; t < reader.FieldCount; t++)
-                        data[t] = reader.GetName(t).ToString();
-                    reader.Read();
-                    int k = 2;
-                    for (int y = 0; y < f1.testVidAudDGV.Rows.Count; y++)
-                        for (int x = 1; x < f1.testVidAudDGV.Columns.Count; x++)
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
                         {
-                            f1.testVidAudDGV.Rows[y].Cells[x].Value = reader[k].ToString();
-                            k++;
+                            reader.Read();
+                            f1.testBuilding.Text = reader["Building"].ToString();
+                            f1.testRoom.Text = reader["Room"].ToString();
+                            f1.testName.Text = reader["Agent"].ToString();
+                            f1.testBuilding.Text = reader["Building"].ToString();
+                            f1.testNotesTB.Text = reader["Notes"].ToString();
                         }
-                    reader.Close();
 
-                    //mic info
-                    cmd = new SQLiteCommand("SELECT * FROM testingmic WHERE Building=@b AND Room=@r;", conn);
-                    cmd.Parameters.AddWithValue("@b", b);
-                    cmd.Parameters.AddWithValue("@r", r);
-                    reader = cmd.ExecuteReader();
-                    data = new string[reader.FieldCount];
-                    for (int t = 0; t < reader.FieldCount; t++)
-                        data[t] = reader.GetName(t).ToString();
-                    reader.Read();
-                    for (int x = 0; x < f1.testMicDGV.Rows.Count; x++)
-                        f1.testMicDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;
-                    for (int x = 0; x < f1.testMicDGV.Rows.Count; x++)
-                        f1.testMicDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
-                    reader.Close();
 
-                    //doccam info
-                     cmd = new SQLiteCommand("SELECT * FROM testingdoccam WHERE Building=@b AND Room=@r;", conn);
-                    cmd.Parameters.AddWithValue("@b", b);
-                    cmd.Parameters.AddWithValue("@r", r);
-                    reader = cmd.ExecuteReader();
-                    data = new string[reader.FieldCount];
-                    for (int t = 0; t < reader.FieldCount; t++)
-                        data[t] = reader.GetName(t).ToString();
-                    reader.Read();
-                    for (int x = 0; x < f1.testDocDGV.Rows.Count; x++)
-                        f1.testDocDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;
-                    for (int x = 0; x < f1.testDocDGV.Rows.Count; x++)
-                        f1.testDocDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
-                    reader.Close();
+                        //general info
+                        //only commenting the first one since every one (except vid/aud) works the same.
+                        
+                        cmd = new SQLiteCommand("SELECT * FROM testinggeneral WHERE Building=@b AND Room=@r;", conn);
+                        cmd.Parameters.AddWithValue("@b", b);
+                        cmd.Parameters.AddWithValue("@r", r);
 
-                    //bluray/dvd info
-                    cmd = new SQLiteCommand("SELECT * FROM testingdvdblu WHERE Building=@b AND Room=@r;", conn);
-                    cmd.Parameters.AddWithValue("@b", b);
-                    cmd.Parameters.AddWithValue("@r", r);
-                    reader = cmd.ExecuteReader();
-                    data = new string[reader.FieldCount];
-                    for (int t = 0; t < reader.FieldCount; t++)
-                        data[t] = reader.GetName(t).ToString();
-                    reader.Read();
-                    for (int x = 0; x < f1.testDVDDGV.Rows.Count; x++)
-                        f1.testDVDDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;
-                    for (int x = 0; x < f1.testDVDDGV.Rows.Count; x++)
-                        f1.testDVDDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
-                    reader.Close();
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            string[] data = new string[reader.FieldCount];//column names extracted to string array (way easier than writing them out manually)
+                            for (int t = 0; t < reader.FieldCount; t++)//fills in string with column names
+                                data[t] = reader.GetName(t).ToString();
+                            reader.Read();//reads the data (important, otherwise no data will be collected. also no need for a while or if since there's only one instance of data).
+                            for (int x = 0; x < f1.testGeneralDGV.Rows.Count; x++)
+                                f1.testGeneralDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;//sets value based on number recorded
+                            for (int x = 0; x < f1.testGeneralDGV.Rows.Count; x++)//gets notes
+                                f1.testGeneralDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
+                        }
 
-                    //iptv info
-                    cmd = new SQLiteCommand("SELECT * FROM testingiptv WHERE Building=@b AND Room=@r;", conn);
-                    cmd.Parameters.AddWithValue("@b", b);
-                    cmd.Parameters.AddWithValue("@r", r);
-                    reader = cmd.ExecuteReader();
-                    data = new string[reader.FieldCount];
-                    for (int t = 0; t < reader.FieldCount; t++)
-                        data[t] = reader.GetName(t).ToString();
-                    reader.Read();
-                    for (int x = 0; x < f1.testIPTVDGV.Rows.Count; x++)
-                        f1.testIPTVDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;
-                    for (int x = 0; x < f1.testIPTVDGV.Rows.Count; x++)
-                        f1.testIPTVDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
-                    reader.Close();
+                        //vid/aud info
+                        cmd = new SQLiteCommand("SELECT * FROM testingvideoaudio WHERE Building=@b AND Room=@r;", conn);
+                        cmd.Parameters.AddWithValue("@b", b);
+                        cmd.Parameters.AddWithValue("@r", r);
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            string[] data = new string[reader.FieldCount];
+                            for (int t = 0; t < reader.FieldCount; t++)
+                                data[t] = reader.GetName(t).ToString();
+                            reader.Read();
+                            int k = 2;
+                            for (int y = 0; y < f1.testVidAudDGV.Rows.Count; y++)
+                                for (int x = 1; x < f1.testVidAudDGV.Columns.Count; x++)
+                                {
+                                    f1.testVidAudDGV.Rows[y].Cells[x].Value = reader[k].ToString();
+                                    k++;
+                                }
+                        }
 
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
-                finally
-                {
-                    conn.Dispose();
-                    f1.testFocus();
-                }
+                        //mic info
+                        cmd = new SQLiteCommand("SELECT * FROM testingmic WHERE Building=@b AND Room=@r;", conn);
+                        cmd.Parameters.AddWithValue("@b", b);
+                        cmd.Parameters.AddWithValue("@r", r);
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            string[] data = new string[reader.FieldCount];
+                            for (int t = 0; t < reader.FieldCount; t++)
+                                data[t] = reader.GetName(t).ToString();
+                            reader.Read();
+                            for (int x = 0; x < f1.testMicDGV.Rows.Count; x++)
+                                f1.testMicDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;
+                            for (int x = 0; x < f1.testMicDGV.Rows.Count; x++)
+                                f1.testMicDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
+                        }
+
+                        //doccam info
+                        cmd = new SQLiteCommand("SELECT * FROM testingdoccam WHERE Building=@b AND Room=@r;", conn);
+                        cmd.Parameters.AddWithValue("@b", b);
+                        cmd.Parameters.AddWithValue("@r", r);
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            string[] data = new string[reader.FieldCount];
+                            for (int t = 0; t < reader.FieldCount; t++)
+                                data[t] = reader.GetName(t).ToString();
+                            reader.Read();
+                            for (int x = 0; x < f1.testDocDGV.Rows.Count; x++)
+                                f1.testDocDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;
+                            for (int x = 0; x < f1.testDocDGV.Rows.Count; x++)
+                                f1.testDocDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
+                        }
+
+                        //bluray/dvd info
+                        cmd = new SQLiteCommand("SELECT * FROM testingdvdblu WHERE Building=@b AND Room=@r;", conn);
+                        cmd.Parameters.AddWithValue("@b", b);
+                        cmd.Parameters.AddWithValue("@r", r);
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            string[] data = new string[reader.FieldCount];
+                            for (int t = 0; t < reader.FieldCount; t++)
+                                data[t] = reader.GetName(t).ToString();
+                            reader.Read();
+                            for (int x = 0; x < f1.testDVDDGV.Rows.Count; x++)
+                                f1.testDVDDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;
+                            for (int x = 0; x < f1.testDVDDGV.Rows.Count; x++)
+                                f1.testDVDDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
+                        }
+
+                        //iptv info
+                        cmd = new SQLiteCommand("SELECT * FROM testingiptv WHERE Building=@b AND Room=@r;", conn);
+                        cmd.Parameters.AddWithValue("@b", b);
+                        cmd.Parameters.AddWithValue("@r", r);
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            string[] data = new string[reader.FieldCount];
+                            for (int t = 0; t < reader.FieldCount; t++)
+                                data[t] = reader.GetName(t).ToString();
+                            reader.Read();
+                            for (int x = 0; x < f1.testIPTVDGV.Rows.Count; x++)
+                                f1.testIPTVDGV.Rows[x].Cells[int.Parse(reader[data[x + 2].ToString()].ToString())].Value = true;
+                            for (int x = 0; x < f1.testIPTVDGV.Rows.Count; x++)
+                                f1.testIPTVDGV.Rows[x].Cells[4].Value = reader["Notes" + (x + 1)].ToString();
+                        }
+                        f1.testFocus();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
+                } 
             }
+        }
+
+        private void tClose_Click(object sender, EventArgs e)
+        {
+            Hide();
         }
     }
 }

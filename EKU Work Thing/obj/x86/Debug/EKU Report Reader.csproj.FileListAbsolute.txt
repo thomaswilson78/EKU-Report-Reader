@@ -14,15 +14,26 @@ C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thi
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\bin\x86\Debug\EKU Report Reader.exe
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\bin\x86\Debug\EKU Report Reader.pdb
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\bin\x86\Debug\System.Data.SQLite.dll
-C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU Report Reader.csprojResolveAssemblyReference.cache
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU Report Reader.csproj.ResolveComReference.cache
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Form1.resources
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Form2.resources
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Form3.resources
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU_Report_Reader.Properties.Resources.resources
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Testing.resources
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU Report Reader.csproj.GenerateResource.Cache
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU Report Reader.exe
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU Report Reader.pdb
-C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\bin\x86\Debug\System.Data.SQLite.Linq.dll
-C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU Report Reader.csproj.EKU Report Reader.exe.config
-C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Testing.resources
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\bin\x86\Debug\EKU Report Reader.exe.config
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU Report Reader.csproj.ResolveComReference.cache
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU Report Reader.exe
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU Report Reader.pdb
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\bin\x86\Debug\EKU Report Reader.exe
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\bin\x86\Debug\EKU Report Reader.pdb
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\bin\x86\Debug\System.Data.SQLite.dll
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU Report Reader.csprojResolveAssemblyReference.cache
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Form1.resources
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Form2.resources
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Form3.resources
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU_Report_Reader.Properties.Resources.resources
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU_Work_Thing.Testing.resources
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Debug\EKU Report Reader.csproj.GenerateResource.Cache

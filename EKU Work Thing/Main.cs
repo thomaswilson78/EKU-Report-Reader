@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Office.Interop.Excel;
 using System.Data.SQLite;
-using EKU_Report_Reader;
+using System.Threading;
 
 /*To Do:
     -Need to adjust footprints data. Some rooms have projector but do not have screen data, so they'll be missed in the report. Also some
@@ -60,6 +60,7 @@ namespace EKU_Work_Thing
             {
                 //using is a way of assigning functionality without needing to use multiple statements such as "ofd.Filter="CSV|*.csv"
                 using (OpenFileDialog ofd = new OpenFileDialog() { Filter = "CSV|*.csv", ValidateNames = true, Multiselect = false })
+                {
                     if (ofd.ShowDialog() == DialogResult.OK)
                     {
                         //removes old data to prevent data overlapping
@@ -155,121 +156,189 @@ namespace EKU_Work_Thing
                         }
                         parser.Close();
                         ofd.Dispose();
+                    }
 
-                        ushort dispCount = 0;//counts number of displays
-                        ushort filCount = 0;//counts number of filters cleaned in past 90 days
+                    ushort dispCount = 0;//counts number of displays
+                    ushort filCount = 0;//counts number of filters cleaned in past 90 days
 
-                        //data will be use to create a custom sorted table that can sort by building, then by room
-                        System.Data.DataTable dt = new System.Data.DataTable();
-                        dt.Columns.Add("Building", typeof(string));
-                        dt.Columns.Add("Room", typeof(string));
-                        dt.Columns.Add("Last Cleaned", typeof(string));
-                        dt.Columns.Add("Alarm Replaced", typeof(string));
-                        //sets district for each building/room
-                        foreach (var room in campusData)
+                    //data will be use to create a custom sorted table that can sort by building, then by room
+                    System.Data.DataTable dt = new System.Data.DataTable();
+                    dt.Columns.Add("Building", typeof(string));
+                    dt.Columns.Add("Room", typeof(string));
+                    dt.Columns.Add("Last Cleaned", typeof(string));
+                    dt.Columns.Add("Alarm Replaced", typeof(string));
+                    //sets district for each building/room
+                    foreach (var room in campusData)
+                    {
+                        bool unset = true;
+                        //Set district for each building
+                        foreach (string d in libDistrict)
+                            if (room.Building.Equals(d))
+                            {
+                                room.District = "Library District";
+                                unset = false;
+                                break;
+                            }
+                        if (unset)
                         {
-                            bool unset = true;
-                            //Set district for each building
-                            foreach (string d in libDistrict)
+                            foreach (string d in oldSciDistrict)
                                 if (room.Building.Equals(d))
                                 {
-                                    room.District = "Library District";
+                                    room.District = "Old Science District";
                                     unset = false;
                                     break;
                                 }
-                            if (unset)
-                            {
-                                foreach (string d in oldSciDistrict)
-                                    if (room.Building.Equals(d))
-                                    {
-                                        room.District = "Old Science District";
-                                        unset = false;
-                                        break;
-                                    }
-                            }
-                            if (unset)
-                            {
-                                foreach (string d in newSciDistrict)
-                                    if (room.Building.Equals(d))
-                                    {
-                                        room.District = "New Science District";
-                                        unset = false;
-                                        break;
-                                    }
-                            }
-                            if (unset)
-                            {
-                                foreach (string d in centralDistrict)
-                                    if (room.Building.Equals(d))
-                                    {
-                                        room.District = "Central Campus Area";
-                                        unset = false;
-                                        break;
-                                    }
-                            }
-                            if (unset)
-                            {
-                                foreach (string d in justiceDistrict)
-                                    if (room.Building.Equals(d))
-                                    {
-                                        room.District = "Justice District";
-                                        unset = false;
-                                        break;
-                                    }
-                            }
-                            if (unset)
-                            {
-                                foreach (string d in serviceDistrict)
-                                    if (room.Building.Equals(d))
-                                    {
-                                        room.District = "Services District";
-                                        unset = false;
-                                        break;
-                                    }
-                            }
-                            if (unset)
-                            {
-                                foreach (string d in adminDistrict)
-                                    if (room.Building.Equals(d))
-                                    {
-                                        room.District = "Administrative District";
-                                        unset = false;
-                                        break;
-                                    }
-                            }
-                            if (unset)
-                            {
-                                foreach (string d in artsDistrict)
-                                    if (room.Building.Equals(d))
-                                    {
-                                        room.District = "Arts District";
-                                        unset = false;
-                                        break;
-                                    }
-                            }
-                            if (unset)
-                            {
-                                foreach (string d in fitnessDistrict)
-                                    if (room.Building.Equals(d))
-                                    {
-                                        room.District = "Fitness District";
-                                        unset = false;
-                                        break;
-                                    }
-                            }
-                            //counts number of rooms and projectors/tvs
-                            if (!room.display1.Equals(""))
-                                dispCount++;
-                            if (!room.display2.Equals(""))
-                                dispCount++;
-                            if (!room.display3.Equals(""))
-                                dispCount++;
-                            if (!room.display4.Equals(""))
-                                dispCount++;
+                        }
+                        if (unset)
+                        {
+                            foreach (string d in newSciDistrict)
+                                if (room.Building.Equals(d))
+                                {
+                                    room.District = "New Science District";
+                                    unset = false;
+                                    break;
+                                }
+                        }
+                        if (unset)
+                        {
+                            foreach (string d in centralDistrict)
+                                if (room.Building.Equals(d))
+                                {
+                                    room.District = "Central Campus Area";
+                                    unset = false;
+                                    break;
+                                }
+                        }
+                        if (unset)
+                        {
+                            foreach (string d in justiceDistrict)
+                                if (room.Building.Equals(d))
+                                {
+                                    room.District = "Justice District";
+                                    unset = false;
+                                    break;
+                                }
+                        }
+                        if (unset)
+                        {
+                            foreach (string d in serviceDistrict)
+                                if (room.Building.Equals(d))
+                                {
+                                    room.District = "Services District";
+                                    unset = false;
+                                    break;
+                                }
+                        }
+                        if (unset)
+                        {
+                            foreach (string d in adminDistrict)
+                                if (room.Building.Equals(d))
+                                {
+                                    room.District = "Administrative District";
+                                    unset = false;
+                                    break;
+                                }
+                        }
+                        if (unset)
+                        {
+                            foreach (string d in artsDistrict)
+                                if (room.Building.Equals(d))
+                                {
+                                    room.District = "Arts District";
+                                    unset = false;
+                                    break;
+                                }
+                        }
+                        if (unset)
+                        {
+                            foreach (string d in fitnessDistrict)
+                                if (room.Building.Equals(d))
+                                {
+                                    room.District = "Fitness District";
+                                    unset = false;
+                                    break;
+                                }
+                        }
+                        //counts number of rooms and projectors/tvs
+                        if (!room.display1.Equals(""))
+                            dispCount++;
+                        if (!room.display2.Equals(""))
+                            dispCount++;
+                        if (!room.display3.Equals(""))
+                            dispCount++;
+                        if (!room.display4.Equals(""))
+                            dispCount++;
 
-                            //check filter based on timeframe and report if last filter clean date is older than that
-                            int timeFrame=0;
-                            switch (room.Cycle)
+                        //check filter based on timeframe and report if last filter clean date is older than that
+                        int timeFrame=0;
+                        switch (room.Cycle)
+                        {
+                            case "Expedited":
+                                break;
+                            case "Monthly":
+                                timeFrame = -1;
+                                break;
+                            case "Quarterly":
+                                timeFrame = -3;
+                                break;
+                            case "Semi-Annually":
+                                timeFrame = -6;
+                                break;
+                            case "Annually":
+                                timeFrame = -12;
+                                break;
+                            default:
+                                timeFrame = -3;
+                                break;
+                        }
+                        if (room.filter <= DateTime.Now.AddMonths(timeFrame))
+                        {
+                            //adds room to the maintenance needed list
+                            string f;
+                            string a;
+                            if (room.filter.ToShortDateString().Equals("1/1/0001"))
+                                f = "N/A";
+                            else
+                                f = room.filter.ToShortDateString();
+                            if (room.alarm.ToShortDateString().Equals("1/1/0001"))
+                                a = "N/A";
+                            else
+                                a = room.alarm.ToShortDateString();
+                            dt.Rows.Add(room.Building, room.Room, f, a);
+                            filCount++;
+                        }
+                    }
+                    //add rooms to the list based on the currently selected building
+                    DataView dv = dt.DefaultView;
+                    dv.Sort = "Building ASC, Room ASC";
+                    maintenanceDGV.DataSource = dv;
+                    dt = null;
+
+                    roomsLB.Items.Clear();
+                    if (buildLB.SelectedIndex >= 0)
+                    {
+                        foreach (var rooms in campusData)
+                        {
+                            if (buildLB.SelectedItem.ToString().Equals(rooms.Building))
+                            {
+                                roomsLB.Items.Add(rooms.Room);
+                            }
+                        }
+                    }
+                    ushort disRooms = 0;
+                    ushort invCollect = 0;
+                    ushort fil = 0;
+                    //checks that inventory information has been entered since the new hires started to closely
+                    //approximate the number of inventory information that has been collected.
+                    foreach (var dist in campusData)
+                    {
+                        if (districtLB.SelectedItem.ToString().Equals(dist.District))
+                        {
+                            disRooms++;
+                            if (dist.tested >= DateTime.Now.AddMonths(-3))
+                                invCollect++;
+                            int timeFrame = 0;
+                            switch (dist.Cycle)
                             {
                                 case "Expedited":
                                     break;
@@ -289,97 +358,30 @@ namespace EKU_Work_Thing
                                     timeFrame = -3;
                                     break;
                             }
-                            if (room.filter <= DateTime.Now.AddMonths(timeFrame))
-                            {
-                                //adds room to the maintenance needed list
-                                string f;
-                                string a;
-                                if (room.filter.ToShortDateString().Equals("1/1/0001"))
-                                    f = "N/A";
-                                else
-                                    f = room.filter.ToShortDateString();
-                                if (room.alarm.ToShortDateString().Equals("1/1/0001"))
-                                    a = "N/A";
-                                else
-                                    a = room.alarm.ToShortDateString();
-                                dt.Rows.Add(room.Building, room.Room, f, a);
-                                filCount++;
-                            }
+                            if (dist.filter <= DateTime.Now.AddMonths(timeFrame))
+                                fil++;
                         }
-                        //add rooms to the list based on the currently selected building
-                        DataView dv = dt.DefaultView;
-                        dv.Sort = "Building ASC, Room ASC";
-                        maintenanceDGV.DataSource = dv;
-                        dt = null;
-
-                        roomsLB.Items.Clear();
-                        if (buildLB.SelectedIndex >= 0)
-                        {
-                            foreach (var rooms in campusData)
-                            {
-                                if (buildLB.SelectedItem.ToString().Equals(rooms.Building))
-                                {
-                                    roomsLB.Items.Add(rooms.Room);
-                                }
-                            }
-                        }
-                        ushort disRooms = 0;
-                        ushort invCollect = 0;
-                        ushort fil = 0;
-                        //checks that inventory information has been entered since the new hires started to closely
-                        //approximate the number of inventory information that has been collected.
-                        foreach (var dist in campusData)
-                        {
-                            if (districtLB.SelectedItem.ToString().Equals(dist.District))
-                            {
-                                disRooms++;
-                                if (dist.tested >= DateTime.Now.AddMonths(-3))
-                                    invCollect++;
-                                int timeFrame = 0;
-                                switch (dist.Cycle)
-                                {
-                                    case "Expedited":
-                                        break;
-                                    case "Monthly":
-                                        timeFrame = -1;
-                                        break;
-                                    case "Quarterly":
-                                        timeFrame = -3;
-                                        break;
-                                    case "Semi-Annually":
-                                        timeFrame = -6;
-                                        break;
-                                    case "Annually":
-                                        timeFrame = -12;
-                                        break;
-                                    default:
-                                        timeFrame = -3;
-                                        break;
-                                }
-                                if (dist.filter <= DateTime.Now.AddMonths(timeFrame))
-                                    fil++;
-                            }
-                        }
-
-                        //prints all data last in case of errors
-                        totalDisplaysTB.Text = dispCount.ToString();
-                        mainNeededTB.Text = filCount.ToString();
-                        campusData = campusData.OrderBy(o => o.Room).ToList();//Order by room first
-                        campusData = campusData.OrderBy(o => o.Building).ToList();//Then order by building
-                        totalRoomsTB.Text = campusData.Count.ToString();//Prints total number of rooms
-                        disTotalTB.Text = disRooms.ToString();
-                        disInvTB.Text = invCollect.ToString();
-                        disPrctFilter.Text = fil.ToString();
-                        float k = (((float)(invCollect) / (float)(disRooms)) * 100);
-                        if (disRooms > 0)
-                            disCompPrctTB.Text = String.Format("{0}%", k);
-                        else
-                            disCompPrctTB.Text = "0.0%";
-                        exportChartToolStripMenuItem.Enabled = true;
-                        exportChangesToolStripMenuItem.Enabled = true;
-                        pullReportBtn.Enabled = true;
-
                     }
+
+                    //prints all data last in case of errors
+                    totalDisplaysTB.Text = dispCount.ToString();
+                    mainNeededTB.Text = filCount.ToString();
+                    campusData = campusData.OrderBy(o => o.Room).ToList();//Order by room first
+                    campusData = campusData.OrderBy(o => o.Building).ToList();//Then order by building
+                    totalRoomsTB.Text = campusData.Count.ToString();//Prints total number of rooms
+                    disTotalTB.Text = disRooms.ToString();
+                    disInvTB.Text = invCollect.ToString();
+                    disPrctFilter.Text = fil.ToString();
+                    float k = (((float)(invCollect) / (float)(disRooms)) * 100);
+                    if (disRooms > 0)
+                        disCompPrctTB.Text = String.Format("{0}%", k);
+                    else
+                        disCompPrctTB.Text = "0.0%";
+                    exportChartToolStripMenuItem.Enabled = true;
+                    exportChangesToolStripMenuItem.Enabled = true;
+                    pullReportBtn.Enabled = true;
+
+                }
             }
             catch (Exception ex)
             {
@@ -468,15 +470,16 @@ namespace EKU_Work_Thing
                 {
                     //looks for template.xlsx file in the root directory of the program location, then in the Templates folder
                     string temp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Templates\", @"chart.xlsx");
-                    Workbook wb = xlApp.Workbooks.Add(temp);
+                    Workbooks wbs = xlApp.Workbooks;
+                    Workbook wb = wbs.Add(temp);
+                    Worksheet ws = (Worksheet)wb.Worksheets[1];
                     try
                     {
-                        Worksheet ws = (Worksheet)wb.Worksheets[1];
+                        int[,] trac = new int[9, 2];
                         //Extracts data from objects and loads it into the excel spreadsheet
                         for (int i = 0; i < districtLB.Items.Count; i++)
                         {
                             string t = districtLB.Items[i].ToString();
-                            ws.Cells[i + 2, 1] = t;
 
                             int disRooms = 0;
                             int invCollect = 0;
@@ -491,28 +494,61 @@ namespace EKU_Work_Thing
                                     }
                                 }
                             }
-                            ws.Cells[i + 2, 2] = disRooms;
-                            ws.Cells[i + 2, 3] = invCollect;
+                            trac[i, 0] = disRooms;
+                            trac[i, 1] = invCollect;
                         }
-                        xlApp.WindowState = XlWindowState.xlMaximized;
-                        xlApp.Visible = true;
+                        // ws.Cells[i, 2] = disRooms;
+                        //ws.Cells[i + 2, 3] = invCollect;
+                        ws.Range[ws.Cells[2, 2], ws.Cells[10, 3]].Value = trac;
 
-                        releaseObject(wb);
-                        releaseObject(ws);
-                        releaseObject(xlApp);
+                        xlApp.DisplayAlerts = false; //used because excel is stupid an will prompt again if you want to replace the file (even though s.f.d will already ask you that).
+
+                        SaveFileDialog sfd = new SaveFileDialog();
+                        //sfd.FileName = tDGV.Rows[e.RowIndex].Cells[0].Value.ToString() + " " + tDGV.Rows[e.RowIndex].Cells[1].Value.ToString();
+                        sfd.FileName = "Maintenance Chart";
+                        sfd.Filter = "Excel Spreadsheet (*.xlsx)|*.xlsx";
+                        sfd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        if (sfd.ShowDialog() == DialogResult.OK)
+                        {
+                            try
+                            {
+                                wb.Close(SaveChanges: true, Filename: sfd.FileName.ToString());
+                            }
+                            catch (Exception)
+                            {
+                                wb.Close(0);
+                            }
+                        }
+                        xlApp.Quit();
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(wb);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(wbs);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
+                        ws = null;
+                        wb = null;
+                        wbs = null;
+                        xlApp = null;
                     }
-                    catch (Exception)
+                    catch (Exception Ex)
                     {
-                        wb.Close(0);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(wb);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(wbs);
                         xlApp.Quit();
                         System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
-                        MessageBox.Show("Template file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ws = null;
+                        wb = null;
+                        wbs = null;
+                        xlApp = null;
+                        MessageBox.Show(Ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        //MessageBox.Show("Template file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-
-            }
-        }//Done
-
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }//Done
+        }
+        
         //Export the changes between recently maintained rooms and the report pulled from inventory
         private void exportChangesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -531,13 +567,15 @@ namespace EKU_Work_Thing
                 }
                 else
                 {
+                    Workbooks wbs = xlApp.Workbooks;
+                    Workbook wb = wbs.Add(XlWBATemplate.xlWBATWorksheet);
+                    Worksheet ws = (Worksheet)wb.Worksheets[1];
                     //attempts to create a workbook and worksheet to handle data
                     try
                     {
                         //need to use arrays more. in retrospect, could have saved a lot of time by having a 3 string arrays for string/int variables, boolean variables, 
                         //and date/time variables. would have cut down the need for copy/paste.
-                        Workbook wb = xlApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
-                        Worksheet ws = (Worksheet)wb.Worksheets[1];
+                        
                         //formatting for first two cells
                         ws.Cells[1, 1] = "Building";
                         ws.Cells[1, 1].EntireColumn.Font.Bold = true;
@@ -559,9 +597,16 @@ namespace EKU_Work_Thing
                         if(!reader.Read())
                         {
                             MessageBox.Show("No data has been recorded.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                            releaseObject(wb);
-                            releaseObject(ws);
-                            releaseObject(xlApp);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(wb);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(wbs);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
+                            ws = null;
+                            wb = null;
+                            wbs = null;
+                            xlApp = null;
+                            GC.WaitForPendingFinalizers();
+                            GC.Collect();
                             return;
                         }
                         //compares footprints report with inventory collected from database
@@ -997,26 +1042,67 @@ namespace EKU_Work_Thing
                         if(y==2)//y should be greater than 2 if changes were made
                         {
                             MessageBox.Show("No Changes Made.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                            releaseObject(wb);
-                            releaseObject(ws);
-                            releaseObject(xlApp);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(wb);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(wbs);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
+                            ws = null;
+                            wb = null;
+                            wbs = null;
+                            xlApp = null;
+                            GC.WaitForPendingFinalizers();
+                            GC.Collect();
                             return;
                         }
                         Range rng = (Range)ws.Range[ws.Cells[2, 1], ws.Cells[y-1, 2]];
                         rng.Interior.Color = XlRgbColor.rgbLightGray;//colors building and room columns that were used
                         ws.Columns.AutoFit();//attempts to resize all rows to fit data properly
                         conn.Close();
-                        xlApp.WindowState = XlWindowState.xlMaximized;
-                        xlApp.Visible = true;
+
+                        xlApp.DisplayAlerts = false; //used because excel is stupid an will prompt again if you want to replace the file (even though s.f.d will already ask you that).
+
+                        SaveFileDialog sfd = new SaveFileDialog();
+                        sfd.FileName = "Maintenance Changes";
+                        sfd.Filter = "Excel Spreadsheet (*.xlsx)|*.xlsx";
+                        sfd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        if (sfd.ShowDialog() == DialogResult.OK)
+                        {
+                            try
+                            {
+                                wb.Close(SaveChanges: true, Filename: sfd.FileName.ToString());
+                            }
+                            catch (Exception)
+                            {
+                                wb.Close(0);
+                            }
+                        }
                         //release objects from memory
-                        releaseObject(wb);
-                        releaseObject(ws);
-                        releaseObject(xlApp);
+                        xlApp.Quit();
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(wb);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(wbs);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
+                        ws = null;
+                        wb = null;
+                        wbs = null;
+                        xlApp = null;
+                        GC.WaitForPendingFinalizers();
+                        GC.Collect();
                     }
                     catch (Exception ex)
                     {
                         xlApp.Quit();
                         MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(wb);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(wbs);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp);
+                        ws = null;
+                        wb = null;
+                        wbs = null;
+                        xlApp = null;
+                        GC.WaitForPendingFinalizers();
+                        GC.Collect();
                     }
                 }
             }
@@ -1626,6 +1712,10 @@ namespace EKU_Work_Thing
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                SQLiteCommand cmd = new SQLiteCommand("DELETE FROM testingmain WHERE Building=@b AND Room=@r;", conn);
+                cmd.Parameters.AddWithValue("@b", testBuilding.Text);
+                cmd.Parameters.AddWithValue("@r", testRoom.Text);
+                cmd.ExecuteNonQuery();
                 conn.Close();
                 return;
             }
@@ -1680,6 +1770,10 @@ namespace EKU_Work_Thing
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                SQLiteCommand cmd = new SQLiteCommand("DELETE FROM testingmain WHERE Building=@b AND Room=@r;", conn);
+                cmd.Parameters.AddWithValue("@b", testBuilding.Text);
+                cmd.Parameters.AddWithValue("@r", testRoom.Text);
+                cmd.ExecuteNonQuery();
                 conn.Close();
                 return;
             }
@@ -1742,6 +1836,10 @@ namespace EKU_Work_Thing
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                SQLiteCommand cmd = new SQLiteCommand("DELETE FROM testingmain WHERE Building=@b AND Room=@r;", conn);
+                cmd.Parameters.AddWithValue("@b", testBuilding.Text);
+                cmd.Parameters.AddWithValue("@r", testRoom.Text);
+                cmd.ExecuteNonQuery();
                 conn.Close();
                 return;
             }
@@ -1803,6 +1901,10 @@ namespace EKU_Work_Thing
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                SQLiteCommand cmd = new SQLiteCommand("DELETE FROM testingmain WHERE Building=@b AND Room=@r;", conn);
+                cmd.Parameters.AddWithValue("@b", testBuilding.Text);
+                cmd.Parameters.AddWithValue("@r", testRoom.Text);
+                cmd.ExecuteNonQuery();
                 conn.Close();
                 return;
             }
@@ -1864,6 +1966,10 @@ namespace EKU_Work_Thing
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                SQLiteCommand cmd = new SQLiteCommand("DELETE FROM testingmain WHERE Building=@b AND Room=@r;", conn);
+                cmd.Parameters.AddWithValue("@b", testBuilding.Text);
+                cmd.Parameters.AddWithValue("@r", testRoom.Text);
+                cmd.ExecuteNonQuery();
                 conn.Close();
                 return;
             }
@@ -1950,22 +2056,7 @@ namespace EKU_Work_Thing
             var confirm = MessageBox.Show("Are you sure you want to clear?", "Notice", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm.ToString().Equals("Yes"))
             {
-                clearTestTable(testGeneralDGV);
-                clearTestTable(testMicDGV);
-                clearTestTable(testDocDGV);
-                clearTestTable(testDVDDGV);
-                clearTestTable(testIPTVDGV);
-                //clear vid/aud table
-                for (int y = 0; y < testVidAudDGV.Rows.Count; y++)
-                {
-                    for (int x = 1; x < testVidAudDGV.Columns.Count; x++)
-                    {
-                        if (x == testVidAudDGV.Columns.Count - 1)
-                            testVidAudDGV.Rows[y].Cells[x].Value = "";
-                        else
-                            testVidAudDGV.Rows[y].Cells[x].Value = "N/A";
-                    }
-                }
+                resetTestingTables();
                 testBuilding.Text = "";
                 testRoom.Text = "";
                 testName.Text = "";
@@ -2048,11 +2139,8 @@ namespace EKU_Work_Thing
             testGeneralDGV.Rows[15].Cells[0].Value = "Check filter for damage (yes if damaged, no if good).";
             //initialize row values
             for (int y = 0; y < 16; y++)
-            {
                 for (int x = 1; x < 4; x++)
                     testGeneralDGV.Rows[y].Cells[x].Value = false;
-                testGeneralDGV.Rows[y].Cells[4].Value = "";
-            }
 
             for (int i = 0; i < 6; i++)
                 testVidAudDGV.Rows.Add();
@@ -2063,24 +2151,17 @@ namespace EKU_Work_Thing
             testVidAudDGV.Rows[4].Cells[0].Value = "(CP) Mute button mutes audio and highlights when selected.";
             testVidAudDGV.Rows[5].Cells[0].Value = "(CP) \"All\", \"Left\", \"Right\", and \"Center\" display options show proper source.";
             for (int y = 0; y < 6; y++)
-            {
                 for (int x = 1; x < 6; x++)
-                {
                     testVidAudDGV.Rows[y].Cells[x].Value = "N/A";
-                }
-                testVidAudDGV.Rows[y].Cells[6].Value = "";
-            }
+
 
             for (int i = 0; i < 2; i++)
                 testMicDGV.Rows.Add();
             testMicDGV.Rows[0].Cells[0].Value = "Microphone output sounds clear (e.g. no popping, static, feedback, etc).";
             testMicDGV.Rows[1].Cells[0].Value = "Microphone volume level is approriately loud enough.";
             for (int y = 0; y < 2; y++)
-            {
                 for (int x = 1; x < 4; x++)
                     testMicDGV.Rows[y].Cells[x].Value = false;
-                testMicDGV.Rows[y].Cells[4].Value = "";
-            }
 
             for (int i = 0; i < 4; i++)
                 testDocDGV.Rows.Add();
@@ -2089,26 +2170,20 @@ namespace EKU_Work_Thing
             testDocDGV.Rows[2].Cells[0].Value = "Iris ▲, ▼ and \"Normal\" functions change image accordingly.";
             testDocDGV.Rows[3].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
             for (int y = 0; y < 4; y++)
-            {
                 for (int x = 1; x < 4; x++)
                     testDocDGV.Rows[y].Cells[x].Value = false;
-                testDocDGV.Rows[y].Cells[4].Value = "";
-            }
 
-            for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 4; i++)
                 testDVDDGV.Rows.Add();
             testDVDDGV.Rows[0].Cells[0].Value = "(CP) \"Menu\" and \"Title\" buttons bring up their respective screens.";
             testDVDDGV.Rows[1].Cells[0].Value = "(CP) Arrow keys navigate properly through the menus.";
             testDVDDGV.Rows[2].Cells[0].Value = "(CP) All soft key controls for play, stop, fast-forward, etc. work accordingly.";
             testDVDDGV.Rows[3].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
             for (int y = 0; y < 4; y++)
-            {
                 for (int x = 1; x < 4; x++)
                     testDVDDGV.Rows[y].Cells[x].Value = false;
-                testDVDDGV.Rows[y].Cells[4].Value = "";
-            }
 
-            for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 5; i++)
                 testIPTVDGV.Rows.Add();
             testIPTVDGV.Rows[0].Cells[0].Value = "(CP) Arrow keys navigate properly through the menus.";
             testIPTVDGV.Rows[1].Cells[0].Value = "(CP) Channel up and down buttons work correctly.";
@@ -2116,12 +2191,9 @@ namespace EKU_Work_Thing
             testIPTVDGV.Rows[3].Cells[0].Value = "(CP) \"Last\" button goes to the IPTV main menu.";
             testIPTVDGV.Rows[4].Cells[0].Value = "(CP) All soft keys are properly labeled & highlight properly when being held down.";
             for (int y = 0; y < 5; y++)
-            {
                 for (int x = 1; x < 4; x++)
                     testIPTVDGV.Rows[y].Cells[x].Value = false;
-                testIPTVDGV.Rows[y].Cells[4].Value = "";
-            }
-        }//done
+            }//done
 
         //focus on inv. tab
         public void invFocus()
@@ -2131,6 +2203,7 @@ namespace EKU_Work_Thing
             addTabController.SelectedIndex = 0;
         }//done
 
+        //focus on testing tab
         public void testFocus()
         {
             this.Focus();
@@ -2138,6 +2211,7 @@ namespace EKU_Work_Thing
             testTabController.SelectedIndex = 0;
         }//done
 
+        //resets testing tables
         public void resetTestingTables()
         {
             testNotesTB.Text = "";
@@ -2176,24 +2250,6 @@ namespace EKU_Work_Thing
                 for (int k = 1; k < 4; k++)
                     testIPTVDGV.Rows[i].Cells[k].Value = false;
                 testIPTVDGV.Rows[i].Cells[4].Value = "";
-            }
-        }
-
-        private void clearTestTable(DataGridView t)
-        {
-            for (int y = 0; y < t.Rows.Count; y++)
-            {
-                for (int x = 1; x < t.Columns.Count; x++)
-                {
-                    if (x == t.Columns.Count - 1)
-                    {
-                        t.Rows[y].Cells[x].Value = "";
-                    }
-                    else
-                    {
-                        t.Rows[y].Cells[x].Value = false;
-                    }
-                }
             }
         }
         
