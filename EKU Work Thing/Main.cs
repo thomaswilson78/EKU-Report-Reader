@@ -51,6 +51,7 @@ namespace EKU_Work_Thing
             buildTestingTables();
             DateTime temp = DateTime.Now.AddMonths(-3);
             distMaintainedLbl.Text += " "+temp.ToString("MM/dd/yyy")+":";
+            formatDateTimePickers();
         }
 
         //loads a footprints .csv file into the program
@@ -66,321 +67,323 @@ namespace EKU_Work_Thing
                         //removes old data to prevent data overlapping
                         if (campusData.Count > 0)
                         {
-                            campusData.RemoveRange(0, campusData.Count - 1);
+                            campusData.RemoveRange(0, campusData.Count);
                         }
                         //TextFieldParser works like a StreamReaser, but parses .csv data properly.
                         //Requires a reference to the Microsoft.VisualBasic .dll file
                         //and then needs the "using Microsoft.VisualBasic.FileIO" line to utilize it.
-                        TextFieldParser parser = new TextFieldParser(ofd.FileName);
-                        parser.TextFieldType = FieldType.Delimited;
-                        parser.SetDelimiters(",");
-                        while (!parser.EndOfData)
+
+                        //immediate values, done after the while loop
+                        
+                        //values used after the while loop
+                        System.Data.DataTable dt = new System.Data.DataTable();
+                        //data will be use to create a custom sorted table that can sort by building, then by room
+                        dt.Columns.Add("Building", typeof(string));
+                        dt.Columns.Add("Room", typeof(string));
+                        dt.Columns.Add("Last Cleaned", typeof(string));
+                        dt.Columns.Add("Alarm Replaced", typeof(string));
+                        dt.Columns.Add("Testing/Maintenance Completed", typeof(string));
+                        ushort dispCount = 0;//counts number of displays (using ushort as it should never exceed 65535)
+                        ushort filCount = 0;//counts number of filters cleaned in past 90 days (using ushort as it should never exceed 65535)
+
+                        using (TextFieldParser parser = new TextFieldParser(ofd.FileName))
                         {
-                            //seperate the .csv data by ','
-                            string[] lines = parser.ReadFields();
-
-                            if (!lines[0].Equals("Building Equipment Resides In")) //skips headers, store all relevant data as attributes in an object
+                            parser.TextFieldType = FieldType.Delimited;
+                            parser.SetDelimiters(",");
+                            while (!parser.EndOfData)
                             {
-                                roomInfo newRoom = new roomInfo();//Object collects data about room, adds to campusData
-                                newRoom.Building = lines[0];
-                                newRoom.Room = lines[1];
-                                newRoom.display1 = lines[2];
-                                newRoom.display2 = lines[3];
-                                newRoom.display3 = lines[4];
-                                newRoom.display4 = lines[5];
-                                newRoom.serial1 = lines[6];
-                                newRoom.serial2 = lines[7];
-                                newRoom.serial3 = lines[8];
-                                newRoom.serial4 = lines[9];
-                                newRoom.screen1 = lines[10];
-                                newRoom.screen2 = lines[11];
-                                newRoom.screen3 = lines[12];
-                                newRoom.screen4 = lines[13];
-                                newRoom.ip1 = lines[14];
-                                newRoom.ip2 = lines[15];
-                                newRoom.ip3 = lines[16];
-                                newRoom.ip4 = lines[17];
-                                newRoom.mac1 = lines[18];
-                                newRoom.mac2 = lines[19];
-                                newRoom.mac3 = lines[20];
-                                newRoom.mac4 = lines[21];
-                                newRoom.bulb1 = lines[22];
-                                newRoom.bulb2 = lines[23];
-                                newRoom.bulb3 = lines[24];
-                                newRoom.bulb4 = lines[25];
-                                newRoom.dock = lines[26].Equals("On");
-                                newRoom.docCam = lines[27].Equals("Yes");
-                                newRoom.DVD = lines[28].Equals("On");
-                                newRoom.Bluray = lines[29].Equals("On");
-                                newRoom.camera = lines[30].Equals("On");
-                                newRoom.mic = lines[31].Equals("On");
-                                newRoom.vga = lines[32].Equals("On");
-                                newRoom.hdmi = lines[33].Equals("On");
-                                if (lines[34].Equals(""))
-                                    newRoom.audio = "No Choice";
-                                else
-                                    newRoom.audio = lines[34];
-                                if (lines[35].Equals(""))
-                                    newRoom.control = "No Choice";
-                                else
-                                    newRoom.control = lines[35];
-                                lines[36] = lines[36].Replace("\n", "; ");
-                                newRoom.other = lines[36];
-                                newRoom.description = lines[37];
-                                DateTime.TryParse(lines[38], out newRoom.filter);
-                                DateTime.TryParse(lines[39], out newRoom.alarm);
-                                newRoom.av = lines[40].Equals("On");
-                                DateTime.TryParse(lines[41], out newRoom.tested);
-                                newRoom.sol = lines[42].Equals("On");
-                                newRoom.solLic = lines[43];
-                                DateTime.TryParse(lines[44], out newRoom.solDate);
-                                if (!lines[45].Equals(""))
-                                    newRoom.NetPorts = byte.Parse(lines[45]);
-                                else
-                                    newRoom.NetPorts = 0;
-                                if (!lines[46].Equals(""))
-                                    newRoom.Cat6 = byte.Parse(lines[46]);
-                                else
-                                    newRoom.Cat6 = 0;
-                                newRoom.PCModel = lines[47];
-                                newRoom.PCSerial = lines[48];
-                                newRoom.nucip = lines[49];
-                                newRoom.nucmac = lines[50];
-                                newRoom.Cycle = lines[51];
+                                //seperate the .csv data by ','
+                                string[] lines = parser.ReadFields();
 
-                                campusData.Add(newRoom);//Add object into list of like objects (campusData)
-                                newRoom = null;
-                                GC.WaitForPendingFinalizers();
-                                GC.Collect();
+                                if (!lines[0].Equals("Building Equipment Resides In")) //skips headers, store all relevant data as attributes in an object
+                                {
+                                    roomInfo newRoom = new roomInfo();//Object collects data about room, adds to campusData
+                                    newRoom.Building = lines[0];
+                                    newRoom.Room = lines[1];
+                                    newRoom.display1 = lines[2];
+                                    newRoom.display2 = lines[3];
+                                    newRoom.display3 = lines[4];
+                                    newRoom.display4 = lines[5];
+                                    newRoom.serial1 = lines[6];
+                                    newRoom.serial2 = lines[7];
+                                    newRoom.serial3 = lines[8];
+                                    newRoom.serial4 = lines[9];
+                                    newRoom.screen1 = lines[10];
+                                    newRoom.screen2 = lines[11];
+                                    newRoom.screen3 = lines[12];
+                                    newRoom.screen4 = lines[13];
+                                    newRoom.ip1 = lines[14];
+                                    newRoom.ip2 = lines[15];
+                                    newRoom.ip3 = lines[16];
+                                    newRoom.ip4 = lines[17];
+                                    newRoom.mac1 = lines[18];
+                                    newRoom.mac2 = lines[19];
+                                    newRoom.mac3 = lines[20];
+                                    newRoom.mac4 = lines[21];
+                                    newRoom.bulb1 = lines[22];
+                                    newRoom.bulb2 = lines[23];
+                                    newRoom.bulb3 = lines[24];
+                                    newRoom.bulb4 = lines[25];
+                                    newRoom.dock = lines[26].Equals("On");
+                                    newRoom.docCam = lines[27].Equals("Yes");
+                                    newRoom.DVD = lines[28].Equals("On");
+                                    newRoom.Bluray = lines[29].Equals("On");
+                                    newRoom.camera = lines[30].Equals("On");
+                                    newRoom.mic = lines[31].Equals("On");
+                                    newRoom.vga = lines[32].Equals("On");
+                                    newRoom.hdmi = lines[33].Equals("On");
+                                    if (lines[34].Equals(""))
+                                        newRoom.audio = "No Choice";
+                                    else
+                                        newRoom.audio = lines[34];
+                                    if (lines[35].Equals(""))
+                                        newRoom.control = "No Choice";
+                                    else
+                                        newRoom.control = lines[35];
+                                    lines[36] = lines[36].Replace("\n", "; ");
+                                    newRoom.other = lines[36];
+                                    newRoom.description = lines[37];
+                                    DateTime.TryParse(lines[38], out newRoom.filter);
+                                    DateTime.TryParse(lines[39], out newRoom.alarm);
+                                    newRoom.av = lines[40].Equals("On");
+                                    DateTime.TryParse(lines[41], out newRoom.tested);
+                                    newRoom.sol = lines[42].Equals("On");
+                                    newRoom.solLic = lines[43];
+                                    DateTime.TryParse(lines[44], out newRoom.solDate);
+                                    if (!lines[45].Equals(""))
+                                        newRoom.NetPorts = byte.Parse(lines[45]);
+                                    else
+                                        newRoom.NetPorts = 0;
+                                    if (!lines[46].Equals(""))
+                                        newRoom.Cat6 = byte.Parse(lines[46]);
+                                    else
+                                        newRoom.Cat6 = 0;
+                                    newRoom.PCModel = lines[47];
+                                    newRoom.PCSerial = lines[48];
+                                    newRoom.nucip = lines[49];
+                                    newRoom.nucmac = lines[50];
+                                    newRoom.Cycle = lines[51];
+
+                                    bool unset = true;//if true, keeps going through each checkpoint (if statement) until the proper district has been found, then skips rest
+                                                      //Set district for each building, uses a for each loop to check each building name to see if it matches to the room object's building name
+                                    foreach (string d in libDistrict)
+                                        if (newRoom.Building.Equals(d))
+                                        {
+                                            newRoom.District = "Library District";
+                                            unset = false;
+                                            break;
+                                        }
+                                    if (unset)
+                                    {
+                                        foreach (string d in oldSciDistrict)
+                                            if (newRoom.Building.Equals(d))
+                                            {
+                                                newRoom.District = "Old Science District";
+                                                unset = false;
+                                                break;
+                                            }
+                                    }
+                                    if (unset)
+                                    {
+                                        foreach (string d in newSciDistrict)
+                                            if (newRoom.Building.Equals(d))
+                                            {
+                                                newRoom.District = "New Science District";
+                                                unset = false;
+                                                break;
+                                            }
+                                    }
+                                    if (unset)
+                                    {
+                                        foreach (string d in centralDistrict)
+                                            if (newRoom.Building.Equals(d))
+                                            {
+                                                newRoom.District = "Central Campus Area";
+                                                unset = false;
+                                                break;
+                                            }
+                                    }
+                                    if (unset)
+                                    {
+                                        foreach (string d in justiceDistrict)
+                                            if (newRoom.Building.Equals(d))
+                                            {
+                                                newRoom.District = "Justice District";
+                                                unset = false;
+                                                break;
+                                            }
+                                    }
+                                    if (unset)
+                                    {
+                                        foreach (string d in serviceDistrict)
+                                            if (newRoom.Building.Equals(d))
+                                            {
+                                                newRoom.District = "Services District";
+                                                unset = false;
+                                                break;
+                                            }
+                                    }
+                                    if (unset)
+                                    {
+                                        foreach (string d in adminDistrict)
+                                            if (newRoom.Building.Equals(d))
+                                            {
+                                                newRoom.District = "Administrative District";
+                                                unset = false;
+                                                break;
+                                            }
+                                    }
+                                    if (unset)
+                                    {
+                                        foreach (string d in artsDistrict)
+                                            if (newRoom.Building.Equals(d))
+                                            {
+                                                newRoom.District = "Arts District";
+                                                unset = false;
+                                                break;
+                                            }
+                                    }
+                                    if (unset)
+                                    {
+                                        foreach (string d in fitnessDistrict)
+                                            if (newRoom.Building.Equals(d))
+                                            {
+                                                newRoom.District = "Fitness District";
+                                                unset = false;
+                                                break;
+                                            }
+                                    }
+                                    //counts number projectors/tvs
+                                    if (!newRoom.display1.Equals(""))
+                                        dispCount++;
+                                    if (!newRoom.display2.Equals(""))
+                                        dispCount++;
+                                    if (!newRoom.display3.Equals(""))
+                                        dispCount++;
+                                    if (!newRoom.display4.Equals(""))
+                                        dispCount++;
+
+                                    //check filter based on timeframe and report if last filter clean date is older than that
+                                    int timeFrame = 0;
+                                    switch (newRoom.Cycle)
+                                    {
+                                        case "Expedited":
+                                            break;
+                                        case "Monthly":
+                                            timeFrame = -1;
+                                            break;
+                                        case "Quarterly":
+                                            timeFrame = -3;
+                                            break;
+                                        case "Semi-Annually":
+                                            timeFrame = -6;
+                                            break;
+                                        case "Annually":
+                                            timeFrame = -12;
+                                            break;
+                                        default:
+                                            timeFrame = -3;
+                                            break;
+                                    }
+                                    if (newRoom.filter <= DateTime.Now.AddMonths(timeFrame))
+                                    {
+                                        //adds room to the maintenance list
+                                        string f, a, t;
+                                        if (newRoom.filter.ToShortDateString().Equals("1/1/0001"))
+                                            f = "N/A";
+                                        else
+                                            f = newRoom.filter.ToShortDateString();
+                                        if (newRoom.alarm.ToShortDateString().Equals("1/1/0001"))
+                                            a = "N/A";
+                                        else
+                                            a = newRoom.alarm.ToShortDateString();
+                                        if (newRoom.tested.ToShortDateString().Equals("1/1/0001"))
+                                            t = "N/A";
+                                        else
+                                            t = newRoom.tested.ToShortDateString();
+                                        dt.Rows.Add(newRoom.Building, newRoom.Room, f, a, t);
+                                        filCount++;
+                                    }
+                                    campusData.Add(newRoom);//Add object into list of like objects (campusData)
+                                    newRoom = null;
+                                    GC.WaitForPendingFinalizers();
+                                    GC.Collect();
+                                }
                             }
                         }
-                        parser.Close();
-                        ofd.Dispose();
-                    }
 
-                    ushort dispCount = 0;//counts number of displays
-                    ushort filCount = 0;//counts number of filters cleaned in past 90 days
+                        //add rooms to the list based on the currently selected building
+                        DataView dv = dt.DefaultView;
+                        dv.Sort = "Building ASC, Room ASC";
+                        maintenanceDGV.DataSource = dv;
+                        maintenanceDGV.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                        maintenanceDGV.Columns[0].Width = 180;
+                        maintenanceDGV.Columns[1].Width = 110;
+                        maintenanceDGV.Columns[2].Width = 75;
+                        maintenanceDGV.Columns[3].Width = 75;
+                        maintenanceDGV.Columns[4].Width = 125;
+                        dt = null;
 
-                    //data will be use to create a custom sorted table that can sort by building, then by room
-                    System.Data.DataTable dt = new System.Data.DataTable();
-                    dt.Columns.Add("Building", typeof(string));
-                    dt.Columns.Add("Room", typeof(string));
-                    dt.Columns.Add("Last Cleaned", typeof(string));
-                    dt.Columns.Add("Alarm Replaced", typeof(string));
-                    //sets district for each building/room
-                    foreach (var room in campusData)
-                    {
-                        bool unset = true;
-                        //Set district for each building
-                        foreach (string d in libDistrict)
-                            if (room.Building.Equals(d))
+                        campusData = campusData.OrderBy(o => o.Room).ToList();//Order by room first
+                        campusData = campusData.OrderBy(o => o.Building).ToList();//Then order by building
+                        roomsLB.Items.Clear();
+                        if (buildLB.SelectedIndex >= 0)
+                            foreach (var rooms in campusData)
+                                if (buildLB.SelectedItem.ToString().Equals(rooms.Building))
+                                    roomsLB.Items.Add(rooms.Room);
+
+                        ushort disRooms = 0;
+                        ushort invCollect = 0;
+                        ushort fil = 0;
+                        //approximate the number of inventory information that has been collected.
+                        foreach (var dist in campusData)
+                        {
+                            if (districtLB.SelectedItem.ToString().Equals(dist.District))
                             {
-                                room.District = "Library District";
-                                unset = false;
-                                break;
-                            }
-                        if (unset)
-                        {
-                            foreach (string d in oldSciDistrict)
-                                if (room.Building.Equals(d))
+                                disRooms++;
+                                if (dist.tested >= DateTime.Now.AddMonths(-3))
+                                    invCollect++;
+                                int timeFrame = 0;
+                                switch (dist.Cycle)
                                 {
-                                    room.District = "Old Science District";
-                                    unset = false;
-                                    break;
+                                    case "Expedited":
+                                        break;
+                                    case "Monthly":
+                                        timeFrame = -1;
+                                        break;
+                                    case "Quarterly":
+                                        timeFrame = -3;
+                                        break;
+                                    case "Semi-Annually":
+                                        timeFrame = -6;
+                                        break;
+                                    case "Annually":
+                                        timeFrame = -12;
+                                        break;
+                                    default:
+                                        timeFrame = -3;
+                                        break;
                                 }
-                        }
-                        if (unset)
-                        {
-                            foreach (string d in newSciDistrict)
-                                if (room.Building.Equals(d))
-                                {
-                                    room.District = "New Science District";
-                                    unset = false;
-                                    break;
-                                }
-                        }
-                        if (unset)
-                        {
-                            foreach (string d in centralDistrict)
-                                if (room.Building.Equals(d))
-                                {
-                                    room.District = "Central Campus Area";
-                                    unset = false;
-                                    break;
-                                }
-                        }
-                        if (unset)
-                        {
-                            foreach (string d in justiceDistrict)
-                                if (room.Building.Equals(d))
-                                {
-                                    room.District = "Justice District";
-                                    unset = false;
-                                    break;
-                                }
-                        }
-                        if (unset)
-                        {
-                            foreach (string d in serviceDistrict)
-                                if (room.Building.Equals(d))
-                                {
-                                    room.District = "Services District";
-                                    unset = false;
-                                    break;
-                                }
-                        }
-                        if (unset)
-                        {
-                            foreach (string d in adminDistrict)
-                                if (room.Building.Equals(d))
-                                {
-                                    room.District = "Administrative District";
-                                    unset = false;
-                                    break;
-                                }
-                        }
-                        if (unset)
-                        {
-                            foreach (string d in artsDistrict)
-                                if (room.Building.Equals(d))
-                                {
-                                    room.District = "Arts District";
-                                    unset = false;
-                                    break;
-                                }
-                        }
-                        if (unset)
-                        {
-                            foreach (string d in fitnessDistrict)
-                                if (room.Building.Equals(d))
-                                {
-                                    room.District = "Fitness District";
-                                    unset = false;
-                                    break;
-                                }
-                        }
-                        //counts number of rooms and projectors/tvs
-                        if (!room.display1.Equals(""))
-                            dispCount++;
-                        if (!room.display2.Equals(""))
-                            dispCount++;
-                        if (!room.display3.Equals(""))
-                            dispCount++;
-                        if (!room.display4.Equals(""))
-                            dispCount++;
-
-                        //check filter based on timeframe and report if last filter clean date is older than that
-                        int timeFrame=0;
-                        switch (room.Cycle)
-                        {
-                            case "Expedited":
-                                break;
-                            case "Monthly":
-                                timeFrame = -1;
-                                break;
-                            case "Quarterly":
-                                timeFrame = -3;
-                                break;
-                            case "Semi-Annually":
-                                timeFrame = -6;
-                                break;
-                            case "Annually":
-                                timeFrame = -12;
-                                break;
-                            default:
-                                timeFrame = -3;
-                                break;
-                        }
-                        if (room.filter <= DateTime.Now.AddMonths(timeFrame))
-                        {
-                            //adds room to the maintenance needed list
-                            string f;
-                            string a;
-                            if (room.filter.ToShortDateString().Equals("1/1/0001"))
-                                f = "N/A";
-                            else
-                                f = room.filter.ToShortDateString();
-                            if (room.alarm.ToShortDateString().Equals("1/1/0001"))
-                                a = "N/A";
-                            else
-                                a = room.alarm.ToShortDateString();
-                            dt.Rows.Add(room.Building, room.Room, f, a);
-                            filCount++;
-                        }
-                    }
-                    //add rooms to the list based on the currently selected building
-                    DataView dv = dt.DefaultView;
-                    dv.Sort = "Building ASC, Room ASC";
-                    maintenanceDGV.DataSource = dv;
-                    dt = null;
-
-                    roomsLB.Items.Clear();
-                    if (buildLB.SelectedIndex >= 0)
-                    {
-                        foreach (var rooms in campusData)
-                        {
-                            if (buildLB.SelectedItem.ToString().Equals(rooms.Building))
-                            {
-                                roomsLB.Items.Add(rooms.Room);
+                                if (dist.filter <= DateTime.Now.AddMonths(timeFrame))
+                                    fil++;
                             }
                         }
+                        //prints all data last in case of errors
+                        totalDisplaysTB.Text = dispCount.ToString();
+                        mainNeededTB.Text = filCount.ToString();
+                        totalRoomsTB.Text = campusData.Count.ToString();//Prints total number of rooms
+                        disTotalTB.Text = disRooms.ToString();
+                        disInvTB.Text = invCollect.ToString();
+                        disPrctFilter.Text = fil.ToString();
+                        float k = (((float)(invCollect) / (float)(disRooms)) * 100);
+                        if (disRooms > 0)
+                            disCompPrctTB.Text = String.Format("{0}%", k);
+                        else
+                            disCompPrctTB.Text = "0.0%";
+                        exportChartToolStripMenuItem.Enabled = true;
+                        exportChangesToolStripMenuItem.Enabled = true;
+                        pullReportBtn.Enabled = true;
                     }
-                    ushort disRooms = 0;
-                    ushort invCollect = 0;
-                    ushort fil = 0;
-                    //checks that inventory information has been entered since the new hires started to closely
-                    //approximate the number of inventory information that has been collected.
-                    foreach (var dist in campusData)
-                    {
-                        if (districtLB.SelectedItem.ToString().Equals(dist.District))
-                        {
-                            disRooms++;
-                            if (dist.tested >= DateTime.Now.AddMonths(-3))
-                                invCollect++;
-                            int timeFrame = 0;
-                            switch (dist.Cycle)
-                            {
-                                case "Expedited":
-                                    break;
-                                case "Monthly":
-                                    timeFrame = -1;
-                                    break;
-                                case "Quarterly":
-                                    timeFrame = -3;
-                                    break;
-                                case "Semi-Annually":
-                                    timeFrame = -6;
-                                    break;
-                                case "Annually":
-                                    timeFrame = -12;
-                                    break;
-                                default:
-                                    timeFrame = -3;
-                                    break;
-                            }
-                            if (dist.filter <= DateTime.Now.AddMonths(timeFrame))
-                                fil++;
-                        }
-                    }
-
-                    //prints all data last in case of errors
-                    totalDisplaysTB.Text = dispCount.ToString();
-                    mainNeededTB.Text = filCount.ToString();
-                    campusData = campusData.OrderBy(o => o.Room).ToList();//Order by room first
-                    campusData = campusData.OrderBy(o => o.Building).ToList();//Then order by building
-                    totalRoomsTB.Text = campusData.Count.ToString();//Prints total number of rooms
-                    disTotalTB.Text = disRooms.ToString();
-                    disInvTB.Text = invCollect.ToString();
-                    disPrctFilter.Text = fil.ToString();
-                    float k = (((float)(invCollect) / (float)(disRooms)) * 100);
-                    if (disRooms > 0)
-                        disCompPrctTB.Text = String.Format("{0}%", k);
-                    else
-                        disCompPrctTB.Text = "0.0%";
-                    exportChartToolStripMenuItem.Enabled = true;
-                    exportChangesToolStripMenuItem.Enabled = true;
-                    pullReportBtn.Enabled = true;
-
                 }
             }
             catch (Exception ex)
@@ -609,384 +612,765 @@ namespace EKU_Work_Thing
                             GC.Collect();
                             return;
                         }
+                        reader.Close();
+                        reader = cmd.ExecuteReader();
+                        roomInfo last = campusData.Last();
                         //compares footprints report with inventory collected from database
-                        while(reader.Read())
+                        while (reader.Read())
                         {
+                            string bul = reader["Building"].ToString();
+                            string ro = reader["Room"].ToString();
                             foreach (var record in campusData)//looks through each record until data is found
                             {
-                                if (record.Building==reader["Building"].ToString() && record.Room==reader["Room"].ToString())//match found between report and database
+                                //this case check the last record, and if the data doesn't match on the report, 
+                                //the system will add a new row for the room that does not exist on the sheet
+                                if (record == last)
                                 {
-                                    int x = 3; //for x coordinates in the worksheet, will always start back at 3 for each record
-                                    bool changes = false;
-                                    //where changes will occur, label should be above (y) and data should be below (y+1)
-                                    //note that if no changes occur, the object is skipped and the row is reserved for the next object
-                                    if(record.display1!=reader["D1MakeModel"].ToString())
+                                    //no entry for record on report
+                                    if (record.Building == bul && record.Room == ro)//match found between report and database
                                     {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Display 1";
-                                        ws.Cells[y + 1, x] = reader["D1MakeModel"].ToString();
-                                        x++;
+                                        int x = 3; //for x coordinates in the worksheet, will always start back at 3 for each record
+                                        bool changes = false;
+                                        //where changes will occur, label should be above (y) and data should be below (y+1)
+                                        //note that if no changes occur, the object is skipped and the row is reserved for the next object
+                                        if (record.display1 != reader["D1MakeModel"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Display 1";
+                                            ws.Cells[y + 1, x] = reader["D1MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.serial1 != reader["D1Serial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Serial 1";
+                                            ws.Cells[y + 1, x] = reader["D1Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.screen1 != reader["D1Screen"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Screen 1";
+                                            ws.Cells[y + 1, x] = reader["D1Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (record.ip1 != reader["D1IP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "IP Address 1";
+                                            ws.Cells[y + 1, x] = reader["D1IP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.mac1 != reader["D1Mac"].ToString() && (!reader["D1Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D1Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "MAC Address 1";
+                                            ws.Cells[y + 1, x] = reader["D1MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (record.bulb1 != reader["D1Bulb"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bulb 1";
+                                            ws.Cells[y + 1, x] = reader["D1Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (record.display2 != reader["D2MakeModel"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Display 2";
+                                            ws.Cells[y + 1, x] = reader["D2MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.serial2 != reader["D2Serial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Serial 2";
+                                            ws.Cells[y + 1, x] = reader["D2Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.screen2 != reader["D2Screen"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Screen 2";
+                                            ws.Cells[y + 1, x] = reader["D2Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (record.ip2 != reader["D2IP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "IP Address 2";
+                                            ws.Cells[y + 1, x] = reader["D2IP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.mac2 != reader["D2Mac"].ToString() && (!reader["D2Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D2Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "MAC Address 2";
+                                            ws.Cells[y + 1, x] = reader["D2MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (record.bulb2 != reader["D2Bulb"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bulb 2";
+                                            ws.Cells[y + 1, x] = reader["D2Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (record.display3 != reader["D3MakeModel"].ToString())
+                                        {
+                                            ws.Cells[y, x] = "Display 3";
+                                            ws.Cells[y + 1, x] = reader["D3MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.serial3 != reader["D3Serial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Serial 3";
+                                            ws.Cells[y + 1, x] = reader["D3Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.screen3 != reader["D3Screen"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Screen 3";
+                                            ws.Cells[y + 1, x] = reader["D3Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (record.ip3 != reader["D3IP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "IP Address 3";
+                                            ws.Cells[y + 1, x] = reader["D3IP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.mac3 != reader["D3Mac"].ToString() && (!reader["D3Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D3Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "MAC Address 3";
+                                            ws.Cells[y + 1, x] = reader["D3MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (record.bulb3 != reader["D3Bulb"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bulb 3";
+                                            ws.Cells[y + 1, x] = reader["D3Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (record.display4 != reader["D4MakeModel"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Display 4";
+                                            ws.Cells[y + 1, x] = reader["D4MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.serial4 != reader["D4Serial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Serial 4";
+                                            ws.Cells[y + 1, x] = reader["D4Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.screen4 != reader["D4Screen"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Screen 4";
+                                            ws.Cells[y + 1, x] = reader["D4Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (record.ip4 != reader["D4IP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "IP Address 4";
+                                            ws.Cells[y + 1, x] = reader["D4IP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.mac4 != reader["D4Mac"].ToString() && (!reader["D4Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D4Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "MAC Address 4";
+                                            ws.Cells[y + 1, x] = reader["D4MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (record.bulb4 != reader["D4Bulb"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bulb 4";
+                                            ws.Cells[y + 1, x] = reader["D4Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (record.control != reader["Controller"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Controller";
+                                            ws.Cells[y + 1, x] = reader["Controller"].ToString();
+                                            x++;
+                                        }
+                                        if (record.audio != reader["Audio"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Audio";
+                                            ws.Cells[y + 1, x] = reader["Audio"].ToString();
+                                            x++;
+                                        }
+                                        bool boolData = reader["Dock"].ToString().Equals("1");
+                                        if (record.dock != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Dock";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["Doc_Cam"].ToString().Equals("1");
+                                        if (record.docCam != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Doc Cam";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["Camera"].ToString().Equals("1");
+                                        if (record.camera != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Lecure Cam";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["Mic"].ToString().Equals("1");
+                                        if (record.mic != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Mic";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["Bluray"].ToString().Equals("1");
+                                        if (record.Bluray != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bluray";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["DVD"].ToString().Equals("1");
+                                        if (record.DVD != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "DVD/VCR";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["VGA_Pull"].ToString().Equals("1");
+                                        if (record.vga != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "VGA Pull";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["HDMI_Pull"].ToString().Equals("1");
+                                        if (record.hdmi != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "HDMI Pull";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        if (record.Cat6 != int.Parse(reader["Cat6Video"].ToString()))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Cat6 Video";
+                                            ws.Cells[y + 1, x] = reader["Cat6Video"].ToString();
+                                            x++;
+                                        }
+                                        if (record.NetPorts != int.Parse(reader["NetworkPorts"].ToString()))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Network Ports";
+                                            ws.Cells[y + 1, x] = reader["NetworkPorts"].ToString();
+                                            x++;
+                                        }
+                                        boolData = reader["AV_Panel"].ToString().Equals("1");
+                                        if (record.av != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "AV Panel";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        if (record.PCModel != reader["PCModel"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "PC Model";
+                                            ws.Cells[y + 1, x] = reader["PCModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.PCSerial != reader["PCSerial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "PC Serial";
+                                            ws.Cells[y + 1, x] = reader["PCSerial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.nucip != reader["NUCIP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "NUC IP";
+                                            ws.Cells[y + 1, x] = reader["NUCIP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.nucmac != reader["NUCMAC"].ToString() && (!reader["D4Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D4Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "NUC MAC";
+                                            ws.Cells[y + 1, x] = reader["NUCMAC"].ToString();
+                                            x++;
+                                        }
+                                        boolData = reader["Solstice"].ToString().Equals("1");
+                                        if (record.sol != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Solstice Capable";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        DateTime date;
+                                        DateTime.TryParse(reader["SolsticeDate"].ToString(), out date);
+                                        if (record.solDate.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Solstice Activation Date";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+                                        if (record.solLic != reader["SolsticeLicense"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Solstice License";
+                                            ws.Cells[y + 1, x] = reader["SolsticeLicense"].ToString();
+                                            x++;
+                                        }
+                                        DateTime.TryParse(reader["Filter"].ToString(), out date);
+                                        if (record.filter.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Filter";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+                                        if (record.other != reader["Other"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Other Devices";
+                                            ws.Cells[y + 1, x] = reader["Other"].ToString();
+                                            x++;
+                                        }
+                                        DateTime.TryParse(reader["AlarmDate"].ToString(), out date);
+                                        if (record.alarm.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Alarm Battery Replaced";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+                                        if (changes)//if true, creates a new row displaying data. if false, skips this object and reserves row
+                                        {
+
+                                            Range r1;
+                                            bool note = false;
+                                            if (!reader["Notes"].ToString().Equals(""))//add in notes only if changes were recorded, not needed otherwise
+                                            {
+                                                ws.Cells[y, x] = "Notes";
+                                                ws.Cells[y + 1, x] = reader["Notes"].ToString();
+                                                note = true;
+                                            }
+
+                                            if (note)
+                                                r1 = ws.Range[ws.Cells[y, 3], ws.Cells[y, x]];
+                                            else
+                                                r1 = ws.Range[ws.Cells[y, 3], ws.Cells[y, x - 1]];
+
+                                            //formatting for data cells
+                                            r1.Font.Bold = true;
+                                            r1.Font.Color = XlRgbColor.rgbMaroon;
+                                            r1.Interior.Color = XlRgbColor.rgbWheat;
+                                            r1.Font.Size = 14;
+                                            if (note)
+                                            {
+                                                ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                                ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x]].Borders.Color = XlRgbColor.rgbBlack;
+                                            }
+                                            else
+                                            {
+                                                ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x - 1]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                                ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x - 1]].Borders.Color = XlRgbColor.rgbBlack;
+                                            }
+
+                                            //formatting for building cells
+                                            ws.Cells[y + 1, 1] = record.Building;
+                                            Range r2 = ws.Range[ws.Cells[y, 1], ws.Cells[y + 1, 1]];
+                                            r2.Borders.Color = XlRgbColor.rgbBlack;
+                                            r2.Merge();
+                                            r2.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                                            r2.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+                                            //formatting for room cells
+                                            ws.Cells[y + 1, 2] = record.Room;
+                                            Range r3 = ws.Range[ws.Cells[y, 2], ws.Cells[y + 1, 2]];
+                                            r3.Borders.Color = XlRgbColor.rgbBlack;
+                                            r3.Merge();
+                                            r3.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                                            r3.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+                                            y += 2;
+                                        }
+                                        break;//no longer need to search for room, can freely break 2nd loop
                                     }
-                                    if (record.serial1 != reader["D1Serial"].ToString())
+                                    else
                                     {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Serial 1";
-                                        ws.Cells[y + 1, x] = reader["D1Serial"].ToString();
-                                        x++;
-                                    }
-                                    if (record.screen1 != reader["D1Screen"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Screen 1";
-                                        ws.Cells[y + 1, x] = reader["D1Screen"].ToString();
-                                        x++;
-                                    }
-                                    if (record.ip1 != reader["D1IP"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "IP Address 1";
-                                        ws.Cells[y + 1, x] = reader["D1IP"].ToString();
-                                        x++;
-                                    }
-                                    if (record.mac1 != reader["D1Mac"].ToString() && (!reader["D1Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D1Mac"].ToString().Equals("N/:A :  :  :  :")))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "MAC Address 1";
-                                        ws.Cells[y + 1, x] = reader["D1MAC"].ToString();
-                                        x++;
-                                    }
-                                    if (record.bulb1 != reader["D1Bulb"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Bulb 1";
-                                        ws.Cells[y + 1, x] = reader["D1Bulb"].ToString();
-                                        x++;
-                                    }
-                                    if (record.display2 != reader["D2MakeModel"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Display 2";
-                                        ws.Cells[y + 1, x] = reader["D2MakeModel"].ToString();
-                                        x++;
-                                    }
-                                    if (record.serial2 != reader["D2Serial"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Serial 2";
-                                        ws.Cells[y + 1, x] = reader["D2Serial"].ToString();
-                                        x++;
-                                    }
-                                    if (record.screen2 != reader["D2Screen"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Screen 2";
-                                        ws.Cells[y + 1, x] = reader["D2Screen"].ToString();
-                                        x++;
-                                    }
-                                    if (record.ip2 != reader["D2IP"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "IP Address 2";
-                                        ws.Cells[y + 1, x] = reader["D2IP"].ToString();
-                                        x++;
-                                    }
-                                    if (record.mac2 != reader["D2Mac"].ToString() && (!reader["D2Mac"].ToString().Equals("  :  :  :  :  :") &&  !reader["D2Mac"].ToString().Equals("N/:A :  :  :  :")))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "MAC Address 2";
-                                        ws.Cells[y + 1, x] = reader["D2MAC"].ToString();
-                                        x++;
-                                    }
-                                    if (record.bulb2 != reader["D2Bulb"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Bulb 2";
-                                        ws.Cells[y + 1, x] = reader["D2Bulb"].ToString();
-                                        x++;
-                                    }
-                                    if (record.display3 != reader["D3MakeModel"].ToString())
-                                    {
-                                        ws.Cells[y, x] = "Display 3";
-                                        ws.Cells[y + 1, x] = reader["D3MakeModel"].ToString();
-                                        x++;
-                                    }
-                                    if (record.serial3 != reader["D3Serial"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Serial 3";
-                                        ws.Cells[y + 1, x] = reader["D3Serial"].ToString();
-                                        x++;
-                                    }
-                                    if (record.screen3 != reader["D3Screen"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Screen 3";
-                                        ws.Cells[y + 1, x] = reader["D3Screen"].ToString();
-                                        x++;
-                                    }
-                                    if (record.ip3 != reader["D3IP"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "IP Address 3";
-                                        ws.Cells[y + 1, x] = reader["D3IP"].ToString();
-                                        x++;
-                                    }
-                                    if (record.mac3 != reader["D3Mac"].ToString() && (!reader["D3Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D3Mac"].ToString().Equals("N/:A :  :  :  :")))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "MAC Address 3";
-                                        ws.Cells[y + 1, x] = reader["D3MAC"].ToString();
-                                        x++;
-                                    }
-                                    if (record.bulb3 != reader["D3Bulb"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Bulb 3";
-                                        ws.Cells[y + 1, x] = reader["D3Bulb"].ToString();
-                                        x++;
-                                    }
-                                    if (record.display4 != reader["D4MakeModel"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Display 4";
-                                        ws.Cells[y + 1, x] = reader["D4MakeModel"].ToString();
-                                        x++;
-                                    }
-                                    if (record.serial4 != reader["D4Serial"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Serial 4";
-                                        ws.Cells[y + 1, x] = reader["D4Serial"].ToString();
-                                        x++;
-                                    }
-                                    if (record.screen4 != reader["D4Screen"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Screen 4";
-                                        ws.Cells[y + 1, x] = reader["D4Screen"].ToString();
-                                        x++;
-                                    }
-                                    if (record.ip4 != reader["D4IP"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "IP Address 4";
-                                        ws.Cells[y + 1, x] = reader["D4IP"].ToString();
-                                        x++;
-                                    }
-                                    if (record.mac4 != reader["D4Mac"].ToString() && (!reader["D4Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D4Mac"].ToString().Equals("N/:A :  :  :  :")))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "MAC Address 4";
-                                        ws.Cells[y + 1, x] = reader["D4MAC"].ToString();
-                                        x++;
-                                    }
-                                    if (record.bulb4 != reader["D4Bulb"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Bulb 4";
-                                        ws.Cells[y + 1, x] = reader["D4Bulb"].ToString();
-                                        x++;
-                                    }
-                                    if(record.control != reader["Controller"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Controller";
-                                        ws.Cells[y + 1, x] = reader["Controller"].ToString();
-                                        x++;
-                                    }
-                                    if (record.audio != reader["Audio"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Audio";
-                                        ws.Cells[y + 1, x] = reader["Audio"].ToString();
-                                        x++;
-                                    }
-                                    bool boolData = reader["Dock"].ToString().Equals("1");
-                                    if (record.dock != boolData)
-                                    {
-                                        changes = true;
+                                        int x = 3; //for x coordinates in the worksheet, will always start back at 3 for each record
+                                        //where changes will occur, label should be above (y) and data should be below (y+1)
+                                        //note that if no changes occur, the object is skipped and the row is reserved for the next object
+                                        if (!reader["D1MakeModel"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Display 1";
+                                            ws.Cells[y + 1, x] = reader["D1MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D1Serial"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Serial 1";
+                                            ws.Cells[y + 1, x] = reader["D1Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D1Screen"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Screen 1";
+                                            ws.Cells[y + 1, x] = reader["D1Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D1IP"].ToString().Equals(""))
+                                        { 
+                                            ws.Cells[y, x] = "IP Address 1";
+                                            ws.Cells[y + 1, x] = reader["D1IP"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D1MAC"].ToString().Equals("  :  :  :  :  :"))
+                                        {
+                                            ws.Cells[y, x] = "MAC Address 1";
+                                            ws.Cells[y + 1, x] = reader["D1MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D1Bulb"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Bulb 1";
+                                            ws.Cells[y + 1, x] = reader["D1Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (reader["D2MakeModel"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Display 2";
+                                            ws.Cells[y + 1, x] = reader["D2MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D2Serial"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Serial 2";
+                                            ws.Cells[y + 1, x] = reader["D2Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D2Screen"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Screen 2";
+                                            ws.Cells[y + 1, x] = reader["D2Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D2IP"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "IP Address 2";
+                                            ws.Cells[y + 1, x] = reader["D2IP"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D2MAC"].ToString().Equals("  :  :  :  :  :"))
+                                        {
+                                            ws.Cells[y, x] = "MAC Address 2";
+                                            ws.Cells[y + 1, x] = reader["D2MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D2Bulb"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Bulb 2";
+                                            ws.Cells[y + 1, x] = reader["D2Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D3MakeModel"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Display 3";
+                                            ws.Cells[y + 1, x] = reader["D3MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D3Serial"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Serial 3";
+                                            ws.Cells[y + 1, x] = reader["D3Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D3Screen"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Screen 3";
+                                            ws.Cells[y + 1, x] = reader["D3Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D3IP"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "IP Address 3";
+                                            ws.Cells[y + 1, x] = reader["D3IP"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D3MAC"].ToString().Equals("  :  :  :  :  :"))
+                                        {
+                                            ws.Cells[y, x] = "MAC Address 3";
+                                            ws.Cells[y + 1, x] = reader["D3MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D3Bulb"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Bulb 3";
+                                            ws.Cells[y + 1, x] = reader["D3Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D4MakeModel"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Display 4";
+                                            ws.Cells[y + 1, x] = reader["D4MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D4Serial"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Serial 4";
+                                            ws.Cells[y + 1, x] = reader["D4Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D4Screen"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Screen 4";
+                                            ws.Cells[y + 1, x] = reader["D4Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D4IP"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "IP Address 4";
+                                            ws.Cells[y + 1, x] = reader["D4IP"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D4MAC"].ToString().Equals("  :  :  :  :  :"))
+                                        {
+                                            ws.Cells[y, x] = "MAC Address 4";
+                                            ws.Cells[y + 1, x] = reader["D4MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["D4Bulb"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Bulb 4";
+                                            ws.Cells[y + 1, x] = reader["D4Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["Controller"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Controller";
+                                            ws.Cells[y + 1, x] = reader["Controller"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["Audio"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Audio";
+                                            ws.Cells[y + 1, x] = reader["Audio"].ToString();
+                                            x++;
+                                        }
+
+                                        bool boolData = reader["Dock"].ToString().Equals("1");
                                         ws.Cells[y, x] = "Dock";
-                                        if(boolData)
+                                        if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    boolData = reader["Doc_Cam"].ToString().Equals("1");
-                                    if (record.docCam != boolData)
-                                    {
-                                        changes = true;
+
+                                        boolData = reader["Doc_Cam"].ToString().Equals("1");
                                         ws.Cells[y, x] = "Doc Cam";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    boolData = reader["Camera"].ToString().Equals("1");
-                                    if (record.camera != boolData)
-                                    {
-                                        changes = true;
+                                        
+                                        boolData = reader["Camera"].ToString().Equals("1");
                                         ws.Cells[y, x] = "Lecure Cam";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    boolData = reader["Mic"].ToString().Equals("1");
-                                    if (record.mic != boolData)
-                                    {
-                                        changes = true;
+                                        
+                                        boolData = reader["Mic"].ToString().Equals("1");
                                         ws.Cells[y, x] = "Mic";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    boolData = reader["Bluray"].ToString().Equals("1");
-                                    if (record.Bluray != boolData)
-                                    {
-                                        changes = true;
+                                        
+                                        boolData = reader["Bluray"].ToString().Equals("1");
                                         ws.Cells[y, x] = "Bluray";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    boolData = reader["DVD"].ToString().Equals("1");
-                                    if (record.DVD != boolData)
-                                    {
-                                        changes = true;
+                                        
+                                        boolData = reader["DVD"].ToString().Equals("1");
                                         ws.Cells[y, x] = "DVD/VCR";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    boolData = reader["VGA_Pull"].ToString().Equals("1");
-                                    if (record.vga != boolData)
-                                    {
-                                        changes = true;
+                                        
+                                        boolData = reader["VGA_Pull"].ToString().Equals("1");
                                         ws.Cells[y, x] = "VGA Pull";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    boolData = reader["HDMI_Pull"].ToString().Equals("1");
-                                    if (record.hdmi != boolData)
-                                    {
-                                        changes = true;
+                                        
+                                        boolData = reader["HDMI_Pull"].ToString().Equals("1");
                                         ws.Cells[y, x] = "HDMI Pull";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    if(record.Cat6 != int.Parse(reader["Cat6Video"].ToString()))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Cat6 Video";
-                                        ws.Cells[y + 1, x] = reader["Cat6Video"].ToString();
-                                        x++;
-                                    }
-                                    if (record.NetPorts != int.Parse(reader["NetworkPorts"].ToString()))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Network Ports";
-                                        ws.Cells[y + 1, x] = reader["NetworkPorts"].ToString();
-                                        x++;
-                                    }
-                                    boolData = reader["AV_Panel"].ToString().Equals("1");
-                                    if (record.av != boolData)
-                                    {
-                                        changes = true;
+                                        
+                                        if (!reader["Cat6Video"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Cat6 Video";
+                                            ws.Cells[y + 1, x] = reader["Cat6Video"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["NetworkPorts"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Network Ports";
+                                            ws.Cells[y + 1, x] = reader["NetworkPorts"].ToString();
+                                            x++;
+                                        }
+                                        boolData = reader["AV_Panel"].ToString().Equals("1");
                                         ws.Cells[y, x] = "AV Panel";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    if (record.PCModel != reader["PCModel"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "PC Model";
-                                        ws.Cells[y + 1, x] = reader["PCModel"].ToString();
-                                        x++;
-                                    }
-                                    if (record.PCSerial != reader["PCSerial"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "PC Serial";
-                                        ws.Cells[y + 1, x] = reader["PCSerial"].ToString();
-                                        x++;
-                                    }
-                                    if (record.nucip != reader["NUCIP"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "NUC IP";
-                                        ws.Cells[y + 1, x] = reader["NUCIP"].ToString();
-                                        x++;
-                                    }
-                                    if (record.nucmac != reader["NUCMAC"].ToString() && (!reader["D4Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D4Mac"].ToString().Equals("N/:A :  :  :  :")))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "NUC MAC";
-                                        ws.Cells[y + 1, x] = reader["NUCMAC"].ToString();
-                                        x++;
-                                    }
-                                    boolData = reader["Solstice"].ToString().Equals("1");
-                                    if (record.sol != boolData)
-                                    {
-                                        changes = true;
+
+                                        if (!reader["PCModel"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "PC Model";
+                                            ws.Cells[y + 1, x] = reader["PCModel"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["PCSerial"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "PC Serial";
+                                            ws.Cells[y + 1, x] = reader["PCSerial"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["NUCIP"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "NUC IP";
+                                            ws.Cells[y + 1, x] = reader["NUCIP"].ToString();
+                                            x++;
+                                        }
+                                        if (!reader["NUCMAC"].ToString().Equals("  :  :  :  :  :"))
+                                        {
+                                            ws.Cells[y, x] = "NUC MAC";
+                                            ws.Cells[y + 1, x] = reader["NUCMAC"].ToString();
+                                            x++;
+                                        }
+                                        boolData = reader["Solstice"].ToString().Equals("1");
                                         ws.Cells[y, x] = "Solstice Capable";
                                         if (boolData)
                                             ws.Cells[y + 1, x] = "Yes";
                                         else
                                             ws.Cells[y + 1, x] = "No";
                                         x++;
-                                    }
-                                    DateTime date;
-                                    DateTime.TryParse(reader["SolsticeDate"].ToString(), out date);
-                                    if (record.solDate.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Solstice Activation Date";
-                                        ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
-                                        x++;
-                                    }
-                                    if (record.solLic != reader["SolsticeLicense"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Solstice License";
-                                        ws.Cells[y + 1, x] = reader["SolsticeLicense"].ToString();
-                                        x++;
-                                    }
-                                    DateTime.TryParse(reader["Filter"].ToString(), out date);
-                                    if (record.filter.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Filter";
-                                        ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
-                                        x++;
-                                    }
-                                    if(record.other != reader["Other"].ToString())
-                                    {
-                                        changes = true;
-                                        ws.Cells[y, x] = "Other Devices";
-                                        ws.Cells[y + 1, x] = reader["Other"].ToString();
-                                        x++;
-                                    }
-                                    if (changes)//if true, creates a new row displaying data. if false, skips this object and reserves row
-                                    {
                                         
+                                        DateTime date;
+                                        DateTime.TryParse(reader["SolsticeDate"].ToString(), out date);
+                                        if (!date.ToString("MM/dd/yyyy").Equals("01/01/0001"))
+                                        {
+                                            ws.Cells[y, x] = "Solstice Activation Date";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+                                        if (!reader["SolsticeLicense"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Solstice License";
+                                            ws.Cells[y + 1, x] = reader["SolsticeLicense"].ToString();
+                                            x++;
+                                        }
+                                        DateTime.TryParse(reader["Filter"].ToString(), out date);
+                                        if (!date.ToString("MM/dd/yyyy").Equals("01/01/0001"))
+                                        {
+                                            ws.Cells[y, x] = "Filter";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+                                        if (!reader["Other"].ToString().Equals(""))
+                                        {
+                                            ws.Cells[y, x] = "Other Devices";
+                                            ws.Cells[y + 1, x] = reader["Other"].ToString();
+                                            x++;
+                                        }
+                                        DateTime.TryParse(reader["AlarmDate"].ToString(), out date);
+                                        if (!date.ToString("MM/dd/yyyy").Equals("01/01/0001"))
+                                        {
+                                            ws.Cells[y, x] = "Alarm Battery Replaced";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+
                                         Range r1;
                                         bool note = false;
                                         if (!reader["Notes"].ToString().Equals(""))//add in notes only if changes were recorded, not needed otherwise
@@ -995,8 +1379,8 @@ namespace EKU_Work_Thing
                                             ws.Cells[y + 1, x] = reader["Notes"].ToString();
                                             note = true;
                                         }
-                                            
-                                        if(note)
+
+                                        if (note)
                                             r1 = ws.Range[ws.Cells[y, 3], ws.Cells[y, x]];
                                         else
                                             r1 = ws.Range[ws.Cells[y, 3], ws.Cells[y, x - 1]];
@@ -1018,7 +1402,7 @@ namespace EKU_Work_Thing
                                         }
 
                                         //formatting for building cells
-                                        ws.Cells[y + 1, 1] = record.Building;
+                                        ws.Cells[y + 1, 1] = bul;
                                         Range r2 = ws.Range[ws.Cells[y, 1], ws.Cells[y + 1, 1]];
                                         r2.Borders.Color = XlRgbColor.rgbBlack;
                                         r2.Merge();
@@ -1026,7 +1410,7 @@ namespace EKU_Work_Thing
                                         r2.HorizontalAlignment = XlHAlign.xlHAlignCenter;
 
                                         //formatting for room cells
-                                        ws.Cells[y + 1, 2] = record.Room;
+                                        ws.Cells[y + 1, 2] = ro;
                                         Range r3 = ws.Range[ws.Cells[y, 2], ws.Cells[y + 1, 2]];
                                         r3.Borders.Color = XlRgbColor.rgbBlack;
                                         r3.Merge();
@@ -1034,8 +1418,442 @@ namespace EKU_Work_Thing
                                         r3.HorizontalAlignment = XlHAlign.xlHAlignCenter;
 
                                         y += 2;
+                                        }
+                                }
+                                //for all other cases where the room does exist
+                                else
+                                {
+                                    if (record.Building == bul && record.Room == ro)//match found between report and database
+                                    {
+                                        int x = 3; //for x coordinates in the worksheet, will always start back at 3 for each record
+                                        bool changes = false;
+                                        //where changes will occur, label should be above (y) and data should be below (y+1)
+                                        //note that if no changes occur, the object is skipped and the row is reserved for the next object
+                                        if (record.display1 != reader["D1MakeModel"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Display 1";
+                                            ws.Cells[y + 1, x] = reader["D1MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.serial1 != reader["D1Serial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Serial 1";
+                                            ws.Cells[y + 1, x] = reader["D1Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.screen1 != reader["D1Screen"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Screen 1";
+                                            ws.Cells[y + 1, x] = reader["D1Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (record.ip1 != reader["D1IP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "IP Address 1";
+                                            ws.Cells[y + 1, x] = reader["D1IP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.mac1 != reader["D1Mac"].ToString() && (!reader["D1Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D1Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "MAC Address 1";
+                                            ws.Cells[y + 1, x] = reader["D1MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (record.bulb1 != reader["D1Bulb"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bulb 1";
+                                            ws.Cells[y + 1, x] = reader["D1Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (record.display2 != reader["D2MakeModel"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Display 2";
+                                            ws.Cells[y + 1, x] = reader["D2MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.serial2 != reader["D2Serial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Serial 2";
+                                            ws.Cells[y + 1, x] = reader["D2Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.screen2 != reader["D2Screen"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Screen 2";
+                                            ws.Cells[y + 1, x] = reader["D2Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (record.ip2 != reader["D2IP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "IP Address 2";
+                                            ws.Cells[y + 1, x] = reader["D2IP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.mac2 != reader["D2Mac"].ToString() && (!reader["D2Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D2Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "MAC Address 2";
+                                            ws.Cells[y + 1, x] = reader["D2MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (record.bulb2 != reader["D2Bulb"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bulb 2";
+                                            ws.Cells[y + 1, x] = reader["D2Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (record.display3 != reader["D3MakeModel"].ToString())
+                                        {
+                                            ws.Cells[y, x] = "Display 3";
+                                            ws.Cells[y + 1, x] = reader["D3MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.serial3 != reader["D3Serial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Serial 3";
+                                            ws.Cells[y + 1, x] = reader["D3Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.screen3 != reader["D3Screen"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Screen 3";
+                                            ws.Cells[y + 1, x] = reader["D3Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (record.ip3 != reader["D3IP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "IP Address 3";
+                                            ws.Cells[y + 1, x] = reader["D3IP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.mac3 != reader["D3Mac"].ToString() && (!reader["D3Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D3Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "MAC Address 3";
+                                            ws.Cells[y + 1, x] = reader["D3MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (record.bulb3 != reader["D3Bulb"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bulb 3";
+                                            ws.Cells[y + 1, x] = reader["D3Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (record.display4 != reader["D4MakeModel"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Display 4";
+                                            ws.Cells[y + 1, x] = reader["D4MakeModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.serial4 != reader["D4Serial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Serial 4";
+                                            ws.Cells[y + 1, x] = reader["D4Serial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.screen4 != reader["D4Screen"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Screen 4";
+                                            ws.Cells[y + 1, x] = reader["D4Screen"].ToString();
+                                            x++;
+                                        }
+                                        if (record.ip4 != reader["D4IP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "IP Address 4";
+                                            ws.Cells[y + 1, x] = reader["D4IP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.mac4 != reader["D4Mac"].ToString() && (!reader["D4Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D4Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "MAC Address 4";
+                                            ws.Cells[y + 1, x] = reader["D4MAC"].ToString();
+                                            x++;
+                                        }
+                                        if (record.bulb4 != reader["D4Bulb"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bulb 4";
+                                            ws.Cells[y + 1, x] = reader["D4Bulb"].ToString();
+                                            x++;
+                                        }
+                                        if (record.control != reader["Controller"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Controller";
+                                            ws.Cells[y + 1, x] = reader["Controller"].ToString();
+                                            x++;
+                                        }
+                                        if (record.audio != reader["Audio"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Audio";
+                                            ws.Cells[y + 1, x] = reader["Audio"].ToString();
+                                            x++;
+                                        }
+                                        bool boolData = reader["Dock"].ToString().Equals("1");
+                                        if (record.dock != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Dock";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["Doc_Cam"].ToString().Equals("1");
+                                        if (record.docCam != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Doc Cam";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["Camera"].ToString().Equals("1");
+                                        if (record.camera != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Lecure Cam";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["Mic"].ToString().Equals("1");
+                                        if (record.mic != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Mic";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["Bluray"].ToString().Equals("1");
+                                        if (record.Bluray != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Bluray";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["DVD"].ToString().Equals("1");
+                                        if (record.DVD != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "DVD/VCR";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["VGA_Pull"].ToString().Equals("1");
+                                        if (record.vga != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "VGA Pull";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        boolData = reader["HDMI_Pull"].ToString().Equals("1");
+                                        if (record.hdmi != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "HDMI Pull";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        if (record.Cat6 != int.Parse(reader["Cat6Video"].ToString()))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Cat6 Video";
+                                            ws.Cells[y + 1, x] = reader["Cat6Video"].ToString();
+                                            x++;
+                                        }
+                                        if (record.NetPorts != int.Parse(reader["NetworkPorts"].ToString()))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Network Ports";
+                                            ws.Cells[y + 1, x] = reader["NetworkPorts"].ToString();
+                                            x++;
+                                        }
+                                        boolData = reader["AV_Panel"].ToString().Equals("1");
+                                        if (record.av != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "AV Panel";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        if (record.PCModel != reader["PCModel"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "PC Model";
+                                            ws.Cells[y + 1, x] = reader["PCModel"].ToString();
+                                            x++;
+                                        }
+                                        if (record.PCSerial != reader["PCSerial"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "PC Serial";
+                                            ws.Cells[y + 1, x] = reader["PCSerial"].ToString();
+                                            x++;
+                                        }
+                                        if (record.nucip != reader["NUCIP"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "NUC IP";
+                                            ws.Cells[y + 1, x] = reader["NUCIP"].ToString();
+                                            x++;
+                                        }
+                                        if (record.nucmac != reader["NUCMAC"].ToString() && (!reader["D4Mac"].ToString().Equals("  :  :  :  :  :") && !reader["D4Mac"].ToString().Equals("N/:A :  :  :  :")))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "NUC MAC";
+                                            ws.Cells[y + 1, x] = reader["NUCMAC"].ToString();
+                                            x++;
+                                        }
+                                        boolData = reader["Solstice"].ToString().Equals("1");
+                                        if (record.sol != boolData)
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Solstice Capable";
+                                            if (boolData)
+                                                ws.Cells[y + 1, x] = "Yes";
+                                            else
+                                                ws.Cells[y + 1, x] = "No";
+                                            x++;
+                                        }
+                                        DateTime date;
+                                        DateTime.TryParse(reader["SolsticeDate"].ToString(), out date);
+                                        if (record.solDate.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Solstice Activation Date";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+                                        if (record.solLic != reader["SolsticeLicense"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Solstice License";
+                                            ws.Cells[y + 1, x] = reader["SolsticeLicense"].ToString();
+                                            x++;
+                                        }
+                                        DateTime.TryParse(reader["Filter"].ToString(), out date);
+                                        if (record.filter.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Filter";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+                                        if (record.other != reader["Other"].ToString())
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Other Devices";
+                                            ws.Cells[y + 1, x] = reader["Other"].ToString();
+                                            x++;
+                                        }
+                                        DateTime.TryParse(reader["AlarmDate"].ToString(), out date);
+                                        if (record.alarm.ToString("MM/dd/yyyy") != date.ToString("MM/dd/yyyy"))
+                                        {
+                                            changes = true;
+                                            ws.Cells[y, x] = "Alarm Battery Replaced";
+                                            ws.Cells[y + 1, x] = date.ToString("MM/dd/yyyy");
+                                            x++;
+                                        }
+                                        if (changes)//if true, creates a new row displaying data. if false, skips this object and reserves row
+                                        {
+
+                                            Range r1;
+                                            bool note = false;
+                                            if (!reader["Notes"].ToString().Equals(""))//add in notes only if changes were recorded, not needed otherwise
+                                            {
+                                                ws.Cells[y, x] = "Notes";
+                                                ws.Cells[y + 1, x] = reader["Notes"].ToString();
+                                                note = true;
+                                            }
+
+                                            if (note)
+                                                r1 = ws.Range[ws.Cells[y, 3], ws.Cells[y, x]];
+                                            else
+                                                r1 = ws.Range[ws.Cells[y, 3], ws.Cells[y, x - 1]];
+
+                                            //formatting for data cells
+                                            r1.Font.Bold = true;
+                                            r1.Font.Color = XlRgbColor.rgbMaroon;
+                                            r1.Interior.Color = XlRgbColor.rgbWheat;
+                                            r1.Font.Size = 14;
+                                            if (note)
+                                            {
+                                                ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                                ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x]].Borders.Color = XlRgbColor.rgbBlack;
+                                            }
+                                            else
+                                            {
+                                                ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x - 1]].HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                                                ws.Range[ws.Cells[y, 3], ws.Cells[y + 1, x - 1]].Borders.Color = XlRgbColor.rgbBlack;
+                                            }
+
+                                            //formatting for building cells
+                                            ws.Cells[y + 1, 1] = record.Building;
+                                            Range r2 = ws.Range[ws.Cells[y, 1], ws.Cells[y + 1, 1]];
+                                            r2.Borders.Color = XlRgbColor.rgbBlack;
+                                            r2.Merge();
+                                            r2.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                                            r2.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+                                            //formatting for room cells
+                                            ws.Cells[y + 1, 2] = record.Room;
+                                            Range r3 = ws.Range[ws.Cells[y, 2], ws.Cells[y + 1, 2]];
+                                            r3.Borders.Color = XlRgbColor.rgbBlack;
+                                            r3.Merge();
+                                            r3.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                                            r3.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+                                            y += 2;
+                                        }
+                                        break;//no longer need to search for room, can freely break 2nd loop
                                     }
-                                    break;//no longer need to search for room, can freely break 2nd loop
                                 }
                             }//end foreach
                         }//end while
@@ -1057,7 +1875,8 @@ namespace EKU_Work_Thing
                         Range rng = (Range)ws.Range[ws.Cells[2, 1], ws.Cells[y-1, 2]];
                         rng.Interior.Color = XlRgbColor.rgbLightGray;//colors building and room columns that were used
                         ws.Columns.AutoFit();//attempts to resize all rows to fit data properly
-                        conn.Close();
+                        reader.Close();
+                        conn.Dispose();
 
                         xlApp.DisplayAlerts = false; //used because excel is stupid an will prompt again if you want to replace the file (even though s.f.d will already ask you that).
 
@@ -1388,6 +2207,8 @@ namespace EKU_Work_Thing
                     f3.Top += 100;
                     f3.Show();
                 }
+                else
+                    f3.Focus();
             }
             else
             {
@@ -1482,7 +2303,7 @@ namespace EKU_Work_Thing
                                 D3MakeModel=@D3MM,D3Serial=@D3Ser,D3Screen=@D3Scr,D3IP=@D3IP,D3MAC=@D3MAC,D3Bulb=@D3Bulb,
                                 D4MakeModel=@D4MM,D4Serial=@D4Ser,D4Screen=@D4Scr,D4IP=@D4IP,D4MAC=@D4MAC,D4Bulb=@D4Bulb,
                                 Filter=@Fil,PCModel=@PCM,PCSerial=@PCS,NUCIP=@NUCIP,NUCMAC=@NUCMAC,Cat6Video=@C6,NetworkPorts=@NP,SolsticeDate=@SolD,
-                                SolsticeLicense=@SolL,Other=@Other,Notes=@Notes WHERE Building=@B AND Room=@R;", conn);
+                                SolsticeLicense=@SolL,Other=@Other,Notes=@Notes,AlarmDate=@AD WHERE Building=@B AND Room=@R;", conn);
                 }
 
                 else//data does not exist, needs to be created
@@ -1496,7 +2317,7 @@ namespace EKU_Work_Thing
                                 @D2MM,@D2Ser,@D2Scr,@D2IP,@D2MAC,@D2Bulb,
                                 @D3MM,@D3Ser,@D3Scr,@D3IP,@D3MAC,@D3Bulb,
                                 @D4MM,@D4Ser,@D4Scr,@D4IP,@D4MAC,@D4Bulb,
-                                @Fil,@PCM,@PCS,@NUCIP,@NUCMAC,@C6,@NP,@SolD,@SolL,@Other,@Notes);", conn);
+                                @Fil,@PCM,@PCS,@NUCIP,@NUCMAC,@C6,@NP,@SolD,@SolL,@Other,@Notes,@AD);", conn);
                 }
                 cmd.Parameters.AddWithValue("@B", addBuildingComBox.Text);
                 cmd.Parameters.AddWithValue("@R", addRoomTB.Text);
@@ -1543,11 +2364,13 @@ namespace EKU_Work_Thing
                 cmd.Parameters.AddWithValue("@NUCMAC", addNUCMACTB.Text);
                 cmd.Parameters.AddWithValue("@C6", addCatVidTB.Text);
                 cmd.Parameters.AddWithValue("@NP", addNetTB.Text);
-                DateTime.TryParse(addSolActTB.Text, out date);
+                DateTime.TryParse(addSolDate.Text, out date);
                 cmd.Parameters.AddWithValue("@SolD", date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@SolL", addSolLicTB.Text);
                 cmd.Parameters.AddWithValue("@Other", addOtherTB.Text);
                 cmd.Parameters.AddWithValue("@Notes", addDscrptTB.Text);
+                DateTime.TryParse(addAlarm.Text, out date);
+                cmd.Parameters.AddWithValue("@AD", date.ToString("yyyy-MM-dd"));
 
                 cmd.ExecuteNonQuery();
                 MessageBox.Show("Inventory information successfully added.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
@@ -2051,6 +2874,7 @@ namespace EKU_Work_Thing
             MessageBox.Show("Testing information added successfully.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }//done
 
+        //clear testing tables
         private void testClear_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show("Are you sure you want to clear?", "Notice", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -2061,6 +2885,7 @@ namespace EKU_Work_Thing
                 testRoom.Text = "";
                 testName.Text = "";
                 testNotesTB.Text = "";
+                testDate.Text = DateTime.Now.ToShortDateString();
             }
         }
 
@@ -2252,7 +3077,195 @@ namespace EKU_Work_Thing
                 testIPTVDGV.Rows[i].Cells[4].Value = "";
             }
         }
-        
+
+        //Changes the formating of the date when a date is selected
+        private void addFilter_ValueChanged(object sender, EventArgs e)
+        {
+            addFilter.Format = DateTimePickerFormat.Custom;
+            addFilter.CustomFormat = "MM/dd/yyyy";
+        }
+        private void addAlarm_ValueChanged(object sender, EventArgs e)
+        {
+            addAlarm.Format = DateTimePickerFormat.Custom;
+            addAlarm.CustomFormat = "MM/dd/yyyy";
+        }
+        private void addSolActTB_ValueChanged(object sender, EventArgs e)
+        {
+            addSolDate.Format = DateTimePickerFormat.Custom;
+            addSolDate.CustomFormat = "MM/dd/yyyy";
+        }
+
+        //formats the date at the start of the program
+        private void formatDateTimePickers()
+        {
+            addFilter.Format = DateTimePickerFormat.Custom;
+            addFilter.CustomFormat = " ";
+            addAlarm.Format = DateTimePickerFormat.Custom;
+            addAlarm.CustomFormat = " ";
+            addSolDate.Format = DateTimePickerFormat.Custom;
+            addSolDate.CustomFormat = " ";
+            testDate.Format = DateTimePickerFormat.Custom;
+            testDate.CustomFormat = "MM/dd/yyyy";
+        }
+
+        private void maintChecked(object sender, EventArgs e)
+        {
+            updateMaintTable(maintFilter.Checked, maintTesting.Checked);
+            //make function to check state of checkboxes and return updated table
+        }
+
+        private void updateMaintTable(bool filt, bool test)
+        {
+            System.Data.DataTable dt = new System.Data.DataTable();
+            //data will be use to create a custom sorted table that can sort by building, then by room
+            dt.Columns.Add("Building", typeof(string));
+            dt.Columns.Add("Room", typeof(string));
+            dt.Columns.Add("Last Cleaned", typeof(string));
+            dt.Columns.Add("Alarm Replaced", typeof(string));
+            dt.Columns.Add("Testing/Maintenance Completed", typeof(string));
+            foreach (var room in campusData)
+            {
+                //if both are selected
+                if (filt && test)
+                {
+                    int timeFrame;
+                    switch (room.Cycle)
+                    {
+                        case "Expedited":
+                            timeFrame = 0;
+                            break;
+                        case "Monthly":
+                            timeFrame = -1;
+                            break;
+                        case "Quarterly":
+                            timeFrame = -3;
+                            break;
+                        case "Semi-Annually":
+                            timeFrame = -6;
+                            break;
+                        case "Annually":
+                            timeFrame = -12;
+                            break;
+                        default:
+                            timeFrame = -3;
+                            break;
+                    }
+                    if (room.filter <= DateTime.Now.AddMonths(timeFrame) || room.tested <= DateTime.Now.AddMonths(-3)) //adds the room if one or the other is true
+                    {
+                        //adds room to the maintenance list
+                        string f, a, t;
+                        if (room.filter.ToShortDateString().Equals("1/1/0001"))
+                            f = "N/A";
+                        else
+                            f = room.filter.ToShortDateString();
+                        if (room.alarm.ToShortDateString().Equals("1/1/0001"))
+                            a = "N/A";
+                        else
+                            a = room.alarm.ToShortDateString();
+                        if (room.alarm.ToShortDateString().Equals("1/1/0001"))
+                            a = "N/A";
+                        else
+                            a = room.alarm.ToShortDateString();
+                        if (room.tested.ToShortDateString().Equals("1/1/0001"))
+                            t = "N/A";
+                        else
+                            t = room.tested.ToShortDateString();
+                        dt.Rows.Add(room.Building, room.Room, f, a, t);
+                    }
+                }
+                else if (filt) //if only filters is selected
+                {
+                    int timeFrame;
+                    switch (room.Cycle)
+                    {
+                        case "Expedited":
+                            timeFrame = 0;
+                            break;
+                        case "Monthly":
+                            timeFrame = -1;
+                            break;
+                        case "Quarterly":
+                            timeFrame = -3;
+                            break;
+                        case "Semi-Annually":
+                            timeFrame = -6;
+                            break;
+                        case "Annually":
+                            timeFrame = -12;
+                            break;
+                        default:
+                            timeFrame = -3;
+                            break;
+                    }
+                    if (room.filter <= DateTime.Now.AddMonths(timeFrame))
+                    {
+                        //adds room to the maintenance list
+                        string f, a, t;
+                        if (room.filter.ToShortDateString().Equals("1/1/0001"))
+                            f = "N/A";
+                        else
+                            f = room.filter.ToShortDateString();
+                        if (room.alarm.ToShortDateString().Equals("1/1/0001"))
+                            a = "N/A";
+                        else
+                            a = room.alarm.ToShortDateString();
+                        if (room.alarm.ToShortDateString().Equals("1/1/0001"))
+                            a = "N/A";
+                        else
+                            a = room.alarm.ToShortDateString();
+                        if (room.tested.ToShortDateString().Equals("1/1/0001"))
+                            t = "N/A";
+                        else
+                            t = room.tested.ToShortDateString();
+                        dt.Rows.Add(room.Building, room.Room, f, a, t);
+                    }
+                }
+                else if (test) //if only testing is selected
+                {
+                    if (room.tested <= DateTime.Now.AddMonths(-3))
+                    {
+                        //adds room to the maintenance list
+                        string f, a, t;
+                        if (room.filter.ToShortDateString().Equals("1/1/0001"))
+                            f = "N/A";
+                        else
+                            f = room.filter.ToShortDateString();
+                        if (room.alarm.ToShortDateString().Equals("1/1/0001"))
+                            a = "N/A";
+                        else
+                            a = room.alarm.ToShortDateString();
+                        if (room.alarm.ToShortDateString().Equals("1/1/0001"))
+                            a = "N/A";
+                        else
+                            a = room.alarm.ToShortDateString();
+                        if (room.tested.ToShortDateString().Equals("1/1/0001"))
+                            t = "N/A";
+                        else
+                            t = room.tested.ToShortDateString();
+                        dt.Rows.Add(room.Building, room.Room, f, a, t);
+                    }
+                }
+            }
+            if (filt || test)
+            {
+                DataView dv = dt.DefaultView;
+                dv.Sort = "Building ASC, Room ASC";
+                maintenanceDGV.DataSource = dv;
+                dt = null;
+                maintenanceDGV.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                maintenanceDGV.Columns[0].Width = 180;
+                maintenanceDGV.Columns[1].Width = 110;
+                maintenanceDGV.Columns[2].Width = 75;
+                maintenanceDGV.Columns[3].Width = 75;
+                maintenanceDGV.Columns[4].Width = 125;
+            }
+            else
+            {
+                maintenanceDGV.DataSource = null;
+            }
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        }
     }//end Form1
 
     //save information about a room into an object

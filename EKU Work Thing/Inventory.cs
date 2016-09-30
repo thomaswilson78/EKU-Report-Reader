@@ -25,27 +25,25 @@ namespace EKU_Work_Thing
         {
             invcolDGV.Rows.Clear();
             //load data into table
-            SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;");
-            try
+            using (SQLiteConnection conn = new SQLiteConnection("Data Source=ReportDB.sqlite;Version=3;"))
             {
-                conn.Open();
-                SQLiteCommand cmd = new SQLiteCommand("SELECT Building,Room FROM inventory_collected;", conn);
-                SQLiteDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                    invcolDGV.Rows.Add(reader["Building"].ToString(), reader["Room"].ToString(), "Edit", false);
-                cmd.Dispose();
-                reader.Close();
+                try
+                {
+                    conn.Open();
+                    SQLiteCommand cmd = new SQLiteCommand("SELECT Building,Room FROM inventory_collected;", conn);
+                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                        invcolDGV.Rows.Add(reader["Building"].ToString(), reader["Room"].ToString(), "Edit", false);
+                    cmd.Dispose();
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            }
-            finally
-            {
-                conn.Dispose();
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
-            }
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
         }
         //load information into inventory tab
         private void invcolDGV_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -107,9 +105,9 @@ namespace EKU_Work_Thing
                         DateTime t;
                         DateTime.TryParse(reader["Filter"].ToString(), out t);
                         if (!t.ToString("MM/dd/yyyy").Equals("01/01/0001"))
-                            f1.addFilter.Text = t.ToString("MM/dd/yyyy");
+                            f1.addFilter.Text = t.ToString();
                         else
-                            f1.addFilter.Text = "";
+                            f1.addFilter.CustomFormat = " ";
                         f1.addPCModTB.Text = reader["PCModel"].ToString();
                         f1.addPCSerialTB.Text = reader["PCSerial"].ToString();
                         f1.addNUCIPTB.Text = reader["NUCIP"].ToString();
@@ -118,9 +116,14 @@ namespace EKU_Work_Thing
                         f1.addNetTB.Text = reader["NetworkPorts"].ToString();
                         DateTime.TryParse(reader["SolsticeDate"].ToString(), out t);
                         if (!t.ToString("MM/dd/yyyy").Equals("01/01/0001"))
-                            f1.addSolActTB.Text = t.ToString("MM/dd/yyyy");
+                            f1.addSolDate.Text = t.ToString();
                         else
-                            f1.addSolActTB.Text = "";
+                            f1.addSolDate.CustomFormat = " ";
+                        DateTime.TryParse(reader["AlarmDate"].ToString(), out t);
+                        if (!t.ToString("MM/dd/yyyy").Equals("01/01/0001"))
+                            f1.addSolDate.Text = t.ToString();
+                        else
+                            f1.addSolDate.CustomFormat = " ";
                         f1.addSolLicTB.Text = reader["SolsticeLicense"].ToString();
                         f1.addOtherTB.Text = reader["Other"].ToString();
                         f1.addDscrptTB.Text = reader["Notes"].ToString();

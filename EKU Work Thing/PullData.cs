@@ -82,7 +82,11 @@ namespace EKU_Work_Thing
             if (exactRoom.filter.ToString("MM/dd/yyyy") != "01/01/0001")
                 f1.addFilter.Text = exactRoom.filter.ToString("MM/dd/yyyy");
             else
-                f1.addFilter.Text = "";
+                f1.addFilter.CustomFormat = " ";
+            if (exactRoom.alarm.ToString("MM/dd/yyyy") != "01/01/0001")
+                f1.addAlarm.Text = exactRoom.alarm.ToString("MM/dd/yyyy");
+            else
+                f1.addAlarm.CustomFormat = " ";
             f1.addPCModTB.Text = exactRoom.PCModel;
             f1.addPCSerialTB.Text = exactRoom.PCSerial;
             f1.addNUCIPTB.Text = exactRoom.nucip;
@@ -90,12 +94,12 @@ namespace EKU_Work_Thing
             f1.addCatVidTB.Text = exactRoom.Cat6.ToString();
             f1.addNetTB.Text = exactRoom.NetPorts.ToString();
             if (exactRoom.solDate.ToString("MM/dd/yyyy") != "01/01/0001")
-                f1.addSolActTB.Text = exactRoom.solDate.ToString("MM/dd/yyyy");
+                f1.addSolDate.Text = exactRoom.solDate.ToString("MM/dd/yyyy");
             else
-                f1.addSolActTB.Text = "";
+                f1.addSolDate.CustomFormat = " ";
             f1.addOtherTB.Text = exactRoom.other;
             f1.Refresh();
-            this.Close();
+            Close();
         }
         //changes rooms based on building selected
         private void BuildingCB_SelectedIndexChanged(object sender, EventArgs e)

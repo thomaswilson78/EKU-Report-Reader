@@ -40,3 +40,4 @@ C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Release\EKU Report Reader.csproj.GenerateResource.Cache
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Release\EKU Report Reader.exe
 C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Release\EKU Report Reader.pdb
+C:\Users\it\Documents\Visual Studio 2015\Projects\EKU Report Reader - Stable\EKU Work Thing\obj\x86\Release\EKU Report Reader.csprojResolveAssemblyReference.cache
